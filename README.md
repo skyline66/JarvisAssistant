@@ -1,14 +1,11 @@
 # J.A.R.V.I.S. 桌面智能助理
 
-<p align="center">
-  <img src="https://img.shields.io/github/stars/skyline66/JarvisAssistant?style=flat-square&color=00e5ff" alt="GitHub stars"/>
-  <img src="https://img.shields.io/badge/version-v1.3.0-00e5ff?style=flat-square" alt="version"/>
-  <img src="https://img.shields.io/github/actions/workflow/status/skyline66/JarvisAssistant/ci.yml?style=flat-square" alt="CI"/>
-  <img src="https://img.shields.io/badge/Python-3.9%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"/>
-  <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="License"/>
-  <img src="https://img.shields.io/badge/Platform-Windows-0078D6?style=flat-square&logo=windows&logoColor=white" alt="Platform"/>
-  <img src="https://img.shields.io/badge/TTS-edge--tts%20%28free%29-4FC08D?style=flat-square" alt="TTS"/>
-</p>
+
+
+![Version](https://img.shields.io/badge/version-v1.4.0-00e5ff?style=flat-square)
+![GitHub stars](https://img.shields.io/github/stars/skyline66/JarvisAssistant?style=flat-square\&color=00e5ff)
+![License](https://img.shields.io/badge/license-MIT-00ff9c?style=flat-square)
+![CI](https://img.shields.io/github/actions/workflow/status/skyline66/JarvisAssistant/ci.yml?style=flat-square\&label=CI)
 
 托尼・斯塔克同款桌面语音助理：**语音对话 + 免费神经语音回复 + 实时字幕 + 酷炫全息界面 + 系统级命令执行**。
 
@@ -27,9 +24,7 @@
 * **语音**：点击「⚡ 唤醒」开启连续聆听，说 **“贾维斯”** 唤醒后再下达指令；或按住「🎤 按住说话」直接说。
 
 > 语音识别与语音合成均使用
->
 > **免费方案**
->
 > ：浏览器 Web Speech API（识别）+ Microsoft edge-tts 神经语音（合成，无需任何 Key）。没有网络时自动降级为浏览器本地语音朗读。
 
 ## 系统权限说明
@@ -46,40 +41,47 @@
 
 
 
-| 分类        | 指令示例                                                     |
-| --------- | -------------------------------------------------------- |
-| 语音 / 文字对话 | “你好” “现在几点” “今天星期几”                                      |
-| 应用控制      | “打开记事本 / 计算器 / 微信 / Chrome” “关闭记事本”                      |
-| 网页 / 搜索   | “打开 [bilibili.com](https://bilibili.com)” “搜索 Python 教程” |
-| 系统控制      | “调大音量” “音量调到 30” “静音” “锁屏” “睡眠” “截图”                     |
-| 信息查询      | “深圳明天天气” “北京天气” “今天有什么新闻” “系统状态” “磁盘空间”                  |
-| 计算        | “计算 3.14\*8” “2 的 10 次方”                                 |
-| 办公备忘      | “记下买牛奶” “查看备忘”                                           |
-| 定时提醒      | “提醒我 30 分钟后喝水” “明天 9 点提醒我开会” “查看提醒”                      |
-| 剪贴板       | “剪贴板有什么” “复制 这段内容”                                       |
-| 文件目录      | “打开下载文件夹” “打开 D:/ 工作”                                    |
-| 知识问答      | “太阳系有几大行星” “圆周率是多少”                                      |
-| 趣味        | “讲个笑话” “给我一句名言”                                          |
-| Agent 深度对话 | 接入任意厂商大模型后：多轮上下文 + 自动调用工具（天气/新闻/计算/系统状态/备忘/搜索）+ 流式输出 |
+| 分类         | 指令示例                                                           |
+| ---------- | -------------------------------------------------------------- |
+| 语音 / 文字对话  | “你好” “现在几点” “今天星期几”                                            |
+| 应用控制       | “打开记事本 / 计算器 / 微信 / Chrome” “关闭记事本”                            |
+| 网页 / 搜索    | “打开 [bilibili.com](https://bilibili.com)” “搜索 Python 教程”       |
+| 系统控制       | “调大音量” “音量调到 30” “静音” “锁屏” “睡眠” “截图”                           |
+| 信息查询       | “深圳明天天气” “北京天气” “今天有什么新闻” “系统状态” “磁盘空间”                        |
+| 计算         | “计算 3.14\*8” “2 的 10 次方”                                       |
+| 办公备忘       | “记下买牛奶” “查看备忘”                                                 |
+| 定时提醒       | “提醒我 30 分钟后喝水” “明天 9 点提醒我开会” “查看提醒”                            |
+| 剪贴板        | “剪贴板有什么” “复制 这段内容”                                             |
+| 文件目录       | “打开下载文件夹” “打开 D:/ 工作”                                          |
+| 知识问答       | “太阳系有几大行星” “圆周率是多少”                                            |
+| 趣味         | “讲个笑话” “给我一句名言”                                                |
+| 智能家居       | “打开客厅灯” “空调调到 24 度” “关窗帘” “扫地机器人开始工作”；左侧「🏠 家居」面板可视化直控（开关 / 亮度 / 温度滑块），可选接入 Home Assistant 真实设备 |
+| Agent 深度对话 | 接入任意厂商大模型后：多轮上下文 + 自动调用工具（天气 / 新闻 / 计算 / 系统状态 / 备忘 / 搜索）+ 流式输出 |
 
 ## 接入 AI 大脑（Agent 模式，可选但推荐）
 
 点击右上角 **⚙ 设置**，选择 **服务厂商**（下拉一键切换）：
 
-| 厂商 | API 地址（默认） | 推荐模型 |
-|---|---|---|
-| DeepSeek 深度求索 | `https://api.deepseek.com/v1` | `deepseek-chat` |
-| OpenAI | `https://api.openai.com/v1` | `gpt-4o-mini` |
-| 通义千问 Qwen | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `qwen-plus` |
-| Kimi 月之暗面 | `https://api.moonshot.cn/v1` | `moonshot-v1-8k` |
-| 智谱清言 GLM | `https://open.bigmodel.cn/api/paas/v4` | `glm-4-flash` |
-| Google Gemini | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-2.0-flash` |
-| Anthropic Claude | `https://api.anthropic.com` | `claude-sonnet-4-20250514` |
-| OpenRouter 聚合 | `https://openrouter.ai/api/v1` | `openrouter/auto` |
-| 自定义 | 任意 OpenAI 兼容地址 | 自定义模型名 |
+
+
+| 厂商               | API 地址（默认）                                                | 推荐模型                       |
+| ---------------- | --------------------------------------------------------- | -------------------------- |
+| DeepSeek 深度求索    | `https://api.deepseek.com/v1`                             | `deepseek-chat`            |
+| OpenAI           | `https://api.openai.com/v1`                               | `gpt-4o-mini`              |
+| 通义千问 Qwen        | `https://dashscope.aliyuncs.com/compatible-mode/v1`       | `qwen-plus`                |
+| Kimi 月之暗面        | `https://api.moonshot.cn/v1`                              | `moonshot-v1-8k`           |
+| 智谱清言 GLM         | `https://open.bigmodel.cn/api/paas/v4`                    | `glm-4-flash`              |
+| Google Gemini    | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-2.0-flash`         |
+| Anthropic Claude | `https://api.anthropic.com`                               | `claude-sonnet-4-20250514` |
+| OpenRouter 聚合    | `https://openrouter.ai/api/v1`                            | `openrouter/auto`          |
+| 自定义              | 任意 OpenAI 兼容地址                                            | 自定义模型名                     |
+
+
 
 1. 选择厂商（自动填入默认地址与模型）→ 填入对应 **API Key** → 勾选 **启用 AI 大脑** → 保存；
+
 2. 各厂商的 Key 独立保存，切换厂商无需重新输入；
+
 3. 之后贾维斯进入 **Agent 模式**：未命中本地指令时调用大模型深度回答，支持**多轮上下文记忆**，并会自动调用工具（天气 / 新闻 / 计算 / 系统状态 / 备忘 / 网页搜索）获取实时数据，回答**流式逐字输出**，工具调用过程在右侧「🧠 上下文」面板可见。
 
 未配置 Key 时，贾维斯使用 **本地意图引擎 + 中文维基百科 + 网页搜索** 兜底，开箱即用。
@@ -89,14 +91,29 @@
 
 
 * **中央全息核心**：待命（慢速光环）/ 聆听（加速）/ 思考（金色）/ 播报（波动条动画）；4 套动效主题可切换（全息能量环 / 粒子漩涡 / 线框能量球 / 极光脉冲）；
+
 * **底部大字幕**：实时显示贾维斯说的话（逐字输出，与语音同步）；
+
 * **右侧日志面板**：完整交互记录；顶部实时显示 CPU / 内存 / 磁盘占用；
+
 * **🧠 上下文面板**：Agent 模式下的多轮对话记录与工具调用过程（⚙ 工具名 + 结果），点击日志面板右上角「🧠 上下文」展开；
-* **常用指令快捷芯片**：一键发送高频指令。
+
+* **常用指令快捷芯片**：底部「🎲 换一批」动态提示词 —— 每次进入 / 每次对话 / 点击换一批都会**随机轮换**，内容结合**当前热点新闻**（科技 / 财经）、**你的所在城市与会话记录**（聊过天气就推天气、聊过备忘就推备忘）以及智能家居玩法，始终给你“感兴趣”的下一步建议。
+
+## 智能家居玩法（🏠 家居）
+
+
+
+* **开箱即用**：内置 8 个本地模拟设备（客厅灯 / 卧室灯 / 空调 / 窗帘 / 电视 / 风扇 / 加湿器 / 扫地机器人），状态持久化，**语音 / 文字指令**直接控制并**语音回复**结果——“打开客厅灯”“空调调到 24 度”“关窗帘”“客厅灯开着吗”；
+* **可视化面板**：日志面板右上角「🏠 家居」展开设备卡，开关一键切换、空调温度 / 灯光亮度滑块实时直控，语音指令与面板操作**双向同步**（任何一端操作，所有端即时刷新）；
+* **接入真实设备（可选）**：设置 → 智能家居 → 填写 Home Assistant 地址与长期访问令牌，指令自动转发到 HA REST API（灯光 / 空调 / 电视 / 风扇），失败自动回落本地模拟。
 
 ## 语音定制（设置 → 语音）
 
+
+
 * **39 个免费神经音色**，分 **女声（中文）14 / 男声（中文）9 / 英文 8 / 多语言 8** 四组，也可直接填写任意音色名（如 `zh-CN-XiaoyiNeural`）；
+
 * **语速 / 音量 / 音调**三滑块实时调节，一键「试听」立即预览效果。
 
 ## 技术架构
@@ -110,6 +127,7 @@ Python 服务 (aiohttp)
         ├─ 大脑 Brain：意图识别 → 命令路由 / Agent（多厂商 LLM + 工具调用 + 多轮上下文 + 流式）
         ├─ 命令引擎 commands：PowerShell 系统控制
         ├─ 语音合成 tts_engine：edge-tts 免费神经语音 (MP3，39 音色 + 语速/音量/音调)
+        ├─ 智能家居 smart_home：本地设备中枢 + Home Assistant REST 桥接
         ├─ 信息服务：Open-Meteo 天气 / 维基百科 / Bing 新闻 RSS / DuckDuckGo 摘要
         └─ 后台任务：定时提醒、系统状态推送、音频清理
 ```
@@ -124,6 +142,7 @@ JarvisAssistant/
 ├─ start.py            启动器（自动装依赖、开服务、开界面）
 ├─ jarvis_server.py    主服务（WebSocket + 路由 + 后台任务）
 ├─ brain.py            意图识别与对话大脑
+├─ smart_home.py       智能家居中枢（本地设备 + HA 桥接）
 ├─ commands.py         系统命令执行引擎
 ├─ tts_engine.py       免费语音合成
 ├─ config.py           配置与记忆管理
@@ -159,36 +178,67 @@ JarvisAssistant/
 
 仓库已配置 CI 工作流（`.github/workflows/ci.yml`）：
 
-- **每次 push / PR**：自动在 Windows 环境运行 `test_jarvis.py` 集成测试（意图识别 / 命令引擎 / edge-tts 语音 / WS 端到端 / 天气），通过后自动打包单文件 EXE，产物可在 Actions 页面下载。
-- **打版本标签**：`git tag v1.1.0 && git push origin v1.1.0` 会自动发布 GitHub Release 并附带 EXE 安装文件。
-- 也可以在 Actions 页面手动触发（workflow_dispatch）。
+
+
+* **每次 push / PR**：自动在 Windows 环境运行 `test_jarvis.py` 集成测试（意图识别 / 命令引擎 /edge-tts 语音 / WS 端到端 / 天气），通过后自动打包单文件 EXE，产物可在 Actions 页面下载。
+
+* **打版本标签**：`git tag v1.1.0 && git push origin v1.1.0` 会自动发布 GitHub Release 并附带 EXE 安装文件。
+
+* 也可以在 Actions 页面手动触发（workflow\_dispatch）。
 
 ## 两个发布版本
 
 本项目提供 **EXE 桌面版** 与 **Web 部署版** 两种形态：
 
-| 版本 | 文件 | 说明 |
-|---|---|---|
-| EXE 桌面版 | `JarvisAssistant.exe`（见 `JarvisAssistant_exe/`） | 单文件免安装，双击即运行，自动打开界面；无需 Python 环境 |
-| Web 部署版 | `JarvisAssistant_web/`（或 `JarvisAssistant_web.zip`） | 可部署到局域网/服务器，手机等设备通过浏览器访问；详见 `README_web.md` |
 
-- EXE 版运行后数据（config.json / 备忘 / 截图）保存在 exe 同目录。
-- Web 版默认监听 `0.0.0.0`；远程访问时**语音输入需 HTTPS**（文字、字幕、语音播放不受影响）。
+
+| 版本      | 文件                                                  | 说明                                            |
+| ------- | --------------------------------------------------- | --------------------------------------------- |
+| EXE 桌面版 | `JarvisAssistant.exe`（见 `JarvisAssistant_exe/`）     | 单文件免安装，双击即运行，自动打开界面；无需 Python 环境              |
+| Web 部署版 | `JarvisAssistant_web/`（或 `JarvisAssistant_web.zip`） | 可部署到局域网 / 服务器，手机等设备通过浏览器访问；详见 `README_web.md` |
+
+
+
+* EXE 版运行后数据（config.json/ 备忘 / 截图）保存在 exe 同目录。
+
+* Web 版默认监听 `0.0.0.0`；远程访问时**语音输入需 HTTPS**（文字、字幕、语音播放不受影响）。
+
+## v1.4 更新记录
+
+
+
+* **新增**：**动态智能提示词** —— 底部快捷芯片不再固定，每次进入 / 每次对话 / 点击「🎲 换一批」随机轮换；内容结合**当前热点**（科技 / 财经新闻实时标题）、**地点与会话记录**（聊过天气推天气、聊过备忘推备忘）与智能家居玩法，自动去重取 10 条随机展示 5 条。
+
+* **新增**：**智能家居玩法** —— 8 个内置设备（灯 / 空调 / 窗帘 / 电视 / 风扇 / 加湿器 / 扫地机）语音与文字控制、语音回复，状态持久化；左侧「🏠 家居」可视化面板（开关 / 温度 / 亮度滑块）与语音指令双向同步；可选接入 **Home Assistant** 真实设备（设置中填 HA 地址 + 令牌）。
+
+* **修复**：设置中语速 / 音量 / 音调为 0 时保存的 `0%` / `0Hz` 无法合成语音的问题（服务端自动归一化为 `+0%` / `+0Hz`）。
 
 ## v1.3 更新记录
 
-- **新增**：**Agent 能力** —— 未命中本地指令时进入 Agent 模式：多轮上下文记忆 + 自动调用工具（天气 / 新闻 / 计算 / 系统状态 / 磁盘 / 备忘 / 网页搜索）获取实时数据，回答**流式逐字输出**，工具调用过程在「🧠 上下文」面板实时展示（类似 DeepSeek Harness Web 的可见推理体验）。
-- **新增**：**多厂商接入** —— 设置中下拉切换 DeepSeek / OpenAI / 通义千问 / Kimi / 智谱 GLM / Gemini / Claude / OpenRouter / 自定义（OpenAI 兼容），各厂商 Key 独立保存。
-- **新增**：**语音定制** —— 39 个神经音色分女声 / 男声 / 英文 / 多语言四组选择，支持自定义音色名、语速 / 音量 / 音调三滑块调节，一键「试听」。
+
+
+* **新增**：**Agent 能力** —— 未命中本地指令时进入 Agent 模式：多轮上下文记忆 + 自动调用工具（天气 / 新闻 / 计算 / 系统状态 / 磁盘 / 备忘 / 网页搜索）获取实时数据，回答**流式逐字输出**，工具调用过程在「🧠 上下文」面板实时展示（类似 DeepSeek Harness Web 的可见推理体验）。
+
+* **新增**：**多厂商接入** —— 设置中下拉切换 DeepSeek / OpenAI / 通义千问 / Kimi / 智谱 GLM / Gemini / Claude / OpenRouter / 自定义（OpenAI 兼容），各厂商 Key 独立保存。
+
+* **新增**：**语音定制** —— 39 个神经音色分女声 / 男声 / 英文 / 多语言四组选择，支持自定义音色名、语速 / 音量 / 音调三滑块调节，一键「试听」。
 
 ## v1.2 更新记录
 
-- **新增**：中央核心动效背景 **4 套主题可随时切换**（全息能量环 / 粒子漩涡 / 线框能量球 / 极光脉冲）——点击核心下方「主题」按钮轮换，或右上角 ⚙ 设置中固定选择，选择会本地记忆。
-- **新增**：**三态视觉区分** —— 待命（青蓝呼吸环）/ 倾听中（绿色波纹 + 声波跳动）/ 执行任务中（金色能量急速环 + 双脉冲），字幕与状态灯同步联动。
+
+
+* **新增**：中央核心动效背景 **4 套主题可随时切换**（全息能量环 / 粒子漩涡 / 线框能量球 / 极光脉冲）—— 点击核心下方「主题」按钮轮换，或右上角 ⚙ 设置中固定选择，选择会本地记忆。
+
+* **新增**：**三态视觉区分** —— 待命（青蓝呼吸环）/ 倾听中（绿色波纹 + 声波跳动）/ 执行任务中（金色能量急速环 + 双脉冲），字幕与状态灯同步联动。
 
 ## v1.1 更新记录
 
-- **修复**：用户消息重复显示（去除服务端回显，日志中每条消息仅出现一次）。
-- **新增**：首次进入引导弹窗 —— 使用简介 + 一键授权麦克风 + API Key 配置入口（可勾选“下次不再显示”）。
-- **新增**：顶部 API Key 提示横幅 —— 未配置 Key 时持续提示，点击直达设置；配置后自动隐藏。
-- **新增**：EXE 免安装桌面版 与 Web 局域网部署版两种打包形态。
+
+
+* **修复**：用户消息重复显示（去除服务端回显，日志中每条消息仅出现一次）。
+
+* **新增**：首次进入引导弹窗 —— 使用简介 + 一键授权麦克风 + API Key 配置入口（可勾选 “下次不再显示”）。
+
+* **新增**：顶部 API Key 提示横幅 —— 未配置 Key 时持续提示，点击直达设置；配置后自动隐藏。
+
+* **新增**：EXE 免安装桌面版 与 Web 局域网部署版两种打包形态。
