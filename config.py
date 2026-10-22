@@ -29,11 +29,23 @@ DEFAULTS = {
     "server": {"host": "127.0.0.1", "port": 8770},
     "llm": {
         "enabled": False,
-        "base_url": "https://api.deepseek.com/v1",
+        "provider": "deepseek",
+        "base_url": "",
         "api_key": "",
-        "model": "deepseek-chat",
+        "model": "",
+        "providers": {
+            "deepseek": {"base_url": "https://api.deepseek.com/v1", "model": "deepseek-chat", "label": "DeepSeek 深度求索"},
+            "openai": {"base_url": "https://api.openai.com/v1", "model": "gpt-4o-mini", "label": "OpenAI"},
+            "qwen": {"base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1", "model": "qwen-plus", "label": "通义千问 Qwen"},
+            "kimi": {"base_url": "https://api.moonshot.cn/v1", "model": "moonshot-v1-8k", "label": "Kimi 月之暗面"},
+            "glm": {"base_url": "https://open.bigmodel.cn/api/paas/v4", "model": "glm-4-flash", "label": "智谱清言 GLM"},
+            "gemini": {"base_url": "https://generativelanguage.googleapis.com/v1beta/openai", "model": "gemini-2.0-flash", "label": "Google Gemini"},
+            "claude": {"base_url": "https://api.anthropic.com", "model": "claude-sonnet-4-20250514", "label": "Anthropic Claude"},
+            "openrouter": {"base_url": "https://openrouter.ai/api/v1", "model": "openrouter/auto", "label": "OpenRouter 聚合"},
+            "custom": {"base_url": "", "model": "", "label": "自定义（OpenAI 兼容）"},
+        },
     },
-    "tts": {"voice": "zh-CN-XiaoxiaoNeural", "rate": "+0%", "volume": "+0%"},
+    "tts": {"voice": "zh-CN-XiaoxiaoNeural", "rate": "+0%", "volume": "+0%", "pitch": "+0Hz"},
     "location": {"city": "深圳", "latitude": 22.5431, "longitude": 114.0579},
     "open_browser_after_start": True,
 }
@@ -58,6 +70,12 @@ def load_config():
     cfg = json.loads(json.dumps(DEFAULTS))
     for k, v in data.items():
         if isinstance(v, dict) and isinstance(cfg.get(k), dict):
+            if k == "llm" and isinstance(v.get("providers"), dict):
+                merged = dict(cfg[k].get("providers", {}))
+                for pk, pv in v["providers"].items():
+                    if isinstance(pv, dict):
+                        merged[pk] = {**cfg[k]["providers"].get(pk, {}), **pv}
+                v["providers"] = merged
             cfg[k].update(v)
         else:
             cfg[k] = v
