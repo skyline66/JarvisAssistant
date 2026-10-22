@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>J.A.R.V.I.S. 桌面智能助理</title>
+<style>
+:root{
+  --cyan:#00e5ff; --cyan-dim:#0aa8c8; --gold:#ffd166; --blue:#2f6bff;
+  --bg:#030810; --glass:rgba(8,22,40,.55); --line:rgba(0,229,255,.25);
+  --txt:#d8f6ff; --dim:#7fb6cc;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
+  font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif}
+#bg{position:fixed;inset:0;z-index:0}
+.grid-floor{position:fixed;left:-20%;right:-20%;bottom:-40%;height:70%;z-index:1;pointer-events:none;
+  transform:perspective(620px) rotateX(62deg);transform-origin:center bottom;
+  background:repeating-linear-gradient(90deg,rgba(0,229,255,.14) 0 1px,transparent 1px 56px),
+             repeating-linear-gradient(0deg,rgba(0,229,255,.10) 0 1px,transparent 1px 56px);
+  -webkit-mask-image:linear-gradient(to top,rgba(0,0,0,.95) 0%,transparent 70%);
+          mask-image:linear-gradient(to top,rgba(0,0,0,.95) 0%,transparent 70%);
+  animation:gridmove 14s linear infinite}
+@keyframes gridmove{from{background-position:0 0}to{background-position:0 112px}}
+.scanlines{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.5;mix-blend-mode:overlay;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 1px,transparent 1px 3px)}
+.vignette{position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 38%,transparent 40%,rgba(1,4,12,.75) 100%)}
+
+/* ---------- 顶栏 ---------- */
+header{position:fixed;top:0;left:0;right:0;height:56px;z-index:20;display:flex;align-items:center;
+  padding:0 20px;background:linear-gradient(180deg,rgba(4,14,28,.85),rgba(4,14,28,.35));
+  border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
+.brand{display:flex;align-items:center;gap:12px;font-size:20px;letter-spacing:2px;font-weight:700;
+  color:#fff;text-shadow:0 0 12px var(--cyan),0 0 28px rgba(0,229,255,.45)}
+.brand .dot{width:12px;height:12px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.8)}}
+#statusBadge{margin-left:18px;font-size:13px;color:var(--dim);display:flex;align-items:center;gap:8px}
+#statusDot{width:8px;height:8px;border-radius:50%;background:#4c6a78;transition:all .3s}
+#statusDot.on{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+#statusDot.busy{background:var(--gold);box-shadow:0 0 8px var(--gold)}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:16px}
+.stat{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim)}
+.stat b{color:var(--txt);font-weight:600}
+.minibar{width:54px;height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+.minibar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--blue));transition:width .8s}
+#clock{font-size:14px;color:var(--txt);letter-spacing:1px}
+.iconbtn{background:transparent;border:1px solid var(--line);color:var(--cyan);width:34px;height:34px;
+  border-radius:8px;cursor:pointer;font-size:16px;transition:all .2s;backdrop-filter:blur(4px)}
+.iconbtn:hover{background:rgba(0,229,255,.12);box-shadow:0 0 12px rgba(0,229,255,.35)}
+
+/* ---------- 中央全息核心 ---------- */
+main{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.core-wrap{position:relative;width:330px;height:330px;margin-top:-4vh}
+.core-wrap .ring{position:absolute;border-radius:50%;border:1px solid rgba(0,229,255,.35);left:50%;top:50%;transform:translate(-50%,-50%)}
+.r1{width:330px;height:330px;border-top-color:var(--cyan);border-top-width:2px;
+  animation:spin 14s linear infinite;box-shadow:0 0 30px rgba(0,229,255,.12) inset}
+.r2{width:270px;height:270px;border-right-color:var(--gold);border-right-width:2px;
+  animation:spinR 10s linear infinite;box-shadow:0 0 24px rgba(255,209,102,.10) inset}
+.r3{width:210px;height:210px;border-bottom-color:var(--blue);border-bottom-width:2px;
+  animation:spin 8s linear infinite}
+.rdash{width:300px;height:300px;border:1px dashed rgba(0,229,255,.16);animation:spinR 40s linear infinite}
+@keyframes spin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes spinR{from{transform:translate(-50%,-50%) rotate(360deg)}to{transform:translate(-50%,-50%) rotate(0)}}
+.core-inner{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center}
+.core-inner .core-text{font-size:34px;font-weight:800;letter-spacing:4px;color:#fff;
+  text-shadow:0 0 14px var(--cyan),0 0 40px rgba(0,229,255,.55);animation:glow 3s ease-in-out infinite}
+@keyframes glow{0%,100%{text-shadow:0 0 14px var(--cyan),0 0 40px rgba(0,229,255,.55)}
+  50%{text-shadow:0 0 20px var(--cyan),0 0 70px rgba(0,229,255,.9)}}
+.core-state{margin-top:14px;font-size:14px;color:var(--cyan);letter-spacing:6px;opacity:.85;min-height:20px}
+.wave{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;gap:4px;align-items:center;height:70px;width:120px;opacity:0;transition:opacity .3s;pointer-events:none}
+.wave.on{opacity:1}
+.wave i{width:4px;border-radius:2px;background:linear-gradient(180deg,var(--cyan),var(--blue));height:8px;box-shadow:0 0 8px var(--cyan)}
+
+/* ---------- 聊天面板 ---------- */
+#chat{position:fixed;right:18px;top:70px;bottom:190px;width:360px;z-index:20;pointer-events:auto;
+  display:flex;flex-direction:column;background:var(--glass);border:1px solid var(--line);
+  border-radius:14px;backdrop-filter:blur(12px);overflow:hidden;box-shadow:0 0 30px rgba(0,60,120,.25)}
+#chatHead{flex:none;padding:10px 14px;font-size:13px;color:var(--cyan);border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:center;letter-spacing:1px}
+#chatBody{flex:1;overflow-y:auto;padding:12px;scroll-behavior:smooth}
+#chatBody::-webkit-scrollbar{width:4px}
+#chatBody::-webkit-scrollbar-thumb{background:rgba(0,229,255,.3);border-radius:2px}
+.msg{margin-bottom:10px;max-width:92%;padding:8px 11px;border-radius:10px;font-size:13.5px;line-height:1.55;white-space:pre-wrap;word-break:break-word;animation:rise .25s ease}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.msg.user{margin-left:auto;background:rgba(0,229,255,.12);border:1px solid rgba(0,229,255,.3);color:#eafcff;text-align:left}
+.msg.jarvis{background:rgba(15,40,70,.6);border:1px solid rgba(0,229,255,.18);color:var(--txt)}
+.msg.sys{margin-left:auto;margin-right:auto;background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.25);color:#ffe9b8;font-size:12.5px;max-width:96%}
+.msg .t{display:block;font-size:10.5px;color:var(--dim);margin-bottom:3px}
+.msg.user .t{text-align:right}
+
+/* ---------- 字幕 ---------- */
+#subtitle{position:fixed;left:50%;bottom:118px;transform:translateX(-50%);z-index:30;width:min(880px,86vw);
+  text-align:center;font-size:26px;line-height:1.5;font-weight:600;color:#fff;min-height:40px;
+  text-shadow:0 0 10px var(--cyan),0 0 30px rgba(0,229,255,.5),0 2px 8px rgba(0,0,0,.8);
+  letter-spacing:1px;pointer-events:none;transition:opacity .25s}
+#subtitle.dim{opacity:.35}
+
+/* ---------- 底部输入 ---------- */
+footer{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:30;width:min(860px,92vw);
+  display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--glass);
+  border:1px solid var(--line);border-radius:16px;backdrop-filter:blur(14px);
+  box-shadow:0 0 34px rgba(0,120,180,.22)}
+#input{flex:1;background:rgba(0,0,0,.25);border:1px solid transparent;border-radius:10px;color:var(--txt);
+  font-size:15px;padding:10px 14px;outline:none;transition:border .2s;-webkit-user-select:text;user-select:text}
+#input:focus{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,229,255,.25)}
+#interim{margin-top:4px;font-size:11px;color:var(--gold);min-height:14px;text-align:center}
+footer .btn{flex:none;padding:10px 16px;border-radius:10px;font-size:14px;cursor:pointer;border:1px solid var(--line);
+  background:rgba(0,229,255,.07);color:var(--cyan);transition:all .2s}
+footer .btn:hover{background:rgba(0,229,255,.16);box-shadow:0 0 14px rgba(0,229,255,.3)}
+footer .btn.active{background:rgba(0,229,255,.22);border-color:var(--cyan);box-shadow:0 0 16px rgba(0,229,255,.5)}
+footer .btn.primary{background:linear-gradient(135deg,var(--cyan),var(--blue));color:#031018;font-weight:700;border:none}
+footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229,255,.55)}
+.chips{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);z-index:25;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;pointer-events:auto}
+.chip{font-size:12px;color:var(--cyan);padding:5px 12px;border:1px solid var(--line);border-radius:20px;
+  background:rgba(6,18,34,.6);cursor:pointer;backdrop-filter:blur(6px);transition:all .2s}
+.chip:hover{background:rgba(0,229,255,.15);box-shadow:0 0 10px rgba(0,229,255,.3)}
+#hint{position:fixed;left:50%;bottom:6px;transform:translateX(-50%);z-index:25;font-size:11px;color:rgba(127,182,204,.55);letter-spacing:1px;pointer-events:none}
+
+/* ---------- 弹窗 ---------- */
+.modal-mask{position:fixed;inset:0;z-index:60;background:rgba(2,6,14,.7);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center}
+.modal-mask.show{display:flex}
+.modal{width:min(520px,92vw);background:linear-gradient(180deg,#0a1a30,#050d1c);border:1px solid var(--line);
+  border-radius:16px;padding:24px;box-shadow:0 0 60px rgba(0,120,220,.25);max-height:86vh;overflow-y:auto}
+.modal h2{color:#fff;font-size:18px;letter-spacing:2px;margin-bottom:6px;text-shadow:0 0 12px var(--cyan)}
+.modal .sub{color:var(--dim);font-size:12.5px;margin-bottom:18px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12.5px;color:var(--cyan);margin-bottom:6px;letter-spacing:1px}
+.field input,.field select{width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--line);
+  background:rgba(0,0,0,.35);color:var(--txt);font-size:14px;outline:none}
+.field input:focus,.field select:focus{border-color:var(--cyan);box-shadow:0 0 8px rgba(0,229,255,.3)}
+.field .chk{display:flex;align-items:center;gap:8px;color:var(--txt);font-size:14px;cursor:pointer}
+.field .chk input{width:auto}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}
+.mbtn{padding:9px 20px;border-radius:10px;border:1px solid var(--line);cursor:pointer;font-size:14px;transition:all .2s}
+.mbtn.ghost{background:transparent;color:var(--dim)}
+.mbtn.ghost:hover{color:#fff;border-color:var(--cyan)}
+.mbtn.primary{background:linear-gradient(135deg,var(--cyan),var(--blue));color:#031018;font-weight:700;border:none}
+.mbtn.primary:hover{filter:brightness(1.15)}
+.mbtn.danger{background:rgba(255,80,80,.15);border-color:rgba(255,80,80,.4);color:#ff8f8f}
+.mbtn.danger:hover{background:rgba(255,80,80,.3)}
+#confirmBox{width:min(420px,90vw);text-align:center}
+#confirmText{font-size:16px;color:#fff;margin:8px 0 22px;line-height:1.6;text-shadow:0 0 10px rgba(255,120,120,.4)}
+
+/* ---------- 通知 ---------- */
+#toasts{position:fixed;top:66px;right:18px;z-index:70;display:flex;flex-direction:column;gap:10px}
+.toast{background:rgba(10,28,50,.92);border:1px solid var(--gold);color:#ffe9b8;padding:12px 16px;
+  border-radius:12px;font-size:14px;box-shadow:0 0 24px rgba(255,209,102,.3);animation:rise .3s ease;max-width:320px}
+.toast.danger{border-color:rgba(255,80,80,.5);color:#ffb3b3}
+
+/* ---------- API Key 提示横幅 ---------- */
+#apiBanner{position:fixed;top:56px;left:0;right:0;z-index:45;display:none;align-items:center;justify-content:center;gap:12px;
+  padding:8px 14px;background:linear-gradient(90deg,rgba(255,180,60,.14),rgba(255,209,102,.10),rgba(255,180,60,.14));
+  border-bottom:1px solid rgba(255,209,102,.45);font-size:13px;color:#ffe9b8;backdrop-filter:blur(8px);cursor:pointer}
+#apiBanner.show{display:flex}
+#apiBanner b{color:var(--gold);font-weight:700}
+#apiBanner .go{padding:3px 14px;border:1px solid var(--gold);border-radius:14px;color:var(--gold);font-size:12px}
+#apiBanner .go:hover{background:rgba(255,209,102,.15)}
+/* ---------- 引导弹窗 ---------- */
+.intro-step{display:flex;gap:10px;margin:12px 0;font-size:13.5px;line-height:1.7;color:var(--txt)}
+.intro-step .num{flex:none;width:22px;height:22px;border-radius:50%;background:rgba(0,229,255,.15);border:1px solid var(--cyan);
+  color:var(--cyan);text-align:center;line-height:20px;font-size:12px;font-weight:700}
+.intro-actions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.intro-actions .mbtn{flex:1;min-width:120px}
+#micStatus{font-size:12px;color:var(--dim);margin-top:10px;min-height:18px;line-height:1.5}
+.intro-keybox{margin-top:12px;padding:10px 12px;border:1px solid rgba(255,209,102,.35);border-radius:10px;
+  background:rgba(255,209,102,.06);font-size:12.5px;color:#ffe9b8;line-height:1.6}
+.intro-keybox.ok{border-color:rgba(0,229,255,.35);background:rgba(0,229,255,.06);color:var(--cyan)}
+
+@media (max-width:1000px){#chat{display:none}.core-wrap{transform:scale(.8)}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="grid-floor"></div>
+<div class="scanlines"></div>
+<div class="vignette"></div>
+
+<header>
+  <div class="brand"><span class="dot"></span>J.A.R.V.I.S.</div>
+  <div id="statusBadge"><span id="statusDot"></span><span id="statusText">连接中...</span></div>
+  <div class="hdr-right">
+    <div class="stat">CPU <b id="sCpu">--</b>%<div class="minibar"><i id="bCpu"></i></div></div>
+    <div class="stat">MEM <b id="sMem">--</b>%<div class="minibar"><i id="bMem"></i></div></div>
+    <div class="stat">DISK <b id="sDisk">--</b>%<div class="minibar"><i id="bDisk"></i></div></div>
+    <div id="clock">--:--:--</div>
+    <button class="iconbtn" id="btnSettings" title="设置">⚙</button>
+  </div>
+</header>
+<div id="apiBanner" title="点击配置">
+  <span>⚙ 提示：尚未配置 <b>API Key</b>，贾维斯的深度对话能力未启用</span>
+  <span class="go">立即配置</span>
+</div>
+
+<main>
+  <div class="core-wrap" id="coreWrap">
+    <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div><div class="rdash"></div>
+    <div class="wave" id="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="core-inner">
+      <div class="core-text">J.A.R.V.I.S.</div>
+      <div class="core-state" id="stateText">待命</div>
+    </div>
+  </div>
+</main>
+
+<div id="chat">
+  <div id="chatHead"><span>▣ 交互日志</span><span style="font-size:11px" id="logCount"></span></div>
+  <div id="chatBody"></div>
+</div>
+
+<div class="chips" id="chips">
+  <span class="chip" data-cmd="现在几点">🕐 现在几点</span>
+  <span class="chip" data-cmd="今日天气">🌤 今日天气</span>
+  <span class="chip" data-cmd="今天有什么新闻">📰 新闻头条</span>
+  <span class="chip" data-cmd="打开记事本">📝 打开记事本</span>
+  <span class="chip" data-cmd="提醒我30分钟后喝水">⏰ 30分钟后提醒</span>
+  <span class="chip" data-cmd="系统状态">🖥 系统状态</span>
+  <span class="chip" data-cmd="你会什么">❓ 帮助</span>
+</div>
+
+<div id="subtitle">系统初始化中...</div>
+<div id="interim"></div>
+
+<footer>
+  <button class="btn" id="btnWake" title="开启后说“贾维斯”即可唤醒">⚡ 唤醒</button>
+  <button class="btn" id="btnPtt" title="按住说话">🎤 按住说话</button>
+  <input id="input" placeholder="输入指令或问题，Enter 发送..." autocomplete="off">
+  <button class="btn primary" id="btnSend">发送</button>
+</footer>
+<div id="hint">唤醒词：贾维斯 · 语音对话 / 文字指令 / 系统控制 均已就绪</div>
+
+<div id="toasts"></div>
+
+<!-- 设置弹窗 -->
+<div class="modal-mask" id="settingsMask">
+  <div class="modal">
+    <h2>⚙ 系统设置</h2>
+    <div class="sub">修改后立即生效。接入大模型 API 后贾维斯可进行任意深度对话。</div>
+    <div class="field"><label>助理名称</label><input id="setName" maxlength="20"></div>
+    <div class="field"><label>语音音色（免费 edge-tts 神经语音）</label>
+      <select id="setVoice"></select></div>
+    <div class="field"><label>所在城市（用于天气）</label><input id="setCity"></div>
+    <div class="field"><label class="chk"><input type="checkbox" id="setLlmOn"> 启用 AI 大脑（OpenAI 兼容 API）</label></div>
+    <div class="field"><label>API 地址</label><input id="setBase" placeholder="https://api.deepseek.com/v1"></div>
+    <div class="field"><label>API Key（仅保存在本地 config.json）</label><input id="setKey" type="password" placeholder="sk-..."></div>
+    <div class="field"><label>模型</label><input id="setModel" placeholder="deepseek-chat"></div>
+    <div class="modal-actions">
+      <button class="mbtn ghost" id="btnCancel">取消</button>
+      <button class="mbtn primary" id="btnSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 确认弹窗 -->
+<div class="modal-mask" id="confirmMask">
+  <div class="modal" id="confirmBox">
+    <h2 style="text-align:center;color:#ffb3b3">⚠ 需要确认</h2>
+    <div id="confirmText">确定要执行这个操作吗？</div>
+    <div class="modal-actions" style="justify-content:center">
+      <button class="mbtn ghost" id="btnConfirmNo">取消</button>
+      <button class="mbtn danger" id="btnConfirmYes">确认执行</button>
+    </div>
+  </div>
+</div>
+
+<!-- 首次使用引导弹窗 -->
+<div class="modal-mask" id="introMask">
+  <div class="modal">
+    <h2 style="text-align:center;letter-spacing:3px">WELCOME · 欢迎使用 J.A.R.V.I.S.</h2>
+    <div class="sub" style="text-align:center">钢铁侠同款桌面智能助理 · 语音对话 / 系统控制 / 实时字幕</div>
+    <div class="intro-step"><span class="num">1</span><span>点击下方按钮<strong>授权麦克风</strong>，之后点击「⚡ 唤醒」说<b>“贾维斯”</b>即可语音对话；也可按住「🎤 按住说话」直接说。</span></div>
+    <div class="intro-step"><span class="num">2</span><span>可直接在底部输入框<b>打字下达指令</b>：打开记事本、今日天气、提醒我30分钟后喝水、搜索 Python 教程……</span></div>
+    <div class="intro-step"><span class="num">3</span><span><b>最高系统权限</b>：可调节音量、锁屏、睡眠、截图、查看磁盘与系统状态；关机/重启等操作会二次确认。</span></div>
+    <div class="intro-step"><span class="num">4</span><span><b>建议配置 API Key</b>（DeepSeek 等，价格极低），接入大模型后贾维斯可进行<b>任意深度对话</b>。</span></div>
+    <div class="intro-keybox" id="introKeyBox">检测中…</div>
+    <div class="intro-actions">
+      <button class="mbtn primary" id="btnIntroMic">🎤 授权麦克风</button>
+      <button class="mbtn" id="btnIntroSettings">⚙ 配置 API Key</button>
+      <button class="mbtn primary" id="btnIntroGo">开始使用 →</button>
+    </div>
+    <div id="micStatus"></div>
+    <div style="margin-top:12px;font-size:12px;color:var(--dim);text-align:center">
+      <label style="cursor:pointer"><input type="checkbox" id="introNoMore" style="width:auto"> 下次进入不再显示</label>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= 基础工具 ================= */
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function nowStr(){const d=new Date();return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
+function toast(text,danger){const t=document.createElement('div');t.className='toast'+(danger?' danger':'');t.textContent=text;
+  $('toasts').appendChild(t);setTimeout(()=>t.remove(),6000);}
+function notify(title,body){try{if('Notification' in window&&Notification.permission==='granted')new Notification(title,{body});}catch(e){}}
+
+/* ================= 星空背景 ================= */
+const cv=$('bg'),ctx=cv.getContext('2d');let stars=[],comets=[];
+function resize(){cv.width=innerWidth;cv.height=innerHeight;
+  stars=Array.from({length:Math.min(420,Math.floor(innerWidth/3))},()=>({
+    x:Math.random()*cv.width,y:Math.random()*cv.height,z:Math.random()*.8+.2,
+    r:Math.random()*1.5+.4,tw:Math.random()*6.28}));}
+addEventListener('resize',resize);resize();
+function spawnComet(){if(Math.random()<.006&&comets.length<3)comets.push({x:Math.random()*cv.width*.8+cv.width*.2,y:Math.random()*cv.height*.3,vx:-(4+Math.random()*6),vy:2+Math.random()*3,life:1});}
+function drawBg(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  // 星云光晕
+  const g=ctx.createRadialGradient(cv.width*.5,cv.height*.32,0,cv.width*.5,cv.height*.32,cv.width*.55);
+  g.addColorStop(0,'rgba(0,90,180,.10)');g.addColorStop(.5,'rgba(40,0,120,.06)');g.addColorStop(1,'transparent');
+  ctx.fillStyle=g;ctx.fillRect(0,0,cv.width,cv.height);
+  stars.forEach(s=>{s.y-=s.z*.18;s.tw+=.03;if(s.y<0)s.y=cv.height;
+    const a=.35+.65*Math.abs(Math.sin(s.tw));
+    ctx.beginPath();ctx.arc(s.x,s.y,s.r*s.z*2,0,6.28);
+    ctx.fillStyle=`rgba(170,225,255,${a.toFixed(3)})`;ctx.fill();});
+  spawnComet();
+  comets.forEach(c=>{c.x+=c.vx;c.y+=c.vy;c.life-=.02;
+    ctx.strokeStyle=`rgba(120,220,255,${Math.max(0,c.life)})`;ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(c.x,c.y);ctx.lineTo(c.x-c.vx*5,c.y-c.vy*5);ctx.stroke();});
+  comets=comets.filter(c=>c.life>0);
+  requestAnimationFrame(drawBg);
+}
+drawBg();
+
+/* ================= 状态与字幕 ================= */
+const states={idle:['待命',''],listening:['聆听中…','on'],thinking:['思考中…','busy'],speaking:['播报中…','busy']};
+function setState(s){const [txt,cls]=states[s]||states.idle;
+  $('stateText').textContent=txt;$('statusText').textContent=txt;
+  $('statusDot').className=cls;
+  $('coreWrap').classList.toggle('speaking',s==='speaking');
+  $('wave').classList.toggle('on',s==='speaking');}
+let typeTimer=null;
+function typeSubtitle(text){
+  clearInterval(typeTimer);const el=$('subtitle');el.classList.remove('dim');el.textContent='';
+  if(!text)return;
+  let i=0;const step=Math.max(14,Math.min(30,Math.round(2600/text.length)));
+  typeTimer=setInterval(()=>{if(i<text.length){el.textContent+=text[i];i++;}else clearInterval(typeTimer);},step);}
+function dimSubtitle(){clearInterval(typeTimer);$('subtitle').classList.add('dim');}
+
+/* ================= 聊天日志 ================= */
+function addChat(kind,text){
+  const body=$('chatBody');const d=document.createElement('div');d.className='msg '+kind;
+  d.innerHTML=`<span class="t">${nowStr()}</span>${esc(text)}`;
+  body.appendChild(d);while(body.children.length>80)body.removeChild(body.firstChild);
+  $('logCount').textContent=body.children.length+' 条';
+  body.scrollTop=body.scrollHeight;}
+function addSys(text){addChat('sys',text);}
+
+/* ================= 语音输出 ================= */
+let speaking=false,curAudio=null;
+function resumeRec(){if(micOn&&!speaking){try{rec&&rec.start();}catch(e){}}}
+function stopRec(){try{rec&&rec.stop();}catch(e){}}
+function playAudio(url){
+  speaking=true;stopRec();
+  try{curAudio&&curAudio.pause();}catch(e){}
+  const a=new Audio(url);
+  a.onended=()=>{speaking=false;resumeRec();};
+  a.onerror=()=>{speaking=false;speakBrowserFallback();};
+  a.play().catch(()=>{speaking=false;speakBrowserFallback();});
+  curAudio=a;}
+function speakBrowserFallback(){
+  // edge-tts 不可用时的浏览器语音兜底
+  if(!('speechSynthesis' in window)){speaking=false;resumeRec();return;}
+  const last=$('subtitle').textContent;if(!last){speaking=false;resumeRec();return;}
+  speaking=true;
+  const u=new SpeechSynthesisUtterance(last.replace(/[#*_`~]/g,''));
+  u.lang='zh-CN';
+  const vs=speechSynthesis.getVoices();const v=vs.find(v=>v.lang&&v.lang.toLowerCase().startsWith('zh'));
+  if(v)u.voice=v;
+  u.onend=()=>{speaking=false;resumeRec();};
+  u.onerror=()=>{speaking=false;resumeRec();};
+  speechSynthesis.speak(u);}
+
+/* ================= 语音输入 ================= */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let rec=null,micOn=false,attentive=false,attentionTimer=null;
+function makeRec(){
+  if(!SR)return null;
+  const r=new SR();r.lang='zh-CN';r.continuous=true;r.interimResults=true;r.maxAlternatives=1;
+  r.onresult=e=>{
+    let interim='',final='';
+    for(let i=0;i<e.results.length;i++){
+      const rs=e.results[i];
+      if(rs.isFinal)final+=rs[0].transcript;else interim+=rs[0].transcript;}
+    $('interim').textContent=interim?'…'+interim:'';
+    if(final)handleVoice(final.trim());};
+  r.onend=()=>{if(micOn&&!speaking){try{r.start();}catch(e){}}};
+  r.onerror=()=>{setTimeout(()=>{if(micOn&&!speaking){try{r.start();}catch(e){}}},800);};
+  return r;}
+function handleVoice(t){
+  if(!t||speaking)return;
+  if(attentive){attentive=false;clearTimeout(attentionTimer);sendChat(t);}
+  else if(/贾维斯|jarvis|你好助理|hey\s*j/i.test(t)){
+    attentive=true;setState('listening');
+    typeSubtitle('我在，请讲');speakBrowserFallback();
+    clearTimeout(attentionTimer);
+    attentionTimer=setTimeout(()=>{attentive=false;if(micOn)setState('listening');else setState('idle');},20000);}
+  else if(micOn&&!attentive){setState('idle');}}
+function toggleMic(){
+  if(!SR){toast('当前浏览器不支持语音识别，请使用 Chrome / Edge',true);return;}
+  micOn=!micOn;
+  $('btnWake').classList.toggle('active',micOn);
+  if(micOn){rec=makeRec();try{rec.start();setState('listening');}catch(e){}}
+  else{attentive=false;clearTimeout(attentionTimer);stopRec();setState('idle');$('interim').textContent='';}}
+let pttActive=false,pttRec=null,pttFinal='';
+// 按住说话
+$('btnPtt').addEventListener('pointerdown',()=>{
+  if(!SR)return toast('当前浏览器不支持语音识别，请使用 Chrome / Edge',true);
+  if(speaking||pttActive)return;
+  pttActive=true;$('btnPtt').classList.add('active');setState('listening');
+  pttRec=new SR();pttRec.lang='zh-CN';pttRec.continuous=false;pttRec.interimResults=true;pttRec.maxAlternatives=1;
+  pttRec.onresult=e=>{let s='';for(let i=0;i<e.results.length;i++)s+=e.results[i][0].transcript;
+    $('interim').textContent='…'+s;};
+  pttRec.onend=()=>{pttActive=false;$('btnPtt').classList.remove('active');$('interim').textContent='';
+    if(pttFinal&&pttFinal.trim())sendChat(pttFinal.trim());
+    pttFinal='';setState('idle');};
+  pttRec.onerror=()=>{pttActive=false;$('btnPtt').classList.remove('active');setState('idle');};
+  pttFinal='';try{pttRec.start();}catch(e){}});
+function pttStop(){if(pttRec){try{pttRec.stop();}catch(e){}}}
+$('btnPtt').addEventListener('pointerup',pttStop);
+$('btnPtt').addEventListener('pointerleave',pttStop);
+
+/* ================= WebSocket ================= */
+let ws=null,reconnTimer=null;
+function connect(){
+  ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/ws');
+  ws.onopen=()=>{setState('idle');clearTimeout(reconnTimer);};
+  ws.onmessage=e=>{try{handleMsg(JSON.parse(e.data));}catch(err){}};
+  ws.onclose=()=>{$('statusText').textContent='已断开，重连中…';
+    clearTimeout(reconnTimer);reconnTimer=setTimeout(connect,2000);};
+  ws.onerror=()=>{try{ws.close();}catch(e){}};}
+function send(obj){if(ws&&ws.readyState===1)ws.send(JSON.stringify(obj));}
+function handleMsg(m){
+  switch(m.type){
+    case 'hello':
+      $('hint').textContent='唤醒词：贾维斯 · 语音对话 / 文字指令 / 系统控制 均已就绪';
+      break;
+    case 'user':
+      addChat('user',m.text);break;
+    case 'jarvis':
+      addChat('jarvis',m.text);
+      typeSubtitle(m.spoken||m.text);
+      if(m.audio)playAudio(m.audio);
+      else speakBrowserFallback();
+      break;
+    case 'action_log':
+      addSys('⚙ '+m.text);break;
+    case 'stats':
+      $('sCpu').textContent=m.cpu;$('sMem').textContent=m.mem;$('sDisk').textContent=m.disk;
+      $('bCpu').style.width=m.cpu+'%';$('bMem').style.width=m.mem+'%';$('bDisk').style.width=m.disk+'%';
+      break;
+    case 'confirm':
+      showConfirm(m.id,m.label);break;
+    case 'settings':
+      fillSettings(m.data);
+      updateIntroKeyState();updateApiBanner();break;
+    case 'reminder':
+      toast('⏰ '+m.text);notify('贾维斯提醒',m.text);
+      typeSubtitle('提醒：'+m.text);
+      break;
+    case 'bye':
+      try{window.close();}catch(e){}
+      break;
+    case 'status':
+      setState(m.state);break;
+  }}
+connect();
+
+/* ================= 确认弹窗 ================= */
+let confirmId=null;
+function showConfirm(id,label){confirmId=id;$('confirmText').textContent=label;$('confirmMask').classList.add('show');}
+$('btnConfirmYes').onclick=()=>{send({type:'confirm',id:confirmId,ok:true});$('confirmMask').classList.remove('show');};
+$('btnConfirmNo').onclick=()=>{send({type:'confirm',id:confirmId,ok:false});$('confirmMask').classList.remove('show');};
+
+/* ================= 发送 ================= */
+function sendChat(text){
+  if(!text)return;
+  $('input').value='';
+  addChat('user',text);
+  setState('thinking');
+  send({type:'chat',text});
+  dimSubtitle();}
+$('btnSend').onclick=()=>sendChat($('input').value.trim());
+$('input').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat($('input').value.trim());});
+document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>sendChat(c.dataset.cmd));
+$('btnWake').onclick=toggleMic;
+
+/* ================= 设置 ================= */
+let settingsData=null;
+function fillSettings(d){
+  settingsData=d;
+  $('setName').value=d.assistant_name||'贾维斯';
+  $('setCity').value=(d.location&&d.location.city)||'深圳';
+  $('setLlmOn').checked=!!(d.llm&&d.llm.enabled);
+  $('setBase').value=(d.llm&&d.llm.base_url)||'';
+  $('setKey').value=(d.llm&&d.llm.api_key)||'';
+  $('setModel').value=(d.llm&&d.llm.model)||'deepseek-chat';
+  const sel=$('setVoice');sel.innerHTML='';
+  const voices=d.voices||['zh-CN-XiaoxiaoNeural','zh-CN-YunxiNeural','zh-CN-YunyangNeural'];
+  voices.forEach(v=>{const o=document.createElement('option');o.value=v;
+    o.textContent=v==='zh-CN-XiaoxiaoNeural'?v+'（晓晓·女声）':v==='zh-CN-YunxiNeural'?v+'（云希·男声）':v==='zh-CN-YunyangNeural'?v+'（云扬·男声）':v;
+    sel.appendChild(o);});
+  sel.value=(d.tts&&d.tts.voice)||'zh-CN-XiaoxiaoNeural';}
+$('btnSettings').onclick=()=>$('settingsMask').classList.add('show');
+$('btnCancel').onclick=()=>$('settingsMask').classList.remove('show');
+$('btnSave').onclick=()=>{
+  send({type:'settings_save',data:{
+    assistant_name:$('setName').value.trim()||'贾维斯',
+    llm:{enabled:$('setLlmOn').checked,base_url:$('setBase').value.trim(),
+         api_key:$('setKey').value.trim(),model:$('setModel').value.trim()||'deepseek-chat'},
+    tts:{voice:$('setVoice').value},
+    location:{city:$('setCity').value.trim()||'深圳'}}});
+  $('settingsMask').classList.remove('show');
+  updateIntroKeyState();updateApiBanner();};
+$('settingsMask').addEventListener('click',e=>{if(e.target===$('settingsMask'))$('settingsMask').classList.remove('show');});
+$('confirmMask').addEventListener('click',e=>{if(e.target===$('confirmMask'))$('confirmMask').classList.remove('show');});
+
+/* ================= 引导弹窗 / 麦克风 / API Key 提示 ================= */
+function requestMic(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    $('micStatus').textContent='当前浏览器不支持麦克风，请使用 Chrome / Edge。';return;}
+  $('micStatus').textContent='正在请求麦克风权限…';
+  navigator.mediaDevices.getUserMedia({audio:true}).then(st=>{
+    st.getTracks().forEach(t=>t.stop());
+    $('micStatus').textContent='✓ 麦克风已授权，点击「⚡ 唤醒」后说“贾维斯”即可语音对话。';
+    toast('麦克风已授权');}).catch(e=>{
+    $('micStatus').textContent='✗ 授权未完成：'+e.message+'（可在浏览器地址栏左侧重新允许麦克风）';
+    toast('麦克风授权失败',true);});}
+$('btnIntroMic').onclick=requestMic;
+$('btnIntroSettings').onclick=()=>{$('introMask').classList.remove('show');$('settingsMask').classList.add('show');};
+$('btnIntroGo').onclick=()=>{
+  $('introMask').classList.remove('show');
+  if($('introNoMore').checked)try{localStorage.setItem('jarvis_intro_done','1');}catch(e){}};
+$('introMask').addEventListener('click',e=>{if(e.target===$('introMask'))$('introMask').classList.remove('show');});
+function showIntro(){
+  let done=false;try{done=localStorage.getItem('jarvis_intro_done')==='1';}catch(e){}
+  if(!done)$('introMask').classList.add('show');}
+function updateIntroKeyState(){
+  const el=$('introKeyBox');if(!el||!settingsData)return;
+  const llm=settingsData.llm||{};
+  if(llm.enabled&&llm.api_key){el.className='intro-keybox ok';
+    el.textContent='✓ 已配置 API Key（'+llm.model+'），深度对话已启用。';}
+  else{el.className='intro-keybox';
+    el.textContent='○ 尚未配置 API Key：点击下方按钮或右上角 ⚙ 填写 DeepSeek 等 Key，即可解锁任意深度对话。';}}
+function updateApiBanner(){
+  const el=$('apiBanner');if(!el)return;
+  const show=!(settingsData&&settingsData.llm&&settingsData.llm.enabled&&settingsData.llm.api_key);
+  el.classList.toggle('show',show);}
+$('apiBanner').onclick=()=>$('settingsMask').classList.add('show');
+showIntro();
+
+/* ================= 时钟 / 通知权限 ================= */
+setInterval(()=>{const d=new Date();$('clock').textContent=
+  `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;},1000);
+if('Notification'in window&&Notification.permission==='default'){try{Notification.requestPermission();}catch(e){}}
+</script>
+</body>
+</html>

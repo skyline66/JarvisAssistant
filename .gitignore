@@ -1,0 +1,15 @@
+# 运行数据与隐私（含 API Key，切勿提交）
+config.json
+memory.json
+notes.md
+audio/
+screenshots/
+# 打包产物
+*.zip
+*.exe
+build/
+dist/
+# Python
+__pycache__/
+*.pyc
+.venv/

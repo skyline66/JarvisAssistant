@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>J.A.R.V.I.S. 桌面智能助理 · 系统架构图</title>
+<style>
+html,body{margin:0;padding:0;background:#030810;color:#d8f6ff;
+  font-family:"Microsoft YaHei","PingFang SC",sans-serif}
+svg{display:block;width:100%;height:auto}
+.box{fill:rgba(8,22,40,.75);stroke-width:1.5}
+.box.l1{stroke:#00e5ff}.box.l2{stroke:#00e5ff}.box.sys{stroke:#ffd166}
+.box.ext{stroke:#2f6bff}.box.data{stroke:#7fb6cc}
+.t{fill:#d8f6ff;font-size:15px;font-weight:600}
+.t.hl{fill:#00e5ff}
+.t.dim{fill:#7fb6cc;font-size:12.5px;font-weight:400}
+.t.warn{fill:#ffd166}
+.t.blue{fill:#8fb7ff}
+.arrow{stroke:#00e5ff;stroke-width:2;marker-end:url(#ah)}
+.arrow.dim{stroke:#7fb6cc;stroke-dasharray:5 4}
+.legend{fill:#7fb6cc;font-size:12px}
+</style>
+</head>
+<body>
+<svg viewBox="0 0 1000 660" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#00e5ff"/>
+    </marker>
+    <marker id="ahd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7fb6cc"/>
+    </marker>
+  </defs>
+
+  <text x="500" y="34" text-anchor="middle" class="t hl" style="font-size:22px;letter-spacing:3px;fill:#fff">
+    J.A.R.V.I.S. 桌面智能助理 · 系统架构</text>
+  <text x="500" y="54" text-anchor="middle" class="t dim" style="font-size:12.5px">
+    语音对话 + 免费神经语音 + 实时字幕 + 系统级命令执行 · 全部本地运行</text>
+
+  <!-- 第1层 前端 -->
+  <rect class="box l1" x="340" y="80" width="320" height="110" rx="12"/>
+  <text x="360" y="104" class="t hl">浏览器前端界面（全息控制台）</text>
+  <text x="360" y="126" class="t dim">· 星空粒子 + 全息核心环 · 底部大字幕（逐字同步）</text>
+  <text x="360" y="146" class="t dim">· Web Speech 语音识别 · 唤醒词「贾维斯」</text>
+  <text x="360" y="166" class="t dim">· 交互日志 · 快捷指令 · 实时系统状态</text>
+
+  <!-- 第2层 服务 -->
+  <rect class="box l2" x="340" y="230" width="320" height="130" rx="12"/>
+  <text x="360" y="254" class="t hl">Python 服务核心（aiohttp）</text>
+  <text x="360" y="276" class="t dim">· WebSocket 实时消息枢纽（对话/确认/推送）</text>
+  <text x="360" y="296" class="t dim">· 大脑 Brain：意图识别 → 命令路由 / 知识 / LLM</text>
+  <text x="360" y="316" class="t dim">· tts_engine：edge-tts 免费神经语音合成</text>
+  <text x="360" y="336" class="t dim">· 后台任务：定时提醒 / 系统状态 / 音频清理</text>
+
+  <!-- 左右分支 -->
+  <rect class="box ext" x="20" y="400" width="280" height="150" rx="12"/>
+  <text x="40" y="424" class="t blue">外部免费服务</text>
+  <text x="40" y="448" class="t dim">· edge-tts —— 微软神经语音（MP3）</text>
+  <text x="40" y="468" class="t dim">· Open-Meteo —— 天气（无需 Key）</text>
+  <text x="40" y="488" class="t dim">· 中文维基百科 —— 知识问答</text>
+  <text x="40" y="508" class="t dim">· Bing 新闻 RSS —— 头条资讯</text>
+  <text x="40" y="528" class="t warn">· 可选 DeepSeek LLM —— 深度对话</text>
+
+  <rect class="box sys" x="700" y="400" width="280" height="150" rx="12"/>
+  <text x="720" y="424" class="t warn">Windows 系统控制（最高权限）</text>
+  <text x="720" y="448" class="t dim">· 打开/关闭应用 · 音量 · 静音</text>
+  <text x="720" y="468" class="t dim">· 锁屏 · 睡眠 · 显示器开关</text>
+  <text x="720" y="488" class="t dim">· 截图 · 磁盘/系统状态 · 剪贴板</text>
+  <text x="720" y="508" class="t dim">· 开始菜单模糊查找应用</text>
+  <text x="720" y="528" class="t warn">· 关机/重启/退出 → 界面二次确认</text>
+
+  <!-- 本地数据 -->
+  <rect class="box data" x="340" y="400" width="320" height="110" rx="12"/>
+  <text x="360" y="424" class="t">本地数据</text>
+  <text x="360" y="446" class="t dim">· config.json 配置（音色/API Key/城市）</text>
+  <text x="360" y="466" class="t dim">· memory.json 提醒 · notes.md 备忘</text>
+  <text x="360" y="486" class="t dim">· audio/ 语音缓存（自动清理）</text>
+
+  <!-- 流程说明 -->
+  <rect x="20" y="580" width="960" height="58" rx="12" fill="rgba(0,229,255,.06)" stroke="rgba(0,229,255,.25)"/>
+  <text x="40" y="602" class="legend">对话流程：① 文字/语音输入 → ② WebSocket 送达大脑 → ③ 意图识别（命令 / 查询 / 对话）</text>
+  <text x="40" y="624" class="legend">→ ④ 执行命令或获取数据 → ⑤ edge-tts 生成语音 → ⑥ 语音播放 + 字幕同步显示</text>
+
+  <!-- 箭头 -->
+  <line class="arrow" x1="500" y1="190" x2="500" y2="228"/>
+  <line class="arrow" x1="470" y1="360" x2="210" y2="398"/>
+  <line class="arrow" x1="530" y1="360" x2="790" y2="398"/>
+  <line class="arrow" x1="500" y1="360" x2="500" y2="398"/>
+  <line class="arrow dim" x1="210" y1="400" x2="450" y2="360"/>
+  <text x="560" y="385" class="t dim" style="font-size:12px">命令执行</text>
+  <text x="300" y="385" class="t dim" style="font-size:12px">数据请求</text>
+  <text x="505" y="385" class="t dim" style="font-size:12px">读写</text>
+</svg>
+</body>
+</html>
