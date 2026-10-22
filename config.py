@@ -90,6 +90,50 @@ DEFAULTS = {
             "aihubmix": {"base_url": "https://api.aihubmix.com/v1", "model": "gpt-4o-mini", "label": "AiHubMix", "group": "中转"},
             "custom": {"base_url": "", "model": "", "label": "自定义（OpenAI 兼容）", "group": "其他"},
         },
+        # 各厂商推荐模型列表（前端「模型」下拉，可再手动填写任意模型）
+        "provider_models": {
+            "claude": ["claude-sonnet-4-20250514", "claude-opus-4-20250514", "claude-3-7-sonnet", "claude-3-5-haiku"],
+            "anthropic": ["claude-sonnet-4-20250514", "claude-opus-4-20250514", "claude-3-7-sonnet", "claude-3-5-haiku"],
+            "chatgpt": ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1"],
+            "chatgpt_api": ["gpt-4.1-mini", "gpt-4.1", "gpt-4o-mini", "gpt-4o"],
+            "copilot": ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini"],
+            "openai": ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1", "o3-mini", "gpt-4.1-nano"],
+            "gemini": ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", "gemini-2.0-flash-lite"],
+            "gemini_cli": ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash"],
+            "antigravity": ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash"],
+            "vertex_ai": ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash"],
+            "deepseek": ["deepseek-chat", "deepseek-reasoner"],
+            "xai": ["grok-3", "grok-3-mini", "grok-2-latest"],
+            "kimi": ["kimi-k2", "kimi-k2-turbo", "moonshot-v1-32k"],
+            "kimi_code": ["kimi-k2-turbo", "kimi-k2", "moonshot-v1-128k"],
+            "glm": ["glm-4.5", "glm-4.5-air", "glm-4-plus", "glm-4-flash"],
+            "z_ai": ["glm-4.5", "glm-4.5-air", "glm-4-plus"],
+            "minimax": ["MiniMax-M1", "MiniMax-M2", "abab6.5s-chat"],
+            "stepfun": ["step-2-16k", "step-1-32k", "step-1-8k"],
+            "mimo": ["MiMo-7B-RL", "MiMo-7B"],
+            "qianfan": ["ernie-4.5-turbo-128k", "ernie-4.5-8k-preview", "ernie-3.5-8k"],
+            "tencent": ["hunyuan-turbo-latest", "hunyuan-pro", "hunyuan-standard"],
+            "huawei": ["Pangu-4.1-turbo", "Pangu-4.0"],
+            "ark": ["doubao-1-5-pro-32k", "doubao-1-5-pro-256k", "doubao-seed-1-6-flash", "doubao-lite-32k"],
+            "qwen": ["qwen-plus", "qwen-max", "qwen-turbo", "qwen-long"],
+            "qwen_plan": ["qwen-plus-plan", "qwen-max-plan", "qwen-turbo-plan"],
+            "bailian_plan": ["qwen-max-plan", "qwen-plus-plan", "qwen-turbo-plan"],
+            "bailian_decision": ["qwen-max-decision", "qwen-plus-decision"],
+            "qwen_decision": ["qwen-max-decision", "qwen-plus-decision"],
+            "mistral": ["mistral-large-latest", "mistral-small-latest", "open-mistral-nemo"],
+            "groq": ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"],
+            "azure_openai": ["gpt-4o", "gpt-4o-mini", "gpt-4.1", "gpt-35-turbo"],
+            "ollama_cloud": ["llama3.3", "llama3.1", "qwen2.5", "mistral"],
+            "nous": ["hermes-4", "hermes-3-llama-3.1-405b"],
+            "openrouter": ["openrouter/auto", "deepseek/deepseek-chat", "anthropic/claude-sonnet-4", "openai/gpt-4o-mini"],
+            "together": ["meta-llama/Llama-3.3-70B-Instruct-Turbo", "mistralai/Mixtral-8x7B-Instruct-v0.1"],
+            "fireworks": ["accounts/fireworks/models/llama-v3p1-70b-instruct", "accounts/fireworks/models/qwen2p5-72b-instruct"],
+            "siliconflow": ["deepseek-ai/DeepSeek-V3", "deepseek-ai/DeepSeek-R1", "Qwen/Qwen2.5-72B-Instruct", "THUDM/glm-4-9b-chat"],
+            "nvidia_nim": ["meta/llama-3.1-8b-instruct", "meta/llama-3.3-70b-instruct", "deepseek-ai/deepseek-r1"],
+            "modelscope": ["Qwen/Qwen2.5-72B-Instruct", "Qwen/Qwen2.5-7B-Instruct", "deepseek-ai/DeepSeek-V3"],
+            "aihubmix": ["gpt-4o-mini", "gpt-4o", "claude-sonnet-4", "deepseek-chat"],
+            "custom": [],
+        },
     },
     "tts": {"voice": "zh-CN-XiaoxiaoNeural", "rate": "+0%", "volume": "+0%", "pitch": "+0Hz"},
     "location": {"city": "深圳", "latitude": 22.5431, "longitude": 114.0579},
@@ -123,6 +167,8 @@ def load_config():
                     if isinstance(pv, dict):
                         merged[pk] = {**cfg[k]["providers"].get(pk, {}), **pv}
                 v["providers"] = merged
+            if k == "llm" and not v.get("provider_models"):
+                v["provider_models"] = cfg[k].get("provider_models", {})
             cfg[k].update(v)
         else:
             cfg[k] = v
