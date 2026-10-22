@@ -89,6 +89,40 @@ async def main():
         except Exception as e:
             report("brain." + name, False, str(e))
 
+    # 1.5) Agent 工具层（无需 API Key）
+    try:
+        tool_tests = [
+            ("agent_tool_calc", "calc", "3.14*8", lambda r: "25.12" in r),
+            ("agent_tool_time", "time", "", lambda r: ":" in r),
+            ("agent_tool_date", "date", "", lambda r: "年" in r and "星期" in r),
+            ("agent_tool_note", "note_add", "Agent测试备忘xyz", lambda r: "已记下" in r),
+            ("agent_tool_note_read", "note_read", "", lambda r: "Agent测试备忘xyz" in r),
+        ]
+        for name, tool, arg, check in tool_tests:
+            try:
+                r = await brain._run_tool(tool, arg)
+                report(name, check(r), str(r)[:60])
+            except Exception as e:
+                report(name, False, str(e))
+    except Exception as e:
+        report("agent_tools", False, str(e))
+    try:
+        from tts_engine import get_voice_catalog, VOICE_NAMES
+        cat = get_voice_catalog()
+        groups = len(cat)
+        total = sum(len(g["voices"]) for g in cat)
+        report("tts.catalog", groups >= 4 and total >= 30 and "zh-CN-YunxiNeural" in VOICE_NAMES,
+               f"groups={groups} voices={total}")
+    except Exception as e:
+        report("tts.catalog", False, str(e))
+    try:
+        import re
+        m = re.search(r"\[\[TOOL:(\w+)\|(.*?)\]\]", "请稍等 [[TOOL:calc|3.14*8]] 好的")
+        report("agent.marker_parse", bool(m) and m.group(1) == "calc" and m.group(2) == "3.14*8",
+               str(m.groups()) if m else "no match")
+    except Exception as e:
+        report("agent.marker_parse", False, str(e))
+
     # 2) 命令引擎（只读项）
     import commands as C
     report("cmd.disk", "GB" in C.disk_space(), C.disk_space()[:60])
