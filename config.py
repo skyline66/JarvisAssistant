@@ -47,6 +47,7 @@ DEFAULTS = {
     },
     "tts": {"voice": "zh-CN-XiaoxiaoNeural", "rate": "+0%", "volume": "+0%", "pitch": "+0Hz"},
     "location": {"city": "深圳", "latitude": 22.5431, "longitude": 114.0579},
+    "smart_home": {"ha_url": "", "ha_token": ""},
     "open_browser_after_start": True,
 }
 
