@@ -1,5 +1,14 @@
 # J.A.R.V.I.S. 桌面智能助理
 
+<p align="center">
+  <img src="https://img.shields.io/github/stars/skyline66/JarvisAssistant?style=flat-square&color=00e5ff" alt="GitHub stars"/>
+  <img src="https://img.shields.io/badge/version-v1.1.0-00e5ff?style=flat-square" alt="version"/>
+  <img src="https://img.shields.io/badge/Python-3.9%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"/>
+  <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="License"/>
+  <img src="https://img.shields.io/badge/Platform-Windows-0078D6?style=flat-square&logo=windows&logoColor=white" alt="Platform"/>
+  <img src="https://img.shields.io/badge/TTS-edge--tts%20%28free%29-4FC08D?style=flat-square" alt="TTS"/>
+</p>
+
 托尼・斯塔克同款桌面语音助理：**语音对话 + 免费神经语音回复 + 实时字幕 + 酷炫全息界面 + 系统级命令执行**。
 
 ## 快速开始
@@ -135,6 +144,10 @@ JarvisAssistant/
 ## 卸载
 
 删除整个 `JarvisAssistant` 文件夹即可（无系统残留、无后台服务、无开机自启）。
+
+## 许可证
+
+本项目基于 [MIT License](LICENSE) 开源，可自由使用、修改与分发。
 
 ## 两个发布版本
 
