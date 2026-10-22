@@ -19,9 +19,10 @@ from config import (BASE_DIR, WEBUI_DIR, AUDIO_DIR, load_config, save_config,
                     load_memory, save_memory, time_str)
 from brain import Brain
 from tts_engine import generate_tts, get_voice_catalog, preview_tts
+from smart_home import SmartHome
 import commands as C
 
-VERSION = "1.3.0"
+VERSION = "1.4.0"
 
 # 兼容打包环境：强制 stdout/stderr 使用 UTF-8，避免中文打印报错
 for _stream in (sys.stdout, sys.stderr):
@@ -41,7 +42,8 @@ ACTION_MAP = {
 class JarvisHub:
     def __init__(self):
         self.cfg = load_config()
-        self.brain = Brain(self.cfg)
+        self.sm = SmartHome(self.cfg)
+        self.brain = Brain(self.cfg, sm=self.sm)
         self.clients = set()
         self.pending = {}  # confirm_id -> 回调/动作
         self._confirm_seq = 0
@@ -55,6 +57,8 @@ class JarvisHub:
             await self.send_json(ws, {"type": "hello", "name": self.cfg["assistant_name"], "version": VERSION})
             await asyncio.sleep(0.3)
             await self.send_json(ws, {"type": "settings", "data": self.settings_payload()})
+            await self.send_json(ws, {"type": "devices", "data": self.sm.get_devices()})
+            await self.send_json(ws, {"type": "suggestions", "data": await self.suggestions_payload()})
             # 欢迎语（语音+字幕）
             await self.speak_to(ws, "系统已就绪。我是贾维斯，有什么可以帮你？")
             async for msg in ws:
@@ -90,6 +94,14 @@ class JarvisHub:
             except Exception as e:
                 resp = {"text": f"处理时出了点问题：{e}"}
             await self.finish_response(ws, resp)
+            # 对话后刷新动态提示词（热点 + 会话个性化）
+            try:
+                await self.send_json(ws, {"type": "suggestions",
+                                          "data": await self.suggestions_payload()})
+            except Exception:
+                pass
+            # 智能家居状态同步（语音/文字控制后各端面板一致）
+            await self.broadcast({"type": "devices", "data": self.sm.get_devices()})
         elif mtype == "confirm":
             cid = data.get("id")
             ok = data.get("ok", False)
@@ -106,6 +118,12 @@ class JarvisHub:
             self.brain.history = []
             await self.send_json(ws, {"type": "settings", "data": self.settings_payload()})
             await self.speak_to(ws, "设置已保存。")
+        elif mtype == "device_set":
+            did = data.get("id")
+            payload = data.get("payload") or {}
+            reply = await self.sm.set_device(did, payload)
+            await self.broadcast({"type": "devices", "data": self.sm.get_devices()})
+            await self.speak_to(ws, reply)
         elif mtype == "ping":
             await self.send_json(ws, {"type": "pong"})
 
@@ -141,6 +159,12 @@ class JarvisHub:
                 k: new["location"].get(k, self.cfg["location"].get(k))
                 for k in ("city", "latitude", "longitude")
             })
+        if isinstance(new.get("smart_home"), dict):
+            self.cfg["smart_home"].update({
+                k: str(new["smart_home"].get(k, self.cfg["smart_home"].get(k)) or "").strip()
+                for k in ("ha_url", "ha_token")
+            })
+            self.sm.cfg = self.cfg
 
     def settings_payload(self):
         c = self.cfg
@@ -149,8 +173,60 @@ class JarvisHub:
             "llm": dict(c["llm"]),
             "tts": dict(c["tts"]),
             "location": dict(c["location"]),
+            "smart_home": {"ha_url": c["smart_home"].get("ha_url", ""),
+                           "ha_token": c["smart_home"].get("ha_token", "")},
             "voices": get_voice_catalog(),
         }
+
+    async def suggestions_payload(self) -> list:
+        """动态提示词推荐：热点（新闻）+ 个性化（会话记录/地点）+ 玩法（智能家居/趣味）"""
+        city = self.cfg["location"].get("city", "深圳")
+        hist = [m.get("content", "") for m in self.brain.history[-6:] if m.get("role") == "user"]
+        pool = []
+        # 1) 热点（基于新闻标题，带缓存）
+        try:
+            hot = await self.brain._news_headlines("科技", 5)
+            if hot:
+                pool.append({"cmd": "讲讲今天的科技热点", "label": "🔥 科技热点"})
+                pool.append({"cmd": "搜索：" + hot[0][:16], "label": "🔎 " + hot[0][:16] + "…"})
+        except Exception:
+            pass
+        try:
+            fin = await self.brain._news_headlines("财经", 3)
+            if fin:
+                pool.append({"cmd": "看看今天财经新闻", "label": "📈 财经快讯"})
+        except Exception:
+            pass
+        # 2) 个性化（会话记录 + 地点）
+        joined = " ".join(hist)
+        if "天气" in joined or "温度" in joined:
+            pool.append({"cmd": f"{city}今天天气", "label": f"🌤 {city}天气"})
+            pool.append({"cmd": "北京天气", "label": "🌤 北京天气"})
+        if "新闻" in joined or "热点" in joined:
+            pool.append({"cmd": "今天有什么新闻", "label": "📰 新闻头条"})
+        if "备忘" in joined or "记下" in joined:
+            pool.append({"cmd": "查看备忘", "label": "📝 查看备忘"})
+        if "提醒" in joined:
+            pool.append({"cmd": "查看提醒", "label": "⏰ 查看提醒"})
+        # 3) 智能家居玩法
+        pool.append({"cmd": "打开客厅灯", "label": "💡 开客厅灯"})
+        pool.append({"cmd": "空调调到26度", "label": "❄️ 空调26度"})
+        pool.append({"cmd": "关掉窗帘", "label": "🪟 关窗帘"})
+        pool.append({"cmd": "扫地机器人开始工作", "label": "🤖 扫地机器人"})
+        # 4) 通用趣味兜底
+        pool.append({"cmd": "介绍一下你自己", "label": "🤖 自我介绍"})
+        pool.append({"cmd": "讲个笑话", "label": "😂 讲个笑话"})
+        pool.append({"cmd": "系统状态", "label": "🖥 系统状态"})
+        pool.append({"cmd": "现在几点", "label": "🕐 现在几点"})
+        # 去重
+        seen, out = set(), []
+        for s in pool:
+            if s["cmd"] not in seen:
+                seen.add(s["cmd"])
+                out.append(s)
+        import random
+        random.shuffle(out)
+        return out[:10]
 
     # ---------- 响应处理 ----------
     async def finish_response(self, ws, resp):
