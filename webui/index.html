@@ -33,9 +33,12 @@ header{position:fixed;top:0;left:0;right:0;height:56px;z-index:20;display:flex;a
   border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
 .brand{display:flex;align-items:center;gap:12px;font-size:20px;letter-spacing:2px;font-weight:700;
   color:#fff;text-shadow:0 0 12px var(--cyan),0 0 28px rgba(0,229,255,.45)}
-.brand .dot{width:12px;height:12px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:pulse 2s infinite}
-#workbenchTitle{margin-left:8px;font-size:12.5px;font-weight:400;letter-spacing:1px;color:#9fe8ff;
-  opacity:.85;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brand .dot{width:12px;height:12px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:pulse 2s infinite;flex:none}
+#greetText{margin-left:12px;font-size:22px;font-weight:800;letter-spacing:2px;white-space:nowrap;
+  background:linear-gradient(90deg,#00e5ff,#ffd166 60%,#ff8c42);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(0,229,255,.35));
+  animation:greetIn .9s ease}
+@keyframes greetIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.8)}}
 #statusBadge{margin-left:18px;font-size:13px;color:var(--dim);display:flex;align-items:center;gap:8px}
 #statusDot{width:8px;height:8px;border-radius:50%;background:#4c6a78;transition:all .3s}
@@ -69,7 +72,14 @@ main{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-c
 .st-exec .r1{animation-duration:4.5s;box-shadow:0 0 44px var(--stc-glow) inset}
 .st-exec .r2{animation-duration:3.2s}
 .st-exec .r3{animation-duration:2.6s}
-.st-listening .r1{animation-duration:9s}
+/* 倾听/说话：核心环持续放大呼吸 + 灯光闪烁 */
+.core-wrap.st-listening{animation:talkPulse 1.6s ease-in-out infinite}
+@keyframes talkPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+.st-listening .r1{animation:spin 9s linear infinite,flicker .38s steps(2,end) infinite}
+.st-listening .r2{animation:spinR 6s linear infinite,flicker .42s steps(2,end) infinite}
+.st-listening .r3{animation:spin 5s linear infinite,flicker .48s steps(2,end) infinite}
+.st-listening .rdash{animation:spinR 30s linear infinite,flicker .55s steps(2,end) infinite}
+@keyframes flicker{0%,100%{box-shadow:0 0 22px var(--stc-glow)}50%{box-shadow:0 0 60px var(--stc-glow),0 0 130px rgba(255,255,255,.28)}}
 @keyframes spin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes spinR{from{transform:translate(-50%,-50%) rotate(360deg)}to{transform:translate(-50%,-50%) rotate(0)}}
 /* 状态脉冲外环：待命=慢呼吸 / 倾听=波纹 / 执行=急速双环 */
@@ -145,23 +155,38 @@ main{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-c
   scrollbar-width:thin;scrollbar-color:rgba(0,229,255,.5) transparent}
 #subtitle.dim{opacity:.35}
 
-/* ---------- 底部输入 ---------- */
+/* 底部输入 */
 footer{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:30;width:min(860px,92vw);
   display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--glass);
   border:1px solid var(--line);border-radius:16px;backdrop-filter:blur(14px);
   box-shadow:0 0 34px rgba(0,120,180,.22)}
-#input{flex:1;background:rgba(0,0,0,.25);border:1px solid transparent;border-radius:10px;color:var(--txt);
-  font-size:15px;padding:10px 14px;outline:none;transition:border .2s;-webkit-user-select:text;user-select:text}
-#input:focus{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,229,255,.25)}
+@property --a{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes ra{to{--a:360deg}}
+#input{flex:1;background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)) padding-box,
+  conic-gradient(from var(--a),#ff0080,#ff8c00,#ffe600,#00e5ff,#7f00ff,#ff0080) border-box;
+  border:2px solid transparent;border-radius:10px;color:var(--txt);
+  font-size:15px;padding:10px 14px;outline:none;transition:border .2s;
+  animation:ra 4s linear infinite,inputGlow 2.4s ease-in-out infinite;
+  -webkit-user-select:text;user-select:text}
+@keyframes inputGlow{0%,100%{box-shadow:0 0 8px rgba(0,229,255,.25)}50%{box-shadow:0 0 20px rgba(255,0,128,.35)}}
+#input:focus{border-color:transparent;box-shadow:0 0 16px rgba(0,229,255,.5)}
 #interim{margin-top:4px;font-size:11px;color:var(--gold);min-height:14px;text-align:center}
-footer .btn{flex:none;padding:10px 16px;border-radius:10px;font-size:14px;cursor:pointer;border:1px solid var(--line);
-  background:rgba(0,229,255,.07);color:var(--cyan);transition:all .2s}
-footer .btn:hover{background:rgba(0,229,255,.16);box-shadow:0 0 14px rgba(0,229,255,.3)}
-footer .btn.active{background:rgba(0,229,255,.22);border-color:var(--cyan);box-shadow:0 0 16px rgba(0,229,255,.5)}
-footer .btn.primary{background:linear-gradient(135deg,var(--cyan),var(--blue));color:#031018;font-weight:700;border:none}
+footer .btn{flex:none;padding:10px 16px;border-radius:10px;font-size:14px;cursor:pointer;color:var(--cyan);
+  border:2px solid transparent;background:linear-gradient(rgba(0,229,255,.07),rgba(0,229,255,.07)) padding-box,
+  conic-gradient(from var(--a),#ff0080,#ff8c00,#ffe600,#00e5ff,#7f00ff,#ff0080) border-box;
+  animation:ra 3s linear infinite;transition:all .2s}
+footer .btn:hover{background:linear-gradient(rgba(0,229,255,.18),rgba(0,229,255,.18)) padding-box,
+  conic-gradient(from var(--a),#ff0080,#ff8c00,#ffe600,#00e5ff,#7f00ff,#ff0080) border-box;
+  box-shadow:0 0 14px rgba(0,229,255,.4)}
+footer .btn.active{background:linear-gradient(rgba(0,229,255,.25),rgba(0,229,255,.25)) padding-box,
+  conic-gradient(from var(--a),#ff0080,#ff8c00,#ffe600,#00e5ff,#7f00ff,#ff0080) border-box;
+  box-shadow:0 0 16px rgba(0,229,255,.55)}
+footer .btn.primary{background:linear-gradient(90deg,#ff0080,#ff8c00,#ffe600,#00e5ff,#7f00ff,#ff0080);
+  background-size:300% 100%;animation:rainbowMove 3.5s linear infinite;color:#031018;font-weight:700;border:none}
+@keyframes rainbowMove{to{background-position:300% 0}}
+footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(255,0,128,.5)}
 footer .btn.danger{background:linear-gradient(135deg,#ff5f5f,#ff2d6f);color:#fff;font-weight:700;border:none;
-  box-shadow:0 0 16px rgba(255,60,90,.45)}
-footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229,255,.55)}
+  box-shadow:0 0 16px rgba(255,60,90,.45);animation:none}
 .chips{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);z-index:25;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;pointer-events:auto}
 .chip{font-size:12px;color:var(--cyan);padding:5px 12px;border:1px solid var(--line);border-radius:20px;
   background:rgba(6,18,34,.6);cursor:pointer;backdrop-filter:blur(6px);transition:all .2s}
@@ -220,10 +245,11 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
   background:rgba(255,209,102,.06);font-size:12.5px;color:#ffe9b8;line-height:1.6}
 .intro-keybox.ok{border-color:rgba(0,229,255,.35);background:rgba(0,229,255,.06);color:var(--cyan)}
 
-/* ---------- Agent 上下文面板 ---------- */
-#ctxPanel{position:fixed;left:18px;top:70px;bottom:190px;width:360px;z-index:20;display:none;
+/* ---------- Agent 上下文面板（左侧，默认展开） ---------- */
+#ctxPanel{position:fixed;left:18px;top:70px;bottom:190px;width:360px;z-index:20;display:flex;
   flex-direction:column;background:var(--glass);border:1px solid var(--line);border-radius:14px;
   backdrop-filter:blur(12px);overflow:hidden;box-shadow:0 0 30px rgba(0,60,120,.25)}
+#ctxPanel.hide{display:none}
 #ctxPanel.show{display:flex}
 #ctxHead{flex:none;padding:10px 14px;font-size:13px;color:var(--gold);border-bottom:1px solid var(--line);
   display:flex;justify-content:space-between;align-items:center;letter-spacing:1px}
@@ -250,10 +276,11 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
 #chatBody .msg::-webkit-scrollbar{width:5px}
 #chatBody .msg::-webkit-scrollbar-thumb{background:rgba(0,229,255,.4);border-radius:3px}
 
-/* ---------- 智能家居面板 ---------- */
-#homePanel{position:fixed;left:18px;top:70px;bottom:190px;width:360px;z-index:20;display:none;
+/* ---------- 智能家居面板（右侧，默认展开） ---------- */
+#homePanel{position:fixed;right:396px;top:70px;bottom:190px;width:360px;z-index:20;display:flex;
   flex-direction:column;background:var(--glass);border:1px solid rgba(0,255,156,.35);border-radius:14px;
   backdrop-filter:blur(12px);overflow:hidden;box-shadow:0 0 30px rgba(0,120,80,.25)}
+#homePanel.hide{display:none}
 #homePanel.show{display:flex}
 #homeHead{flex:none;padding:10px 14px;font-size:13px;color:var(--gold);border-bottom:1px solid rgba(0,255,156,.3);
   display:flex;justify-content:space-between;align-items:center;letter-spacing:1px}
@@ -378,7 +405,7 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
 
 <header>
   <div class="brand"><span class="dot"></span>J.A.R.V.I.S.
-    <span id="workbenchTitle" title="工作台名称（可在设置中自定义）"></span>
+    <span id="greetText" title="问候语与昵称（设置中可自定义昵称）">正在问候...</span>
   </div>
   <div id="statusBadge"><span id="statusDot"></span><span id="statusText">连接中...</span></div>
   <div class="hdr-right">
@@ -505,7 +532,11 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
     <h2>⚙ 系统设置</h2>
     <div class="sub">修改后立即生效。接入大模型 API 后贾维斯可进行任意深度对话。</div>
     <div class="field"><label>助理名称</label><input id="setName" maxlength="20"></div>
-    <div class="field"><label>工作台标题（左上角显示）</label><input id="setTitle" maxlength="40" placeholder="如：黄超的智能AI工作台"></div>
+    <div class="field"><label>我的昵称（左上角问候语跟随显示）</label><input id="setNick" maxlength="20" placeholder="如：黄超"></div>
+    <div class="field"><label>唤醒词（语音唤醒口令，默认“贾维斯”）</label><input id="setWake" maxlength="20" placeholder="贾维斯"></div>
+    <div class="field"><label>工作台标题（预留）</label><input id="setTitle" maxlength="40" placeholder="如：黄超的智能AI工作台"></div>
+    <div class="field" style="display:flex;flex-wrap:wrap;gap:4px 18px"><label class="chk"><input type="checkbox" id="setSplash"> 进入时播放启动动画</label>
+      <label class="chk"><input type="checkbox" id="setBootSound"> 进入时播放开机音效</label></div>
     <div class="field"><label>核心背景主题（动效可随时切换）</label><select id="setTheme"></select></div>
     <div class="field"><label>语音分组</label><select id="setVoiceGroup"></select></div>
     <div class="field"><label>语音音色（免费 edge-tts 神经语音）</label>
@@ -565,7 +596,7 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
   <div class="modal">
     <h2 style="text-align:center;letter-spacing:3px">WELCOME · 欢迎使用 J.A.R.V.I.S.</h2>
     <div class="sub" style="text-align:center">钢铁侠同款桌面智能助理 · 语音对话 / 系统控制 / 实时字幕</div>
-    <div class="intro-step"><span class="num">1</span><span>点击下方按钮<strong>授权麦克风</strong>，之后点击「⚡ 唤醒」说<b>“贾维斯”</b>即可语音对话；也可<strong>按住空格键</strong>或「🎤 按住说话」直接说。</span></div>
+    <div class="intro-step"><span class="num">1</span><span>点击下方按钮<strong>授权麦克风</strong>，之后点击「⚡ 唤醒」说<b>“贾维斯”</b>（唤醒词可在设置中自定义）即可语音对话；也可<strong>按住空格键</strong>或「🎤 按住说话」直接说。</span></div>
     <div class="intro-step"><span class="num">2</span><span>可直接在底部输入框<b>打字下达指令</b>：打开记事本、今日天气、提醒我30分钟后喝水、搜索 Python 教程……</span></div>
     <div class="intro-step"><span class="num">3</span><span><b>最高系统权限</b>：可调节音量、锁屏、睡眠、截图、查看磁盘与系统状态；关机/重启等操作会二次确认。</span></div>
     <div class="intro-step"><span class="num">4</span><span><b>建议配置 API Key</b>（40+ 厂商可选：DeepSeek / OpenAI / Gemini / Kimi / 智谱 / 混元 / 豆包 / Claude / OpenRouter 等，价格极低），接入大模型后贾维斯可进行<b>任意深度对话</b>。</span></div>
@@ -685,8 +716,22 @@ function setState(s){
   wrap.classList.remove('st-idle','st-listening','st-exec');wrap.classList.add('st-'+key);
   $('stateText').textContent=STATE_LABEL[key];$('statusText').textContent=STATE_LABEL[key];
   $('statusDot').className=key==='idle'?'':(key==='listening'?'on':'busy');
-  $('wave').classList.toggle('on',key==='listening');
+  // 说话（倾听）与播报/执行时波形跳动，提供语音实时反馈
+  $('wave').classList.toggle('on',key!=='idle');
   fx.mode=key;}
+/* 左上角问候语：时段 + 昵称 */
+function renderGreet(){
+  const el=$('greetText');if(!el)return;
+  const h=new Date().getHours();
+  const nick=(settingsData&&settingsData.user_nickname)||'';
+  let g;
+  if(h<9)g='早上好';else if(h<12)g='上午好';else if(h<18)g='下午好';else g='晚上好';
+  el.textContent=g+(nick?('，'+nick):'');
+  setInterval(()=>{const el2=$('greetText');if(!el2)return;
+    const n2=(settingsData&&settingsData.user_nickname)||'';
+    const h2=new Date().getHours();
+    let g2;if(h2<9)g2='早上好';else if(h2<12)g2='上午好';else if(h2<18)g2='下午好';else g2='晚上好';
+    if(el2.textContent!==g2+(n2?('，'+n2):''))el2.textContent=g2+(n2?('，'+n2):'');},60000);}
 let typeTimer=null;
 function typeSubtitle(text){
   clearInterval(typeTimer);const el=$('subtitle');el.classList.remove('dim');
@@ -785,8 +830,10 @@ function makeRec(){
   return r;}
 function handleVoice(t){
   if(!t||speaking)return;
+  const ww=(settingsData&&settingsData.wakeword)||'贾维斯';
+  const wakeRe=new RegExp(ww.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i');
   if(attentive){attentive=false;clearTimeout(attentionTimer);sendChat(t);}
-  else if(/贾维斯|jarvis|你好助理|hey\s*j/i.test(t)){
+  else if(wakeRe.test(t)||/jarvis|你好助理|hey\s*j/i.test(t)){
     attentive=true;setState('listening');
     typeSubtitle('我在，请讲');speakBrowserFallback();
     clearTimeout(attentionTimer);
@@ -855,7 +902,7 @@ function updateSendBtn(){
 function handleMsg(m){
   switch(m.type){
     case 'hello':
-      $('hint').textContent='唤醒词：贾维斯 · 按住「空格」或「🎤 按住说话」语音输入 · 文字指令 / 系统控制 均已就绪';
+      $('hint').textContent='唤醒词：'+(settingsData&&settingsData.wakeword||'贾维斯')+' · 按住「空格」或「🎤 按住说话」语音输入 · 文字指令 / 系统控制 均已就绪';
       break;
     case 'user':
       addChat('user',m.text);break;
@@ -994,13 +1041,15 @@ function renderDevices(list){
 $('homeToggle').onclick=()=>{
   const show=!$('homePanel').classList.contains('show');
   $('homePanel').classList.toggle('show',show);
-  if(show)$('ctxPanel').classList.remove('show');};
-$('homeClose').onclick=()=>$('homePanel').classList.remove('show');
+  $('homePanel').classList.toggle('hide',!show);
+  $('homeToggle').classList.toggle('active',show);};
+$('homeClose').onclick=()=>{$('homePanel').classList.remove('show');$('homePanel').classList.add('hide');$('homeToggle').classList.remove('active');};
 $('ctxToggle').onclick=()=>{
   const show=!$('ctxPanel').classList.contains('show');
   $('ctxPanel').classList.toggle('show',show);
-  if(show)$('homePanel').classList.remove('show');};
-$('ctxClose').onclick=()=>$('ctxPanel').classList.remove('show');
+  $('ctxPanel').classList.toggle('hide',!show);
+  $('ctxToggle').classList.toggle('active',show);};
+$('ctxClose').onclick=()=>{$('ctxPanel').classList.remove('show');$('ctxPanel').classList.add('hide');$('ctxToggle').classList.remove('active');};
 $('btnWake').onclick=toggleMic;
 
 /* ================= 设置 ================= */
@@ -1032,9 +1081,15 @@ function setSlider(id,labelId,val,suffix){
 function fillSettings(d){
   settingsData=d;
   $('setName').value=d.assistant_name||'贾维斯';
+  const nick=$('setNick');if(nick)nick.value=d.user_nickname||'';
+  const wake=$('setWake');if(wake)wake.value=d.wakeword||'贾维斯';
+  const ap=(d.appearance)||{};
+  const sp=$('setSplash');if(sp)sp.checked=ap.splash!==false;
+  const bs=$('setBootSound');if(bs)bs.checked=ap.boot_sound!==false;
   $('setTitle').value=d.workbench_title||'';
-  const wt=document.getElementById('workbenchTitle');
-  if(wt)wt.textContent=d.workbench_title||'贾维斯的智能AI工作台';
+  renderGreet();
+  // 唤醒词变化同步到底部提示
+  const h=$('hint');if(h)h.textContent='唤醒词：'+(d.wakeword||'贾维斯')+' · 按住「空格」或「🎤 按住说话」语音输入 · 文字指令 / 系统控制 均已就绪';
   $('setCity').value=(d.location&&d.location.city)||'深圳';
   $('setHaUrl').value=(d.smart_home&&d.smart_home.ha_url)||'';
   $('setHaToken').value=(d.smart_home&&d.smart_home.ha_token)||'';
@@ -1105,6 +1160,10 @@ $('btnSave').onclick=()=>{
   const voice=custom||$('setVoice').value;
   send({type:'settings_save',data:{
     assistant_name:$('setName').value.trim()||'贾维斯',
+    user_nickname:($('setNick')?$('setNick').value.trim():'')||'',
+    wakeword:($('setWake')?$('setWake').value.trim():'')||'贾维斯',
+    appearance:{splash:!$('setSplash')||$('setSplash').checked,
+                boot_sound:!$('setBootSound')||$('setBootSound').checked},
     workbench_title:$('setTitle').value.trim()||'贾维斯的智能AI工作台',
     llm:{enabled:$('setLlmOn').checked,provider:$('setProvider').value,
          base_url:$('setBase').value.trim(),api_key:$('setKey').value.trim(),
@@ -1135,7 +1194,7 @@ $('btnIntroMic').onclick=requestMic;
 $('btnIntroSettings').onclick=()=>{$('introMask').classList.remove('show');$('settingsMask').classList.add('show');};
 $('btnIntroGo').onclick=()=>{
   $('introMask').classList.remove('show');
-  playBootSound();
+  if(bootSoundOn())playBootSound();
   if($('introNoMore').checked)try{localStorage.setItem('jarvis_intro_done','1');}catch(e){}};
 $('introMask').addEventListener('click',e=>{if(e.target===$('introMask'))$('introMask').classList.remove('show');});
 function showIntro(){
@@ -1175,7 +1234,7 @@ $('btnBig').onclick=()=>togglePanel('bigPanel','widgetPanel');
 $('bigClose').onclick=()=>$('bigPanel').classList.remove('show');
 $('btnWidgets').onclick=()=>togglePanel('widgetPanel','bigPanel');
 $('widgetClose').onclick=()=>$('widgetPanel').classList.remove('show');
-$('bigPanel').classList.add('show');  // 大屏默认开启
+$('bigPanel').classList.remove('show');  // 大屏面板默认收起（点击 📊 展示），避免与右侧智能家居面板重叠
 $('wWake').onclick=()=>{toggleMic();$('widgetPanel').classList.remove('show');};
 $('wHome').onclick=()=>{togglePanel('homePanel','ctxPanel');$('widgetPanel').classList.remove('show');};
 $('wSet').onclick=()=>{$('settingsMask').classList.add('show');$('widgetPanel').classList.remove('show');};
@@ -1220,15 +1279,18 @@ function playBootSound(){
   pg.gain.linearRampToValueAtTime(.25,t0+2.06);pg.gain.exponentialRampToValueAtTime(.0001,t0+2.8);
   ping.connect(pg);pg.connect(master);ping.start(t0+2.0);ping.stop(t0+2.85);}
 $('btnMusic').onclick=()=>{playBootSound();toast('🔊 播放开机音效');};
-/* 首次交互（未显示引导弹窗时）播放开机音效 */
+/* 首次交互（未显示引导弹窗时）播放开机音效（设置中可关闭） */
+function bootSoundOn(){return !settingsData||!settingsData.appearance||settingsData.appearance.boot_sound!==false;}
 window.addEventListener('pointerdown',function _once(){
   let done=false;try{done=localStorage.getItem('jarvis_intro_done')==='1';}catch(e){}
   if(!document.getElementById('introMask').classList.contains('show')){
-    playBootSound();window.removeEventListener('pointerdown',_once);}
+    if(bootSoundOn())playBootSound();window.removeEventListener('pointerdown',_once);}
 },{once:true});
-/* 启动加载动画：进度条走完 + 页面就绪后淡出 */
+/* 启动加载动画：进度条走完 + 页面就绪后淡出（设置中可关闭） */
+function splashOn(){return !settingsData||!settingsData.appearance||settingsData.appearance.splash!==false;}
 (function(){
   const bar=$('splashBar'),splash=$('splash');
+  if(!splashOn()){splash.classList.add('done');return;}
   let p=0;const timer=setInterval(()=>{
     p=Math.min(100,p+3+Math.random()*9);
     bar.style.width=p+'%';
