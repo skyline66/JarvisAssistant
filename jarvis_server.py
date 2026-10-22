@@ -21,7 +21,7 @@ from brain import Brain
 from tts_engine import generate_tts, VOICES
 import commands as C
 
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 
 # 兼容打包环境：强制 stdout/stderr 使用 UTF-8，避免中文打印报错
 for _stream in (sys.stdout, sys.stderr):
