@@ -2,7 +2,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/github/stars/skyline66/JarvisAssistant?style=flat-square&color=00e5ff" alt="GitHub stars"/>
-  <img src="https://img.shields.io/badge/version-v1.1.0-00e5ff?style=flat-square" alt="version"/>
+  <img src="https://img.shields.io/badge/version-v1.2.0-00e5ff?style=flat-square" alt="version"/>
   <img src="https://img.shields.io/github/actions/workflow/status/skyline66/JarvisAssistant/ci.yml?style=flat-square" alt="CI"/>
   <img src="https://img.shields.io/badge/Python-3.9%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"/>
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="License"/>
@@ -169,6 +169,11 @@ JarvisAssistant/
 
 - EXE 版运行后数据（config.json / 备忘 / 截图）保存在 exe 同目录。
 - Web 版默认监听 `0.0.0.0`；远程访问时**语音输入需 HTTPS**（文字、字幕、语音播放不受影响）。
+
+## v1.2 更新记录
+
+- **新增**：中央核心动效背景 **4 套主题可随时切换**（全息能量环 / 粒子漩涡 / 线框能量球 / 极光脉冲）——点击核心下方「主题」按钮轮换，或右上角 ⚙ 设置中固定选择，选择会本地记忆。
+- **新增**：**三态视觉区分** —— 待命（青蓝呼吸环）/ 倾听中（绿色波纹 + 声波跳动）/ 执行任务中（金色能量急速环 + 双脉冲），字幕与状态灯同步联动。
 
 ## v1.1 更新记录
 
