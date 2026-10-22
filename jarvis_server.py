@@ -22,7 +22,7 @@ from tts_engine import generate_tts, get_voice_catalog, preview_tts
 from smart_home import SmartHome
 import commands as C
 
-VERSION = "1.7.0"
+VERSION = "1.8.0"
 
 # 兼容打包环境：强制 stdout/stderr 使用 UTF-8，避免中文打印报错
 for _stream in (sys.stdout, sys.stderr):
@@ -139,6 +139,14 @@ class JarvisHub:
             self.cfg["assistant_name"] = str(new["assistant_name"])[:20]
         if "workbench_title" in new:
             self.cfg["workbench_title"] = str(new["workbench_title"])[:40]
+        if "user_nickname" in new:
+            self.cfg["user_nickname"] = str(new["user_nickname"])[:20]
+        if "wakeword" in new:
+            self.cfg["wakeword"] = str(new["wakeword"])[:20] or "贾维斯"
+        if isinstance(new.get("appearance"), dict):
+            for k in ("splash", "boot_sound"):
+                if k in new["appearance"]:
+                    self.cfg["appearance"][k] = bool(new["appearance"][k])
         if isinstance(new.get("llm"), dict):
             llm_new = new["llm"]
             for k in ("enabled", "provider", "base_url", "api_key", "model", "reasoning"):
@@ -180,6 +188,9 @@ class JarvisHub:
         return {
             "assistant_name": c["assistant_name"],
             "workbench_title": c.get("workbench_title", "贾维斯的智能AI工作台"),
+            "user_nickname": c.get("user_nickname", ""),
+            "wakeword": c.get("wakeword", "贾维斯"),
+            "appearance": dict(c.get("appearance", {"splash": True, "boot_sound": True})),
             "llm": dict(c["llm"]),
             "tts": dict(c["tts"]),
             "location": dict(c["location"]),
