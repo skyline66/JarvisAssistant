@@ -1,0 +1,76 @@
+name: CI - 测试 / 打包 EXE / 发布 Release
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: 自动化测试（test_jarvis.py）
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      - name: 安装 Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: 运行集成测试
+        run: python test_jarvis.py
+
+  build:
+    name: 打包 EXE
+    needs: test
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      - name: 安装 Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: 安装依赖与 PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+      - name: PyInstaller 打包单文件 EXE
+        run: >
+          python -m PyInstaller --noconfirm --onefile --name JarvisAssistant
+          --add-data "webui;webui"
+          --collect-all edge_tts --collect-all aiohttp
+          --hidden-import psutil --hidden-import PIL --hidden-import PIL.ImageGrab
+          jarvis_server.py
+      - name: 上传 EXE 产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: JarvisAssistant-exe
+          path: dist/JarvisAssistant.exe
+
+  release:
+    name: 发布 GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - name: 下载 EXE 产物
+        uses: actions/download-artifact@v4
+        with:
+          name: JarvisAssistant-exe
+          path: dist
+      - name: 创建 Release 并附上 EXE
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/JarvisAssistant.exe
+          generate_release_notes: true

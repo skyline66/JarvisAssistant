@@ -3,6 +3,7 @@
 <p align="center">
   <img src="https://img.shields.io/github/stars/skyline66/JarvisAssistant?style=flat-square&color=00e5ff" alt="GitHub stars"/>
   <img src="https://img.shields.io/badge/version-v1.1.0-00e5ff?style=flat-square" alt="version"/>
+  <img src="https://img.shields.io/github/actions/workflow/status/skyline66/JarvisAssistant/ci.yml?style=flat-square" alt="CI"/>
   <img src="https://img.shields.io/badge/Python-3.9%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"/>
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="License"/>
   <img src="https://img.shields.io/badge/Platform-Windows-0078D6?style=flat-square&logo=windows&logoColor=white" alt="Platform"/>
@@ -148,6 +149,14 @@ JarvisAssistant/
 ## 许可证
 
 本项目基于 [MIT License](LICENSE) 开源，可自由使用、修改与分发。
+
+## 自动化构建（GitHub Actions）
+
+仓库已配置 CI 工作流（`.github/workflows/ci.yml`）：
+
+- **每次 push / PR**：自动在 Windows 环境运行 `test_jarvis.py` 集成测试（意图识别 / 命令引擎 / edge-tts 语音 / WS 端到端 / 天气），通过后自动打包单文件 EXE，产物可在 Actions 页面下载。
+- **打版本标签**：`git tag v1.1.0 && git push origin v1.1.0` 会自动发布 GitHub Release 并附带 EXE 安装文件。
+- 也可以在 Actions 页面手动触发（workflow_dispatch）。
 
 ## 两个发布版本
 
