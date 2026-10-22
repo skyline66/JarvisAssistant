@@ -212,7 +212,33 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
   background:rgba(255,209,102,.06);font-size:12.5px;color:#ffe9b8;line-height:1.6}
 .intro-keybox.ok{border-color:rgba(0,229,255,.35);background:rgba(0,229,255,.06);color:var(--cyan)}
 
-@media (max-width:1000px){#chat{display:none}.core-wrap{transform:scale(.8)}}
+/* ---------- Agent 上下文面板 ---------- */
+#ctxPanel{position:fixed;left:18px;top:70px;bottom:190px;width:360px;z-index:20;display:none;
+  flex-direction:column;background:var(--glass);border:1px solid var(--line);border-radius:14px;
+  backdrop-filter:blur(12px);overflow:hidden;box-shadow:0 0 30px rgba(0,60,120,.25)}
+#ctxPanel.show{display:flex}
+#ctxHead{flex:none;padding:10px 14px;font-size:13px;color:var(--gold);border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:center;letter-spacing:1px}
+#ctxBody{flex:1;overflow-y:auto;padding:12px;font-size:12.5px;scroll-behavior:smooth}
+#ctxBody::-webkit-scrollbar{width:4px}
+#ctxBody::-webkit-scrollbar-thumb{background:rgba(255,209,102,.3);border-radius:2px}
+.ctx-user,.ctx-jarvis{margin-bottom:7px;line-height:1.6;color:var(--txt);word-break:break-word;animation:rise .25s ease}
+.ctx-user b{color:var(--cyan)}.ctx-jarvis b{color:var(--gold)}
+.ctx-step{margin:8px 0;padding:8px 10px;border:1px solid rgba(255,209,102,.35);border-radius:8px;
+  background:rgba(255,209,102,.06);color:#ffe9b8;line-height:1.6;animation:rise .25s ease;word-break:break-word}
+.ctx-step b{color:var(--gold)}
+.cs-r{margin-top:4px;color:var(--dim);font-size:11.5px;border-top:1px dashed rgba(255,209,102,.25);
+  padding-top:4px;word-break:break-all}
+#ctxClose{background:none;border:none;color:var(--dim);font-size:14px;cursor:pointer;padding:0 2px}
+#ctxClose:hover{color:#fff}
+#ctxToggle{background:none;border:1px solid rgba(255,209,102,.35);color:var(--gold);font-size:11px;
+  border-radius:10px;padding:2px 8px;cursor:pointer}
+#ctxToggle:hover{background:rgba(255,209,102,.12)}
+.msg.streaming .st{display:block;white-space:pre-wrap;word-break:break-word}
+.msg.streaming::after{content:"▍";color:var(--cyan);animation:blink .8s infinite}
+@keyframes blink{50%{opacity:0}}
+
+@media (max-width:1000px){#chat{display:none}#ctxPanel{display:none!important}.core-wrap{transform:scale(.8)}}
 </style>
 </head>
 <body>
@@ -253,7 +279,7 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
 </main>
 
 <div id="chat">
-  <div id="chatHead"><span>▣ 交互日志</span><span style="font-size:11px" id="logCount"></span></div>
+  <div id="chatHead"><span>▣ 交互日志</span><span style="display:flex;align-items:center;gap:10px"><span style="font-size:11px" id="logCount"></span><button id="ctxToggle" title="Agent 上下文：多轮记录与工具调用过程">🧠 上下文</button></span></div>
   <div id="chatBody"></div>
 </div>
 
@@ -280,6 +306,12 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
 
 <div id="toasts"></div>
 
+<!-- Agent 上下文面板 -->
+<div id="ctxPanel">
+  <div id="ctxHead"><span>🧠 Agent 上下文 · 多轮对话 / 工具调用</span><button id="ctxClose">✕</button></div>
+  <div id="ctxBody"></div>
+</div>
+
 <!-- 设置弹窗 -->
 <div class="modal-mask" id="settingsMask">
   <div class="modal">
@@ -287,13 +319,26 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
     <div class="sub">修改后立即生效。接入大模型 API 后贾维斯可进行任意深度对话。</div>
     <div class="field"><label>助理名称</label><input id="setName" maxlength="20"></div>
     <div class="field"><label>核心背景主题（动效可随时切换）</label><select id="setTheme"></select></div>
+    <div class="field"><label>语音分组</label><select id="setVoiceGroup"></select></div>
     <div class="field"><label>语音音色（免费 edge-tts 神经语音）</label>
       <select id="setVoice"></select></div>
+    <div class="field"><label>自定义音色名（留空使用上方选择）</label>
+      <div style="display:flex;gap:8px">
+        <input id="setCustomVoice" placeholder="如 zh-CN-XiaoyiNeural">
+        <button class="mbtn ghost" id="btnPreviewVoice" style="flex:none;white-space:nowrap">试听</button>
+      </div></div>
+    <div class="field"><label>语速 / 音量 / 音调</label>
+      <div style="display:flex;flex-wrap:wrap;gap:2px 16px;align-items:center;font-size:12px;color:var(--dim)">
+        <label>语速 <input id="setRate" type="range" min="-50" max="100" value="0" style="width:100px;vertical-align:middle"> <span id="rateVal">+0%</span></label>
+        <label>音量 <input id="setVol" type="range" min="-50" max="100" value="0" style="width:90px;vertical-align:middle"> <span id="volVal">+0%</span></label>
+        <label>音调 <input id="setPitch" type="range" min="-50" max="50" value="0" style="width:90px;vertical-align:middle"> <span id="pitchVal">+0Hz</span></label>
+      </div></div>
     <div class="field"><label>所在城市（用于天气）</label><input id="setCity"></div>
-    <div class="field"><label class="chk"><input type="checkbox" id="setLlmOn"> 启用 AI 大脑（OpenAI 兼容 API）</label></div>
-    <div class="field"><label>API 地址</label><input id="setBase" placeholder="https://api.deepseek.com/v1"></div>
-    <div class="field"><label>API Key（仅保存在本地 config.json）</label><input id="setKey" type="password" placeholder="sk-..."></div>
+    <div class="field"><label class="chk"><input type="checkbox" id="setLlmOn"> 启用 AI 大脑（Agent 模式 · 多轮上下文 + 工具调用）</label></div>
+    <div class="field"><label>服务厂商</label><select id="setProvider"></select></div>
     <div class="field"><label>模型</label><input id="setModel" placeholder="deepseek-chat"></div>
+    <div class="field"><label>API 地址（自定义厂商可改）</label><input id="setBase" placeholder="https://api.deepseek.com/v1"></div>
+    <div class="field"><label>API Key（仅保存在本地 config.json）</label><input id="setKey" type="password" placeholder="sk-..."></div>
     <div class="modal-actions">
       <button class="mbtn ghost" id="btnCancel">取消</button>
       <button class="mbtn primary" id="btnSave">保存</button>
@@ -457,6 +502,20 @@ function addChat(kind,text){
   body.scrollTop=body.scrollHeight;}
 function addSys(text){addChat('sys',text);}
 
+/* ================= Agent 上下文面板 ================= */
+let curStreamEl=null;
+function addCtx(kind,text){
+  const body=$('ctxBody');if(!body)return;
+  const d=document.createElement('div');d.className='ctx-'+kind;
+  d.innerHTML=`<b>${kind==='user'?'你':'贾维斯'}</b>：${esc(text)}`;
+  body.appendChild(d);while(body.children.length>120)body.removeChild(body.firstChild);
+  body.scrollTop=body.scrollHeight;}
+function addCtxStep(tool,arg,result){
+  const body=$('ctxBody');if(!body||!tool)return;
+  const d=document.createElement('div');d.className='ctx-step';
+  d.innerHTML=`<span class="cs-ico">⚙</span> <b>${esc(tool)}</b>${arg?`（${esc(arg)}）`:''}${result!=null?`<div class="cs-r">→ ${esc(String(result).slice(0,260))}</div>`:''}`;
+  body.appendChild(d);body.scrollTop=body.scrollHeight;}
+
 /* ================= 语音输出 ================= */
 let speaking=false,curAudio=null;
 function resumeRec(){if(micOn&&!speaking){try{rec&&rec.start();}catch(e){}}}
@@ -549,10 +608,30 @@ function handleMsg(m){
     case 'user':
       addChat('user',m.text);break;
     case 'jarvis':
-      addChat('jarvis',m.text);
+      // 流式气泡收尾：如有进行中的流式气泡，直接用最终文本定型
+      if(curStreamEl){curStreamEl.classList.remove('streaming');
+        curStreamEl.querySelector('.st').textContent=m.text;curStreamEl=null;}
+      else addChat('jarvis',m.text);
+      addCtx('jarvis',m.text);
       typeSubtitle(m.spoken||m.text);
       if(m.audio)playAudio(m.audio);
       else speakBrowserFallback();
+      break;
+    case 'llm_delta':
+      if(!curStreamEl){
+        const body=$('chatBody');curStreamEl=document.createElement('div');
+        curStreamEl.className='msg jarvis streaming';
+        curStreamEl.innerHTML=`<span class="t">${nowStr()}</span><span class="st"></span>`;
+        body.appendChild(curStreamEl);
+        while(body.children.length>80)body.removeChild(body.firstChild);
+        $('logCount').textContent=body.children.length+' 条';}
+      curStreamEl.querySelector('.st').textContent+=m.text;
+      $('chatBody').scrollTop=$('chatBody').scrollHeight;
+      break;
+    case 'agent_step':
+      {const st=m.data;
+       if(st&&st.type==='call')addSys('🧠 工具调用：'+st.tool+(st.arg?'（'+st.arg+'）':''));
+       addCtxStep(st&&st.tool,st&&st.arg,st&&st.type==='result'?st.result:null);}
       break;
     case 'action_log':
       addSys('⚙ '+m.text);break;
@@ -588,6 +667,7 @@ function sendChat(text){
   if(!text)return;
   $('input').value='';
   addChat('user',text);
+  addCtx('user',text);
   setState('thinking');
   send({type:'chat',text});
   dimSubtitle();}
@@ -597,7 +677,23 @@ document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>sendChat(c.dataset.c
 $('btnWake').onclick=toggleMic;
 
 /* ================= 设置 ================= */
-let settingsData=null;
+let settingsData=null,_voiceMap={};
+function fillVoiceSelect(group,selected){
+  const sel=$('setVoice');sel.innerHTML='';
+  const list=_voiceMap[group]||[];
+  list.forEach(v=>{const o=document.createElement('option');o.value=v.name;
+    o.textContent=v.label;sel.appendChild(o);});
+  if(selected&&[...sel.options].some(o=>o.value===selected))sel.value=selected;}
+function applyProviderDefaults(force){
+  const provs=(settingsData&&settingsData.llm&&settingsData.llm.providers)||{};
+  const p=$('setProvider').value;
+  const cfg=provs[p]||{};
+  if(force&&cfg.base_url){$('setBase').value=cfg.base_url;$('setBase').placeholder=cfg.base_url;}
+  if(force&&cfg.model){$('setModel').value=cfg.model;$('setModel').placeholder=cfg.model;}
+  if(!$('setBase').value&&cfg.base_url)$('setBase').value=cfg.base_url;
+  if(!$('setModel').value&&cfg.model)$('setModel').value=cfg.model;}
+function setSlider(id,labelId,val,suffix){
+  $(id).value=val;$(labelId).textContent=(val>0?'+':'')+val+suffix;}
 function fillSettings(d){
   settingsData=d;
   $('setName').value=d.assistant_name||'贾维斯';
@@ -605,31 +701,74 @@ function fillSettings(d){
   $('setLlmOn').checked=!!(d.llm&&d.llm.enabled);
   $('setBase').value=(d.llm&&d.llm.base_url)||'';
   $('setKey').value=(d.llm&&d.llm.api_key)||'';
-  $('setModel').value=(d.llm&&d.llm.model)||'deepseek-chat';
-  const sel=$('setVoice');sel.innerHTML='';
-  const voices=d.voices||['zh-CN-XiaoxiaoNeural','zh-CN-YunxiNeural','zh-CN-YunyangNeural'];
-  voices.forEach(v=>{const o=document.createElement('option');o.value=v;
-    o.textContent=v==='zh-CN-XiaoxiaoNeural'?v+'（晓晓·女声）':v==='zh-CN-YunxiNeural'?v+'（云希·男声）':v==='zh-CN-YunyangNeural'?v+'（云扬·男声）':v;
-    sel.appendChild(o);});
-  sel.value=(d.tts&&d.tts.voice)||'zh-CN-XiaoxiaoNeural';
+  $('setModel').value=(d.llm&&d.llm.model)||'';
+  // 服务厂商
+  const provs=(d.llm&&d.llm.providers)||{};
+  const psel=$('setProvider');psel.innerHTML='';
+  Object.keys(provs).forEach(k=>{const o=document.createElement('option');o.value=k;
+    o.textContent=(provs[k]&&provs[k].label)||k;psel.appendChild(o);});
+  psel.value=(d.llm&&d.llm.provider)||'deepseek';
+  applyProviderDefaults(true);
+  // 语音分组 + 音色
+  const groups=d.voices||[];_voiceMap={};
+  const gsel=$('setVoiceGroup');gsel.innerHTML='';
+  groups.forEach(g=>{_voiceMap[g.group]=g.voices;
+    const o=document.createElement('option');o.value=g.group;o.textContent=g.group;gsel.appendChild(o);});
+  const curVoice=(d.tts&&d.tts.voice)||'zh-CN-XiaoxiaoNeural';
+  let curGroup=groups.length?groups[0].group:'';
+  groups.forEach(g=>{if(g.voices.some(v=>v.name===curVoice))curGroup=g.group;});
+  gsel.value=curGroup;
+  fillVoiceSelect(curGroup,curVoice);
+  const inList=groups.some(g=>g.voices.some(v=>v.name===curVoice));
+  $('setCustomVoice').value=inList?'':curVoice;
+  // 语速 / 音量 / 音调
+  setSlider('setRate','rateVal',parseInt((d.tts&&d.tts.rate)||'+0%')||0,'%');
+  setSlider('setVol','volVal',parseInt((d.tts&&d.tts.volume)||'+0%')||0,'%');
+  setSlider('setPitch','pitchVal',parseInt((d.tts&&d.tts.pitch)||'+0Hz')||0,'Hz');
   const ts=$('setTheme');if(ts){ts.innerHTML='';
     THEMES.forEach(t=>{const o=document.createElement('option');o.value=t;
       o.textContent=THEME_NAMES[t];ts.appendChild(o);});
     ts.value=theme;}}
 $('setTheme').onchange=e=>applyTheme(e.target.value);
+$('setProvider').onchange=()=>applyProviderDefaults(true);
+$('setVoiceGroup').onchange=()=>fillVoiceSelect($('setVoiceGroup').value,'');
+$('setRate').oninput=e=>$('rateVal').textContent=(+e.target.value>0?'+':'')+e.target.value+'%';
+$('setVol').oninput=e=>$('volVal').textContent=(+e.target.value>0?'+':'')+e.target.value+'%';
+$('setPitch').oninput=e=>$('pitchVal').textContent=(+e.target.value>0?'+':'')+e.target.value+'Hz';
+$('btnPreviewVoice').onclick=()=>{
+  const custom=$('setCustomVoice').value.trim();
+  const voice=custom||$('setVoice').value;
+  if(!voice)return toast('请先选择或填写音色',true);
+  const rate=(+$('setRate').value>0?'+':'')+$('setRate').value+'%';
+  const volume=(+$('setVol').value>0?'+':'')+$('setVol').value+'%';
+  const pitch=(+$('setPitch').value>0?'+':'')+$('setPitch').value+'Hz';
+  toast('正在合成试听…');
+  fetch('/tts_preview?voice='+encodeURIComponent(voice)+'&rate='+encodeURIComponent(rate)
+    +'&volume='+encodeURIComponent(volume)+'&pitch='+encodeURIComponent(pitch))
+  .then(r=>r.json()).then(d=>{
+    if(d.url){new Audio(d.url).play();toast('试听播放中 · '+voice);}
+    else toast('试听失败，音色可能不受支持',true);})
+  .catch(()=>toast('试听失败',true));};
 $('btnSettings').onclick=()=>$('settingsMask').classList.add('show');
 $('btnCancel').onclick=()=>$('settingsMask').classList.remove('show');
 $('btnSave').onclick=()=>{
+  const custom=$('setCustomVoice').value.trim();
+  const voice=custom||$('setVoice').value;
   send({type:'settings_save',data:{
     assistant_name:$('setName').value.trim()||'贾维斯',
-    llm:{enabled:$('setLlmOn').checked,base_url:$('setBase').value.trim(),
-         api_key:$('setKey').value.trim(),model:$('setModel').value.trim()||'deepseek-chat'},
-    tts:{voice:$('setVoice').value},
+    llm:{enabled:$('setLlmOn').checked,provider:$('setProvider').value,
+         base_url:$('setBase').value.trim(),api_key:$('setKey').value.trim(),
+         model:$('setModel').value.trim()},
+    tts:{voice,rate:(+$('setRate').value>0?'+':'')+$('setRate').value+'%',
+         volume:(+$('setVol').value>0?'+':'')+$('setVol').value+'%',
+         pitch:(+$('setPitch').value>0?'+':'')+$('setPitch').value+'Hz'},
     location:{city:$('setCity').value.trim()||'深圳'}}});
   $('settingsMask').classList.remove('show');
   updateIntroKeyState();updateApiBanner();};
 $('settingsMask').addEventListener('click',e=>{if(e.target===$('settingsMask'))$('settingsMask').classList.remove('show');});
 $('confirmMask').addEventListener('click',e=>{if(e.target===$('confirmMask'))$('confirmMask').classList.remove('show');});
+$('ctxToggle').onclick=()=>$('ctxPanel').classList.toggle('show');
+$('ctxClose').onclick=()=>$('ctxPanel').classList.remove('show');
 
 /* ================= 引导弹窗 / 麦克风 / API Key 提示 ================= */
 function requestMic(){
@@ -657,7 +796,7 @@ function updateIntroKeyState(){
   if(llm.enabled&&llm.api_key){el.className='intro-keybox ok';
     el.textContent='✓ 已配置 API Key（'+llm.model+'），深度对话已启用。';}
   else{el.className='intro-keybox';
-    el.textContent='○ 尚未配置 API Key：点击下方按钮或右上角 ⚙ 填写 DeepSeek 等 Key，即可解锁任意深度对话。';}}
+    el.textContent='○ 尚未配置 API Key：点击下方按钮或右上角 ⚙，选择厂商（DeepSeek / OpenAI / 通义 / Kimi / 智谱 / Gemini / Claude / OpenRouter / 自定义）填入 Key，即可解锁 Agent 深度对话。';}}
 function updateApiBanner(){
   const el=$('apiBanner');if(!el)return;
   const show=!(settingsData&&settingsData.llm&&settingsData.llm.enabled&&settingsData.llm.api_key);
