@@ -163,6 +163,11 @@ async def main():
         sg2 = await hub.suggestions_payload()
         report("suggestions_personal", any("深圳" in s["cmd"] for s in sg2),
                " | ".join(s["cmd"] for s in sg2[:6]))
+        # magpie 供应商列表
+        provs = hub.cfg["llm"]["providers"]
+        groups = {p.get("group") for p in provs.values()}
+        report("providers_magpie", len(provs) >= 40 and {"订阅", "供应商", "中转"} <= groups,
+               f"count={len(provs)} groups={sorted(groups)}")
     except Exception as e:
         report("suggestions", False, str(e))
 
