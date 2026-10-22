@@ -49,28 +49,72 @@ header{position:fixed;top:0;left:0;right:0;height:56px;z-index:20;display:flex;a
   border-radius:8px;cursor:pointer;font-size:16px;transition:all .2s;backdrop-filter:blur(4px)}
 .iconbtn:hover{background:rgba(0,229,255,.12);box-shadow:0 0 12px rgba(0,229,255,.35)}
 
-/* ---------- 中央全息核心 ---------- */
+/* ---------- 中央核心（可替换动效背景 + 状态区分） ---------- */
 main{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;pointer-events:none}
-.core-wrap{position:relative;width:330px;height:330px;margin-top:-4vh}
-.core-wrap .ring{position:absolute;border-radius:50%;border:1px solid rgba(0,229,255,.35);left:50%;top:50%;transform:translate(-50%,-50%)}
-.r1{width:330px;height:330px;border-top-color:var(--cyan);border-top-width:2px;
+.core-wrap{position:relative;width:340px;height:340px;margin-top:-4vh;
+  --stc:#00e5ff;--stc2:#2f6bff;--stc-glow:rgba(0,229,255,.55)}
+.core-wrap.st-listening{--stc:#00ffb3;--stc2:#00e5ff;--stc-glow:rgba(0,255,179,.55)}
+.core-wrap.st-exec{--stc:#ffb545;--stc2:#ff5e62;--stc-glow:rgba(255,181,69,.6)}
+#coreFx{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+.ring{position:absolute;border-radius:50%;border:1px solid rgba(0,229,255,.35);left:50%;top:50%;transform:translate(-50%,-50%);transition:border-color .6s,box-shadow .6s,opacity .5s}
+.r1{width:340px;height:340px;border-top-color:var(--stc);border-top-width:2px;
   animation:spin 14s linear infinite;box-shadow:0 0 30px rgba(0,229,255,.12) inset}
-.r2{width:270px;height:270px;border-right-color:var(--gold);border-right-width:2px;
+.r2{width:276px;height:276px;border-right-color:var(--stc2);border-right-width:2px;
   animation:spinR 10s linear infinite;box-shadow:0 0 24px rgba(255,209,102,.10) inset}
-.r3{width:210px;height:210px;border-bottom-color:var(--blue);border-bottom-width:2px;
+.r3{width:214px;height:214px;border-bottom-color:#7f8cff;border-bottom-width:2px;
   animation:spin 8s linear infinite}
-.rdash{width:300px;height:300px;border:1px dashed rgba(0,229,255,.16);animation:spinR 40s linear infinite}
+.rdash{width:308px;height:308px;border:1px dashed rgba(0,229,255,.16);animation:spinR 40s linear infinite}
+.st-exec .r1{animation-duration:4.5s;box-shadow:0 0 44px var(--stc-glow) inset}
+.st-exec .r2{animation-duration:3.2s}
+.st-exec .r3{animation-duration:2.6s}
+.st-listening .r1{animation-duration:9s}
 @keyframes spin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes spinR{from{transform:translate(-50%,-50%) rotate(360deg)}to{transform:translate(-50%,-50%) rotate(0)}}
-.core-inner{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center}
-.core-inner .core-text{font-size:34px;font-weight:800;letter-spacing:4px;color:#fff;
-  text-shadow:0 0 14px var(--cyan),0 0 40px rgba(0,229,255,.55);animation:glow 3s ease-in-out infinite}
-@keyframes glow{0%,100%{text-shadow:0 0 14px var(--cyan),0 0 40px rgba(0,229,255,.55)}
-  50%{text-shadow:0 0 20px var(--cyan),0 0 70px rgba(0,229,255,.9)}}
-.core-state{margin-top:14px;font-size:14px;color:var(--cyan);letter-spacing:6px;opacity:.85;min-height:20px}
-.wave{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;gap:4px;align-items:center;height:70px;width:120px;opacity:0;transition:opacity .3s;pointer-events:none}
+/* 状态脉冲外环：待命=慢呼吸 / 倾听=波纹 / 执行=急速双环 */
+.ring-pulse{position:absolute;left:50%;top:50%;width:150px;height:150px;border-radius:50%;
+  transform:translate(-50%,-50%);border:1px solid var(--stc);opacity:0;pointer-events:none;z-index:1}
+.st-idle .ring-pulse{animation:pulse-idle 3.2s ease-in-out infinite}
+.st-listening .ring-pulse{animation:ripple 1.1s ease-out infinite}
+.st-exec .ring-pulse{animation:ripple .55s ease-out infinite;border-color:var(--stc2)}
+.st-exec .ring-pulse.p2{animation-delay:.28s}
+@keyframes pulse-idle{0%,100%{opacity:.0;transform:translate(-50%,-50%) scale(.92)}50%{opacity:.5;transform:translate(-50%,-50%) scale(1.14)}}
+@keyframes ripple{0%{opacity:.9;transform:translate(-50%,-50%) scale(.5)}100%{opacity:0;transform:translate(-50%,-50%) scale(2)}}
+/* 极光主题层 */
+.aurora-layer{position:absolute;inset:0;border-radius:50%;opacity:0;transition:opacity .5s;filter:blur(8px);z-index:0}
+.theme-aurora .aurora-layer{opacity:1}
+.aurora-layer::before,.aurora-layer::after{content:"";position:absolute;inset:-18%;
+  background:conic-gradient(from 0deg,var(--stc),transparent 32%,var(--stc2) 56%,transparent 82%,var(--stc));
+  animation:auroraSpin 9s linear infinite;mix-blend-mode:screen}
+.aurora-layer::after{inset:-42%;animation-duration:15s;animation-direction:reverse;opacity:.55}
+@keyframes auroraSpin{to{transform:rotate(360deg)}}
+/* 非全息主题时隐藏环 */
+.theme-vortex .ring,.theme-vortex .rdash,
+.theme-sphere .ring,.theme-sphere .rdash,
+.theme-aurora .ring,.theme-aurora .rdash{opacity:0}
+.core-inner{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;z-index:2}
+.core-inner .core-text{font-size:34px;font-weight:800;letter-spacing:4px;color:#fff;transition:text-shadow .7s;
+  text-shadow:0 0 14px var(--stc),0 0 40px var(--stc-glow)}
+.st-idle .core-inner .core-text{animation:glow-idle 3s ease-in-out infinite}
+.st-listening .core-inner .core-text{animation:glow-listening 1.6s ease-in-out infinite}
+.st-exec .core-inner .core-text{animation:glow-exec .9s ease-in-out infinite}
+@keyframes glow-idle{0%,100%{text-shadow:0 0 14px var(--stc),0 0 40px var(--stc-glow)}
+  50%{text-shadow:0 0 20px var(--stc),0 0 70px var(--stc-glow)}}
+@keyframes glow-listening{0%,100%{text-shadow:0 0 14px var(--stc),0 0 46px var(--stc-glow)}
+  50%{text-shadow:0 0 26px var(--stc),0 0 90px var(--stc-glow)}}
+@keyframes glow-exec{0%,100%{text-shadow:0 0 16px var(--stc),0 0 54px var(--stc-glow)}
+  50%{text-shadow:0 0 30px var(--stc),0 0 110px var(--stc-glow)}}
+.core-state{margin-top:14px;font-size:15px;color:var(--stc);letter-spacing:7px;font-weight:600;
+  transition:color .5s;min-height:20px;text-shadow:0 0 10px var(--stc-glow)}
+#themeBtn{position:absolute;left:50%;bottom:-36px;transform:translateX(-50%);font-size:11.5px;color:var(--dim);
+  border:1px solid var(--line);background:rgba(6,18,34,.7);padding:4px 12px;border-radius:14px;cursor:pointer;
+  backdrop-filter:blur(6px);letter-spacing:1px;white-space:nowrap;pointer-events:auto;transition:all .25s;z-index:3}
+#themeBtn:hover{color:var(--cyan);border-color:var(--cyan);box-shadow:0 0 10px rgba(0,229,255,.35)}
+.wave{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;gap:4px;align-items:center;height:70px;width:120px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:2}
 .wave.on{opacity:1}
-.wave i{width:4px;border-radius:2px;background:linear-gradient(180deg,var(--cyan),var(--blue));height:8px;box-shadow:0 0 8px var(--cyan)}
+.wave i{width:4px;border-radius:2px;background:linear-gradient(180deg,var(--stc),var(--stc2));height:8px;
+  box-shadow:0 0 8px var(--stc);animation:wv .9s ease-in-out infinite}
+.wave i:nth-child(2n){animation-delay:.15s}.wave i:nth-child(3n){animation-delay:.3s}
+@keyframes wv{0%,100%{height:8px}50%{height:52px}}
 
 /* ---------- 聊天面板 ---------- */
 #chat{position:fixed;right:18px;top:70px;bottom:190px;width:360px;z-index:20;pointer-events:auto;
@@ -195,12 +239,16 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
 
 <main>
   <div class="core-wrap" id="coreWrap">
+    <canvas id="coreFx"></canvas>
+    <div class="aurora-layer"></div>
+    <div class="ring-pulse"></div><div class="ring-pulse p2"></div>
     <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div><div class="rdash"></div>
     <div class="wave" id="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="core-inner">
       <div class="core-text">J.A.R.V.I.S.</div>
       <div class="core-state" id="stateText">待命</div>
     </div>
+    <button id="themeBtn" title="点击切换核心动效背景">主题 · 全息能量环</button>
   </div>
 </main>
 
@@ -238,6 +286,7 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
     <h2>⚙ 系统设置</h2>
     <div class="sub">修改后立即生效。接入大模型 API 后贾维斯可进行任意深度对话。</div>
     <div class="field"><label>助理名称</label><input id="setName" maxlength="20"></div>
+    <div class="field"><label>核心背景主题（动效可随时切换）</label><select id="setTheme"></select></div>
     <div class="field"><label>语音音色（免费 edge-tts 神经语音）</label>
       <select id="setVoice"></select></div>
     <div class="field"><label>所在城市（用于天气）</label><input id="setCity"></div>
@@ -322,13 +371,75 @@ function drawBg(){
 }
 drawBg();
 
+/* ================= 核心动效背景（可替换主题） ================= */
+const THEMES=['hologram','vortex','sphere','aurora'];
+const THEME_NAMES={hologram:'全息能量环',vortex:'粒子漩涡',sphere:'线框能量球',aurora:'极光脉冲'};
+let theme='hologram';try{theme=localStorage.getItem('jarvis_theme')||'hologram';}catch(e){}
+if(THEMES.indexOf(theme)<0)theme='hologram';
+const fx={mode:'idle',theme:'hologram',pts:[],parts:[],w:0,h:0,cx:0,cy:0,R:0};
+const fxc=$('coreFx'),fxx=fxc.getContext('2d');
+function sizeFx(){
+  const w=340,h=340;fxc.width=w*2;fxc.height=h*2;fxx.setTransform(2,0,0,2,0,0);
+  fx.w=w;fx.h=h;fx.cx=w/2;fx.cy=h/2;fx.R=Math.min(w,h)/2-16;
+  fx.pts=[];const N=200;
+  for(let i=0;i<N;i++){const th=Math.acos(1-2*(i+.5)/N),ph=Math.PI*(1+Math.sqrt(5))*i;
+    fx.pts.push({x:fx.R*Math.sin(th)*Math.cos(ph),y:fx.R*Math.sin(th)*Math.sin(ph),z:fx.R*Math.cos(th)});}
+  fx.parts=[];for(let i=0;i<130;i++){const a=Math.random()*6.28,r=Math.random()*.5+.08,
+    sp=.004+Math.random()*.014;fx.parts.push({a,r,sp,ph:Math.random()*6.28});}}
+sizeFx();
+function themeColor(a){
+  const c={idle:[0,229,255],listening:[0,255,179],exec:[255,181,69]}[fx.mode]||[0,229,255];
+  return `rgba(${c[0]},${c[1]},${c[2]},${a})`;}
+function drawFx(){
+  fxx.clearRect(0,0,fx.w,fx.h);
+  const t=Date.now()/1000;
+  if(fx.theme==='vortex'){
+    const k=fx.mode==='exec'?2.6:(fx.mode==='listening'?1.6:1);
+    fx.parts.forEach(p=>{
+      p.a+=p.sp*k;p.r=Math.min(fx.R,p.r+((fx.mode==='exec'?.12:.05)*k)*(1-p.r/fx.R));
+      if(p.r>=fx.R*.97){p.r=.08+Math.random()*.16;p.a=Math.random()*6.28;}
+      const x=fx.cx+Math.cos(p.a)*p.r*Math.cos(p.ph+t*.3),y=fx.cy+Math.sin(p.a)*p.r*Math.sin(p.ph+t*.3);
+      fxx.fillStyle=p.r>fx.R*.7?themeColor(.9):themeColor(.35);
+      fxx.beginPath();fxx.arc(x,y,1.2+1.5*(1-p.r/fx.R),0,6.28);fxx.fill();});
+  }else if(fx.theme==='sphere'){
+    const r1=t*(fx.mode==='exec'?.9:.4),r2=t*(fx.mode==='exec'?-.6:-.22);
+    const s=Math.sin(r1),c=Math.cos(r1),s2=Math.sin(r2),c2=Math.cos(r2);
+    const pr=[];
+    fx.pts.forEach(p=>{
+      let x=p.x*c-p.z*s,z=p.x*s+p.z*c,y=p.y;
+      let y2=y*c2-z*s2,z2=y*s2+z*c2;
+      const f=320/(320+z2+fx.R*1.7);
+      pr.push({x:fx.cx+x*f,y:fx.cy+y2*f,f});});
+    pr.sort((a,b)=>b.f-a.f);
+    pr.forEach(q=>{fxx.fillStyle=themeColor(.26+.52*q.f);
+      fxx.beginPath();fxx.arc(q.x,q.y,1.7*q.f+.4,0,6.28);fxx.fill();});
+    fxx.strokeStyle=themeColor(.22);fxx.lineWidth=1;
+    for(let i=0;i<fx.pts.length;i+=20){const q=pr[i],w=pr[(i+20)%pr.length];
+      fxx.beginPath();fxx.moveTo(q.x,q.y);fxx.lineTo(w.x,w.y);fxx.stroke();}
+  }
+  requestAnimationFrame(drawFx);
+}
+function applyTheme(t){
+  theme=t;try{localStorage.setItem('jarvis_theme',t);}catch(e){}
+  fx.theme=t;
+  document.body.classList.remove('theme-hologram','theme-vortex','theme-sphere','theme-aurora');
+  document.body.classList.add('theme-'+t);
+  const btn=$('themeBtn');if(btn)btn.textContent='主题 · '+THEME_NAMES[t];
+  const sel=$('setTheme');if(sel)sel.value=t;}
+applyTheme(theme);
+drawFx();
+$('themeBtn').onclick=()=>{const i=(THEMES.indexOf(theme)+1)%THEMES.length;applyTheme(THEMES[i]);};
+
 /* ================= 状态与字幕 ================= */
-const states={idle:['待命',''],listening:['聆听中…','on'],thinking:['思考中…','busy'],speaking:['播报中…','busy']};
-function setState(s){const [txt,cls]=states[s]||states.idle;
-  $('stateText').textContent=txt;$('statusText').textContent=txt;
-  $('statusDot').className=cls;
-  $('coreWrap').classList.toggle('speaking',s==='speaking');
-  $('wave').classList.toggle('on',s==='speaking');}
+const STATE_LABEL={idle:'待命',listening:'倾听中',exec:'执行任务中'};
+function setState(s){
+  const key=s==='idle'?'idle':(s==='listening'?'listening':'exec');
+  const wrap=$('coreWrap');
+  wrap.classList.remove('st-idle','st-listening','st-exec');wrap.classList.add('st-'+key);
+  $('stateText').textContent=STATE_LABEL[key];$('statusText').textContent=STATE_LABEL[key];
+  $('statusDot').className=key==='idle'?'':(key==='listening'?'on':'busy');
+  $('wave').classList.toggle('on',key==='listening');
+  fx.mode=key;}
 let typeTimer=null;
 function typeSubtitle(text){
   clearInterval(typeTimer);const el=$('subtitle');el.classList.remove('dim');el.textContent='';
@@ -500,7 +611,12 @@ function fillSettings(d){
   voices.forEach(v=>{const o=document.createElement('option');o.value=v;
     o.textContent=v==='zh-CN-XiaoxiaoNeural'?v+'（晓晓·女声）':v==='zh-CN-YunxiNeural'?v+'（云希·男声）':v==='zh-CN-YunyangNeural'?v+'（云扬·男声）':v;
     sel.appendChild(o);});
-  sel.value=(d.tts&&d.tts.voice)||'zh-CN-XiaoxiaoNeural';}
+  sel.value=(d.tts&&d.tts.voice)||'zh-CN-XiaoxiaoNeural';
+  const ts=$('setTheme');if(ts){ts.innerHTML='';
+    THEMES.forEach(t=>{const o=document.createElement('option');o.value=t;
+      o.textContent=THEME_NAMES[t];ts.appendChild(o);});
+    ts.value=theme;}}
+$('setTheme').onchange=e=>applyTheme(e.target.value);
 $('btnSettings').onclick=()=>$('settingsMask').classList.add('show');
 $('btnCancel').onclick=()=>$('settingsMask').classList.remove('show');
 $('btnSave').onclick=()=>{
