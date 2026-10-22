@@ -2,7 +2,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/github/stars/skyline66/JarvisAssistant?style=flat-square&color=00e5ff" alt="GitHub stars"/>
-  <img src="https://img.shields.io/badge/version-v1.2.0-00e5ff?style=flat-square" alt="version"/>
+  <img src="https://img.shields.io/badge/version-v1.3.0-00e5ff?style=flat-square" alt="version"/>
   <img src="https://img.shields.io/github/actions/workflow/status/skyline66/JarvisAssistant/ci.yml?style=flat-square" alt="CI"/>
   <img src="https://img.shields.io/badge/Python-3.9%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"/>
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="License"/>
@@ -60,25 +60,27 @@
 | 文件目录      | “打开下载文件夹” “打开 D:/ 工作”                                    |
 | 知识问答      | “太阳系有几大行星” “圆周率是多少”                                      |
 | 趣味        | “讲个笑话” “给我一句名言”                                          |
-| 深度对话      | 在设置中填入 API Key 后，任意问题均可深度回答                              |
+| Agent 深度对话 | 接入任意厂商大模型后：多轮上下文 + 自动调用工具（天气/新闻/计算/系统状态/备忘/搜索）+ 流式输出 |
 
-## 接入 AI 大脑（可选，推荐）
+## 接入 AI 大脑（Agent 模式，可选但推荐）
 
-点击右上角 **⚙ 设置**：
+点击右上角 **⚙ 设置**，选择 **服务厂商**（下拉一键切换）：
 
+| 厂商 | API 地址（默认） | 推荐模型 |
+|---|---|---|
+| DeepSeek 深度求索 | `https://api.deepseek.com/v1` | `deepseek-chat` |
+| OpenAI | `https://api.openai.com/v1` | `gpt-4o-mini` |
+| 通义千问 Qwen | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `qwen-plus` |
+| Kimi 月之暗面 | `https://api.moonshot.cn/v1` | `moonshot-v1-8k` |
+| 智谱清言 GLM | `https://open.bigmodel.cn/api/paas/v4` | `glm-4-flash` |
+| Google Gemini | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-2.0-flash` |
+| Anthropic Claude | `https://api.anthropic.com` | `claude-sonnet-4-20250514` |
+| OpenRouter 聚合 | `https://openrouter.ai/api/v1` | `openrouter/auto` |
+| 自定义 | 任意 OpenAI 兼容地址 | 自定义模型名 |
 
-
-1. 勾选 **启用 AI 大脑**；
-
-2. 填写 OpenAI 兼容 API（默认 DeepSeek）：
-
-* API 地址：`https://api.deepseek.com/v1`
-
-* API Key：在 [platform.deepseek.com](https://platform.deepseek.com) 注册获取（价格约 ¥1 / 百万 tokens，新用户常赠送额度）
-
-* 模型：`deepseek-chat`
-
-1. 保存。之后贾维斯未命中本地指令时，会调用大模型深度回答，并具备多轮对话记忆。
+1. 选择厂商（自动填入默认地址与模型）→ 填入对应 **API Key** → 勾选 **启用 AI 大脑** → 保存；
+2. 各厂商的 Key 独立保存，切换厂商无需重新输入；
+3. 之后贾维斯进入 **Agent 模式**：未命中本地指令时调用大模型深度回答，支持**多轮上下文记忆**，并会自动调用工具（天气 / 新闻 / 计算 / 系统状态 / 备忘 / 网页搜索）获取实时数据，回答**流式逐字输出**，工具调用过程在右侧「🧠 上下文」面板可见。
 
 未配置 Key 时，贾维斯使用 **本地意图引擎 + 中文维基百科 + 网页搜索** 兜底，开箱即用。
 
@@ -86,26 +88,29 @@
 
 
 
-* **中央全息核心**：待命（慢速光环）/ 聆听（加速）/ 思考（金色）/ 播报（波动条动画）；
-
+* **中央全息核心**：待命（慢速光环）/ 聆听（加速）/ 思考（金色）/ 播报（波动条动画）；4 套动效主题可切换（全息能量环 / 粒子漩涡 / 线框能量球 / 极光脉冲）；
 * **底部大字幕**：实时显示贾维斯说的话（逐字输出，与语音同步）；
-
 * **右侧日志面板**：完整交互记录；顶部实时显示 CPU / 内存 / 磁盘占用；
-
+* **🧠 上下文面板**：Agent 模式下的多轮对话记录与工具调用过程（⚙ 工具名 + 结果），点击日志面板右上角「🧠 上下文」展开；
 * **常用指令快捷芯片**：一键发送高频指令。
+
+## 语音定制（设置 → 语音）
+
+* **39 个免费神经音色**，分 **女声（中文）14 / 男声（中文）9 / 英文 8 / 多语言 8** 四组，也可直接填写任意音色名（如 `zh-CN-XiaoyiNeural`）；
+* **语速 / 音量 / 音调**三滑块实时调节，一键「试听」立即预览效果。
 
 ## 技术架构
 
 
 
 ```
-浏览器界面 (全息 UI + 字幕 + Web Speech 语音识别)
+浏览器界面 (全息 UI + 字幕 + 流式输出 + Web Speech 语音识别)
         │  WebSocket (实时消息) / HTTP (音频、页面)
 Python 服务 (aiohttp)
-        ├─ 大脑 Brain：意图识别 → 命令路由 / 知识问答 / LLM 扩展
+        ├─ 大脑 Brain：意图识别 → 命令路由 / Agent（多厂商 LLM + 工具调用 + 多轮上下文 + 流式）
         ├─ 命令引擎 commands：PowerShell 系统控制
-        ├─ 语音合成 tts_engine：edge-tts 免费神经语音 (MP3)
-        ├─ 信息服务：Open-Meteo 天气 / 维基百科 / Bing 新闻 RSS
+        ├─ 语音合成 tts_engine：edge-tts 免费神经语音 (MP3，39 音色 + 语速/音量/音调)
+        ├─ 信息服务：Open-Meteo 天气 / 维基百科 / Bing 新闻 RSS / DuckDuckGo 摘要
         └─ 后台任务：定时提醒、系统状态推送、音频清理
 ```
 
@@ -169,6 +174,12 @@ JarvisAssistant/
 
 - EXE 版运行后数据（config.json / 备忘 / 截图）保存在 exe 同目录。
 - Web 版默认监听 `0.0.0.0`；远程访问时**语音输入需 HTTPS**（文字、字幕、语音播放不受影响）。
+
+## v1.3 更新记录
+
+- **新增**：**Agent 能力** —— 未命中本地指令时进入 Agent 模式：多轮上下文记忆 + 自动调用工具（天气 / 新闻 / 计算 / 系统状态 / 磁盘 / 备忘 / 网页搜索）获取实时数据，回答**流式逐字输出**，工具调用过程在「🧠 上下文」面板实时展示（类似 DeepSeek Harness Web 的可见推理体验）。
+- **新增**：**多厂商接入** —— 设置中下拉切换 DeepSeek / OpenAI / 通义千问 / Kimi / 智谱 GLM / Gemini / Claude / OpenRouter / 自定义（OpenAI 兼容），各厂商 Key 独立保存。
+- **新增**：**语音定制** —— 39 个神经音色分女声 / 男声 / 英文 / 多语言四组选择，支持自定义音色名、语速 / 音量 / 音调三滑块调节，一键「试听」。
 
 ## v1.2 更新记录
 
