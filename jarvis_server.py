@@ -22,7 +22,7 @@ from tts_engine import generate_tts, get_voice_catalog, preview_tts
 from smart_home import SmartHome
 import commands as C
 
-VERSION = "1.6.0"
+VERSION = "1.7.0"
 
 # 兼容打包环境：强制 stdout/stderr 使用 UTF-8，避免中文打印报错
 for _stream in (sys.stdout, sys.stderr):
@@ -83,6 +83,7 @@ class JarvisHub:
                 return
             # 用户消息由前端本地展示，此处不再回显，避免重复
             await self.send_json(ws, {"type": "status", "state": "thinking"})
+            self.stop_event = asyncio.Event()
             try:
                 async def on_delta(chunk):
                     await self.send_json(ws, {"type": "llm_delta", "text": chunk})
@@ -90,7 +91,8 @@ class JarvisHub:
                 async def on_step(step):
                     await self.send_json(ws, {"type": "agent_step", "data": step})
 
-                resp = await self.brain.process(text, on_delta=on_delta, on_step=on_step)
+                resp = await self.brain.process(text, on_delta=on_delta, on_step=on_step,
+                                                cancel=self.stop_event)
             except Exception as e:
                 resp = {"text": f"处理时出了点问题：{e}"}
             await self.finish_response(ws, resp)
@@ -124,15 +126,22 @@ class JarvisHub:
             reply = await self.sm.set_device(did, payload)
             await self.broadcast({"type": "devices", "data": self.sm.get_devices()})
             await self.speak_to(ws, reply)
+        elif mtype == "stop":
+            # 停止当前生成 / 播报（前端同时暂停音频）
+            if self.stop_event and not self.stop_event.is_set():
+                self.stop_event.set()
+            await self.send_json(ws, {"type": "stopped", "text": "已停止生成。"})
         elif mtype == "ping":
             await self.send_json(ws, {"type": "pong"})
 
     def _apply_settings(self, new):
         if "assistant_name" in new:
             self.cfg["assistant_name"] = str(new["assistant_name"])[:20]
+        if "workbench_title" in new:
+            self.cfg["workbench_title"] = str(new["workbench_title"])[:40]
         if isinstance(new.get("llm"), dict):
             llm_new = new["llm"]
-            for k in ("enabled", "provider", "base_url", "api_key", "model"):
+            for k in ("enabled", "provider", "base_url", "api_key", "model", "reasoning"):
                 if k in llm_new and llm_new[k] is not None:
                     self.cfg["llm"][k] = llm_new[k]
             if isinstance(llm_new.get("providers"), dict):
@@ -170,6 +179,7 @@ class JarvisHub:
         c = self.cfg
         return {
             "assistant_name": c["assistant_name"],
+            "workbench_title": c.get("workbench_title", "贾维斯的智能AI工作台"),
             "llm": dict(c["llm"]),
             "tts": dict(c["tts"]),
             "location": dict(c["location"]),
