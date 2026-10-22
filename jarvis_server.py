@@ -18,10 +18,10 @@ from aiohttp import web, WSMsgType
 from config import (BASE_DIR, WEBUI_DIR, AUDIO_DIR, load_config, save_config,
                     load_memory, save_memory, time_str)
 from brain import Brain
-from tts_engine import generate_tts, VOICES
+from tts_engine import generate_tts, get_voice_catalog, preview_tts
 import commands as C
 
-VERSION = "1.2.0"
+VERSION = "1.3.0"
 
 # 兼容打包环境：强制 stdout/stderr 使用 UTF-8，避免中文打印报错
 for _stream in (sys.stdout, sys.stderr):
@@ -80,7 +80,13 @@ class JarvisHub:
             # 用户消息由前端本地展示，此处不再回显，避免重复
             await self.send_json(ws, {"type": "status", "state": "thinking"})
             try:
-                resp = await self.brain.process(text)
+                async def on_delta(chunk):
+                    await self.send_json(ws, {"type": "llm_delta", "text": chunk})
+
+                async def on_step(step):
+                    await self.send_json(ws, {"type": "agent_step", "data": step})
+
+                resp = await self.brain.process(text, on_delta=on_delta, on_step=on_step)
             except Exception as e:
                 resp = {"text": f"处理时出了点问题：{e}"}
             await self.finish_response(ws, resp)
@@ -107,14 +113,28 @@ class JarvisHub:
         if "assistant_name" in new:
             self.cfg["assistant_name"] = str(new["assistant_name"])[:20]
         if isinstance(new.get("llm"), dict):
-            self.cfg["llm"].update({
-                k: new["llm"].get(k, self.cfg["llm"].get(k))
-                for k in ("enabled", "base_url", "api_key", "model")
-            })
+            llm_new = new["llm"]
+            for k in ("enabled", "provider", "base_url", "api_key", "model"):
+                if k in llm_new and llm_new[k] is not None:
+                    self.cfg["llm"][k] = llm_new[k]
+            if isinstance(llm_new.get("providers"), dict):
+                for pk, pv in llm_new["providers"].items():
+                    if isinstance(pv, dict):
+                        slot = self.cfg["llm"]["providers"].setdefault(pk, {})
+                        for k in ("base_url", "model", "api_key"):
+                            if k in pv and pv[k]:
+                                slot[k] = pv[k]
+            # 当前生效厂商与顶层字段互相同步，便于切换厂商
+            prov = self.cfg["llm"]["providers"].setdefault(self.cfg["llm"]["provider"], {})
+            for k in ("base_url", "model", "api_key"):
+                v = self.cfg["llm"].get(k)
+                if v:
+                    prov[k] = v
+            self.cfg["llm"]["providers"][self.cfg["llm"]["provider"]] = prov
         if isinstance(new.get("tts"), dict):
             self.cfg["tts"].update({
                 k: new["tts"].get(k, self.cfg["tts"].get(k))
-                for k in ("voice", "rate", "volume")
+                for k in ("voice", "rate", "volume", "pitch")
             })
         if isinstance(new.get("location"), dict):
             self.cfg["location"].update({
@@ -129,7 +149,7 @@ class JarvisHub:
             "llm": dict(c["llm"]),
             "tts": dict(c["tts"]),
             "location": dict(c["location"]),
-            "voices": VOICES,
+            "voices": get_voice_catalog(),
         }
 
     # ---------- 响应处理 ----------
@@ -193,7 +213,8 @@ class JarvisHub:
         spoken = speak_text or text
         await self.send_json(ws, {"type": "status", "state": "speaking"})
         audio = await generate_tts(spoken, self.cfg["tts"]["voice"],
-                                   self.cfg["tts"]["rate"], self.cfg["tts"]["volume"])
+                                   self.cfg["tts"]["rate"], self.cfg["tts"]["volume"],
+                                   self.cfg["tts"].get("pitch", "+0Hz"))
         await self.send_json(ws, {"type": "jarvis", "text": text, "spoken": spoken, "audio": audio})
         await self.send_json(ws, {"type": "status", "state": "idle"})
 
@@ -283,8 +304,17 @@ def build_app() -> tuple:
         return web.json_response({"ok": True, "version": VERSION,
                                   "time": time_str()})
 
+    async def tts_preview(request):
+        voice = request.query.get("voice", "zh-CN-XiaoxiaoNeural")
+        rate = request.query.get("rate", "+0%")
+        volume = request.query.get("volume", "+0%")
+        pitch = request.query.get("pitch", "+0Hz")
+        url = await preview_tts(voice, rate, volume, pitch)
+        return web.json_response({"url": url})
+
     app.router.add_get("/", index)
     app.router.add_get("/health", health)
+    app.router.add_get("/tts_preview", tts_preview)
     app.router.add_get("/ws", hub.ws_handler)
     app.router.add_static("/static", WEBUI_DIR, show_index=False)
     app.router.add_static("/audio", AUDIO_DIR, show_index=False)
