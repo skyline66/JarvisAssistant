@@ -66,6 +66,35 @@ async def main():
     from brain import Brain
     from config import load_config
     brain = Brain(load_config())
+    # 1.0) 停止生成：cancel 置位时立即返回"已停止生成"（不发起网络请求）
+    try:
+        ev = asyncio.Event(); ev.set()
+        b2 = Brain(load_config())
+        b2.cfg["llm"].update({"enabled": True, "api_key": "x",
+                              "base_url": "http://127.0.0.1:9/v1", "model": "m"})
+        r = await b2.process("一个需要大模型的问题", cancel=ev)
+        report("brain.stop_cancel", r.get("text") == "已停止生成。", r.get("text", ""))
+    except Exception as e:
+        report("brain.stop_cancel", False, str(e))
+    # 1.0b) 推理强度：high → temperature 0.2 + reasoning_effort（openai 厂商）
+    try:
+        b3 = Brain(load_config())
+        b3.cfg["llm"].update({"enabled": True, "api_key": "x", "provider": "openai",
+                              "base_url": "http://127.0.0.1:9/v1", "model": "m",
+                              "reasoning": "high"})
+        cap = {}
+        async def fake_stream(url, headers, model, messages, on_chunk, temperature=0.6, extra=None, cancel=None):
+            cap["temperature"] = temperature; cap["extra"] = extra
+            on_chunk("深度思考完成")  # 决策缓冲 lambda 为同步回调
+        b3._llm_stream = fake_stream
+        r = await b3.process("分析一下市场趋势")
+        report("brain.reasoning_high",
+               cap.get("temperature") == 0.2 and cap.get("extra") == {"reasoning_effort": "high"}
+               and "深度思考" in r.get("text", ""),
+               f"temp={cap.get('temperature')} extra={cap.get('extra')} text={r.get('text','')[:20]}")
+    except Exception as e:
+        report("brain.reasoning_high", False, str(e))
+    # 1) 大脑本地意图（不依赖网络）
     cases = [
         ("时间", "现在几点", lambda r: "现在是" in r),
         ("日期", "今天星期几", lambda r: "星期" in r),
