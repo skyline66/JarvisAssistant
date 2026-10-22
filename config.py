@@ -26,6 +26,7 @@ SCREENSHOT_DIR = BASE_DIR / "screenshots"
 
 DEFAULTS = {
     "assistant_name": "贾维斯",
+    "workbench_title": "贾维斯的智能AI工作台",
     "server": {"host": "127.0.0.1", "port": 8770},
     "llm": {
         "enabled": False,
@@ -33,6 +34,7 @@ DEFAULTS = {
         "base_url": "",
         "api_key": "",
         "model": "",
+        "reasoning": "medium",
         "providers": {
             # ---------- 订阅（登录即可，无需密钥，经 magpie 中转） ----------
             "claude": {"base_url": "https://api.anthropic.com", "model": "claude-sonnet-4-20250514", "label": "🔥 Claude（订阅）", "group": "订阅"},
