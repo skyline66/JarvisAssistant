@@ -12,6 +12,7 @@ import aiohttp
 
 import commands as C
 from config import load_config, save_config, append_note, read_notes, load_memory, save_memory
+from smart_home import SMART_KEYWORDS
 
 WEEKDAYS = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
 
@@ -77,9 +78,11 @@ CITY_STOP = {"今天", "明天", "后天", "现在", "天气", "怎么样", "如
 
 
 class Brain:
-    def __init__(self, cfg: dict):
+    def __init__(self, cfg: dict, sm=None):
         self.cfg = cfg
+        self.sm = sm  # 智能家居中枢（可选，由服务注入）
         self.history = []  # LLM 对话历史
+        self._news_cache = {"t": 0, "data": {}}  # 新闻标题缓存（供提示词推荐）
 
     # ---------- 工具 ----------
     @staticmethod
@@ -115,6 +118,7 @@ class Brain:
             ("note", self._intent_note),
             ("calc", self._intent_calc),
             ("weather", self._intent_weather),
+            ("smart_home", self._intent_smart_home),
             ("volume", self._intent_volume),
             ("lock", self._intent_lock),
             ("sleep", self._intent_sleep),
@@ -336,6 +340,47 @@ class Brain:
             f"湿度 {cur['relative_humidity_2m']}%，风速 {cur['wind_speed_10m']:.0f} km/h。"
             f"今天最高 {tmax:.0f}°C，最低 {tmin:.0f}°C。"
         )
+
+    async def _intent_smart_home(self, t):
+        """智能家居语音/文字控制（灯光/空调/窗帘/电视/风扇/加湿器/扫地机）"""
+        if not self.sm:
+            return None
+        if not any(k in t for k in SMART_KEYWORDS):
+            return None
+        try:
+            r = await self.sm.execute(t)
+        except Exception:
+            r = None
+        if r:
+            return {"text": r}
+        return None
+
+    async def _news_headlines(self, topic: str = "科技", max_n: int = 5) -> list:
+        """返回新闻标题列表（带缓存，供提示词推荐/热点）"""
+        import time as _t
+        now = _t.time()
+        cache = self._news_cache["data"].get(topic)
+        if cache and now - self._news_cache["t"] < 600:
+            return cache
+        titles = []
+        try:
+            url = "https://www.bing.com/news/search?" + urllib.parse.urlencode(
+                {"q": topic, "format": "rss", "setlang": "zh-cn"})
+            import xml.etree.ElementTree as ET
+            async with aiohttp.ClientSession() as s:
+                async with s.get(url, timeout=12) as r:
+                    if r.status == 200:
+                        root = ET.fromstring(await r.text())
+                        for item in root.iter("item")[:max_n]:
+                            title = (item.findtext("title") or "").strip()
+                            if title:
+                                titles.append(title)
+        except Exception:
+            pass
+        if titles:
+            self._news_cache["t"] = now
+            self._news_cache["data"][topic] = titles
+        return titles
 
     async def _intent_volume(self, t):
         if re.search(r"(音量|声音)", t):
