@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-"""J.A.R.V.I.S. 大脑：意图识别 + 命令路由 + 知识问答 + LLM 扩展"""
+"""J.A.R.V.I.S. 大脑：意图识别 + 命令路由 + 知识问答 + Agent（多厂商 LLM + 工具调用 + 流式 + 上下文）"""
 import ast
+import json
 import operator
 import random
 import re
@@ -93,8 +94,10 @@ class Brain:
         return None
 
     # ---------- 主入口 ----------
-    async def process(self, text: str) -> dict:
-        """返回 {text, speak?, confirm?, silent?}"""
+    async def process(self, text: str, on_delta=None, on_step=None) -> dict:
+        """返回 {text, speak?, confirm?, silent?}
+        on_delta: async chunk 回调（流式输出）
+        on_step:  async 步骤回调 {type: call|result, tool, arg, result?}（Agent 工具调用）"""
         t = text.strip().rstrip("？?！!。.，, ")
         if not t:
             return {"text": "", "silent": True}
@@ -135,8 +138,8 @@ class Brain:
             if r:
                 return r
 
-        # 兜底：LLM / 百科 / 搜索
-        return await self._intent_fallback(t)
+        # 兜底：Agent（LLM）/ 百科 / 搜索
+        return await self._intent_fallback(t, on_delta, on_step)
 
     # ---------- 意图实现 ----------
     async def _intent_exit(self, t):
@@ -308,6 +311,9 @@ class Brain:
             city = re.sub(r"(今天|明天|后天|早上|晚上|上午|下午|中午|的)", "", m.group(1)) or city
         elif "深圳" in t:
             city = "深圳"
+        return {"text": await self._weather_text(city)}
+
+    async def _weather_text(self, city: str) -> str:
         lat, lon = self.cfg["location"]["latitude"], self.cfg["location"]["longitude"]
         # 地理编码
         geo = await self._http_json("https://geocoding-api.open-meteo.com/v1/search?" + urllib.parse.urlencode(
@@ -320,16 +326,16 @@ class Brain:
             "current": "temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m",
             "daily": "temperature_2m_max,temperature_2m_min", "timezone": "auto", "forecast_days": 1}))
         if not data or "current" not in data:
-            return {"text": f"{city} 的天气暂时查询不到，稍后再试吧。"}
+            return f"{city} 的天气暂时查询不到，稍后再试吧。"
         cur, daily = data["current"], data["daily"]
         code = int(cur.get("weather_code", 0))
         desc = WMO_CODES.get(code, "未知")
         tmax, tmin = daily["temperature_2m_max"][0], daily["temperature_2m_min"][0]
-        return {"text": (
+        return (
             f"{city} 当前天气：{desc}，气温 {cur['temperature_2m']:.0f}°C（体感 {cur['apparent_temperature']:.0f}°C），"
             f"湿度 {cur['relative_humidity_2m']}%，风速 {cur['wind_speed_10m']:.0f} km/h。"
             f"今天最高 {tmax:.0f}°C，最低 {tmin:.0f}°C。"
-        )}
+        )
 
     async def _intent_volume(self, t):
         if re.search(r"(音量|声音)", t):
@@ -461,13 +467,13 @@ class Brain:
         return None
 
     # ---------- 兜底 ----------
-    async def _intent_fallback(self, t):
-        # 1) LLM
+    async def _intent_fallback(self, t, on_delta=None, on_step=None):
+        # 1) Agent（大模型 + 工具调用 + 流式）
         if self.cfg["llm"].get("enabled") and self.cfg["llm"].get("api_key"):
             try:
-                text = await self._llm_chat(t)
-                if text:
-                    return {"text": text}
+                resp = await self.agent_answer(t, on_delta, on_step)
+                if resp and resp.get("text"):
+                    return resp
             except Exception:
                 pass
         # 2) 维基百科中文
@@ -553,27 +559,164 @@ class Brain:
         except Exception:
             return "新闻服务暂时不可用，稍后再试。"
 
-    # ---------- LLM ----------
-    async def _llm_chat(self, text: str) -> str:
+    # ---------- Agent：多厂商 LLM + 工具调用 + 流式输出 ----------
+    AGENT_SYSTEM_PROMPT = (
+        "你是贾维斯（J.A.R.V.I.S.），托尼·斯塔克的高级个人桌面智能助理，运行在用户的 Windows 电脑上。"
+        "你说话简洁、专业、略带幽默，像钢铁侠的智能管家。使用简体中文回复，通常不超过 200 字。"
+        "你会记住多轮对话的上下文，能回答任意深度问题，也能调用工具获取实时数据或执行操作。"
+    )
+    TOOL_DEFS = (
+        "【可用工具】需要实时数据或执行操作时，先输出一行 [[TOOL:工具名|参数]] 即可（只输出工具行，不要解释），等待工具结果返回后再继续回答。\n"
+        "- [[TOOL:weather|城市名]] 查询天气（城市可留空则用默认城市）\n"
+        "- [[TOOL:news|主题]] 新闻头条（科技/财经/体育/娱乐/国际，可留空）\n"
+        "- [[TOOL:time|]] 当前时间\n"
+        "- [[TOOL:date|]] 今天的日期与星期\n"
+        "- [[TOOL:calc|数学表达式]] 计算，如 3.14*8\n"
+        "- [[TOOL:stats|]] 系统状态（CPU/内存/磁盘占用）\n"
+        "- [[TOOL:disk|]] 磁盘空间\n"
+        "- [[TOOL:note_add|备忘内容]] 记录备忘\n"
+        "- [[TOOL:note_read|]] 查看备忘\n"
+        "- [[TOOL:search|关键词]] 网页搜索摘要\n"
+        "工具结果会以 [[RESULT]] 形式返回。基于结果组织最终回答，不要再输出 [[TOOL:]] 行。"
+    )
+
+    async def agent_answer(self, text: str, on_delta=None, on_step=None) -> dict:
+        """Agent 主流程：多轮上下文 + 工具决策循环 + 流式最终回答"""
         cfg = self.cfg["llm"]
-        url = cfg["base_url"].rstrip("/") + "/chat/completions"
-        sys_prompt = (
-            "你是贾维斯（J.A.R.V.I.S.），一位高级个人桌面助理。"
-            "你说话简洁、专业、略带幽默，像钢铁侠的智能管家。"
-            "使用简体中文回复，通常不超过150字。"
-        )
-        messages = [{"role": "system", "content": sys_prompt}]
-        messages += self.history[-10:]
-        messages.append({"role": "user", "content": text})
+        if not (cfg.get("enabled") and cfg.get("api_key")):
+            return {"text": ""}
+        prov = cfg.get("providers", {}).get(cfg.get("provider", "deepseek"), {})
+        base_url = (cfg.get("base_url") or prov.get("base_url") or "").rstrip("/")
+        model = cfg.get("model") or prov.get("model") or ""
+        if not base_url or not model:
+            return {"text": "大模型配置不完整，请到设置中补全 API 地址与模型名称。"}
+        url = base_url + "/chat/completions"
         headers = {"Authorization": f"Bearer {cfg['api_key']}", "Content-Type": "application/json"}
-        payload = {"model": cfg["model"], "messages": messages, "stream": False, "temperature": 0.7}
+        sys_prompt = self.AGENT_SYSTEM_PROMPT + "\n\n" + self.TOOL_DEFS
+        messages = ([{"role": "system", "content": sys_prompt}]
+                    + self.history[-10:] + [{"role": "user", "content": text}])
+
+        final_text = ""
+        tool_ran = False
+        for _ in range(3):
+            # 决策阶段：流式缓冲（不即时上屏，避免把工具标记行显示给用户）
+            buf = []
+            await self._llm_stream(url, headers, model, messages, lambda c: buf.append(c))
+            decision = "".join(buf)
+            if not decision:
+                break
+            markers = re.findall(r"\[\[TOOL:(\w+)\|(.*?)\]\]", decision, re.S)
+            if not markers:
+                # 无工具调用：缓冲内容即最终答案，逐块流式上屏
+                final_text = decision
+                for c in buf:
+                    if on_delta:
+                        await on_delta(c)
+                break
+            tool_ran = True
+            for tool, arg in markers:
+                tool, arg = tool.strip(), arg.strip()
+                if on_step:
+                    await on_step({"type": "call", "tool": tool, "arg": arg})
+                result = await self._run_tool(tool, arg)
+                if on_step:
+                    await on_step({"type": "result", "tool": tool, "arg": arg, "result": result})
+                # 用 user 角色回填工具结果，兼容所有 OpenAI 兼容厂商（tool 角色需 tool_call_id 结构）
+                messages.append({"role": "assistant", "content": decision})
+                messages.append({"role": "user", "content": f"[工具结果] 工具[{tool}] 参数[{arg}] 返回：{result}"})
+
+        if not final_text:
+            async def _cb(chunk):
+                nonlocal final_text
+                final_text += chunk
+                if on_delta:
+                    await on_delta(chunk)
+            # 工具已执行：流式生成最终回答
+            await self._llm_stream(url, headers, model, messages, _cb)
+            if not final_text and tool_ran:
+                # 流式兜底：非流式再试一次
+                final_text = await self._llm_call(url, headers, model, messages, max_tokens=600)
+
+        final_text = re.sub(r"\[\[TOOL:.*?\]\]", "", final_text or "").strip()
+        if not final_text:
+            final_text = "任务已完成，详细结果已在上方展示。"
+        self.history.append({"role": "user", "content": text})
+        self.history.append({"role": "assistant", "content": final_text})
+        self.history = self.history[-20:]
+        return {"text": final_text}
+
+    async def _llm_call(self, url, headers, model, messages, max_tokens=300) -> str:
+        payload = {"model": model, "messages": messages, "stream": False,
+                   "temperature": 0.6, "max_tokens": max_tokens}
         try:
             async with aiohttp.ClientSession() as s:
-                async with s.post(url, json=payload, headers=headers, timeout=40) as r:
+                async with s.post(url, json=payload, headers=headers, timeout=45) as r:
+                    if r.status != 200:
+                        return ""
                     data = await r.json()
-            content = data["choices"][0]["message"]["content"].strip()
-            self.history.append({"role": "user", "content": text})
-            self.history.append({"role": "assistant", "content": content})
-            return content
+            return data["choices"][0]["message"]["content"].strip()
         except Exception:
             return ""
+
+    async def _llm_stream(self, url, headers, model, messages, on_chunk):
+        payload = {"model": model, "messages": messages, "stream": True, "temperature": 0.6}
+        try:
+            async with aiohttp.ClientSession() as s:
+                async with s.post(url, json=payload, headers=headers, timeout=60) as r:
+                    if r.status != 200:
+                        return
+                    async for line in r.content:
+                        line = line.strip()
+                        if not line or not line.startswith(b"data:"):
+                            continue
+                        raw = line[5:].strip()
+                        if raw == b"[DONE]":
+                            break
+                        try:
+                            obj = json.loads(raw)
+                            delta = obj["choices"][0].get("delta", {}).get("content")
+                            if delta:
+                                await on_chunk(delta)
+                        except Exception:
+                            continue
+        except Exception:
+            pass
+
+    async def _run_tool(self, tool: str, arg: str) -> str:
+        try:
+            if tool == "weather":
+                return await self._weather_text(arg or self.cfg["location"]["city"])
+            if tool == "news":
+                return await self._fetch_news(arg or "科技")
+            if tool == "time":
+                return datetime.now().strftime("%H:%M:%S")
+            if tool == "date":
+                now = datetime.now()
+                return f"{now.strftime('%Y年%m月%d日')} {WEEKDAYS[now.weekday()]}"
+            if tool == "calc":
+                try:
+                    expr = re.sub(r"([\d.]+)\s*的\s*([\d.]+)\s*次方", r"\1**\2", arg)
+                    val = self._safe_calc(expr)
+                    return str(val) if isinstance(val, int) else str(round(val, 6))
+                except Exception:
+                    return "无法计算该表达式"
+            if tool == "stats":
+                return C.system_stats()
+            if tool == "disk":
+                return C.disk_space()
+            if tool == "note_add":
+                if arg:
+                    append_note(arg)
+                    return f"已记下：{arg}"
+                return "备忘内容为空"
+            if tool == "note_read":
+                notes = read_notes()
+                return "备忘为空。" if not notes else "；".join(notes[-10:])
+            if tool == "search":
+                if not arg:
+                    return "缺少搜索关键词"
+                r = await self._web_search(arg)
+                return r or "未找到相关摘要"
+            return f"未知工具：{tool}"
+        except Exception as e:
+            return f"工具执行失败：{e}"
