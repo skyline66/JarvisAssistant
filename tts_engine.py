@@ -87,6 +87,18 @@ def get_voice_catalog() -> list:
     ]
 
 
+def _norm_param(v: str, suffix: str) -> str:
+    """edge-tts 参数需带 +/- 符号，如 '+0%' / '+0Hz'；容忍裸 '0%' 配置"""
+    v = (v or "").strip()
+    if not v:
+        return "+0" + suffix
+    if v[:1] in "+-":
+        return v
+    if v[:1].isdigit():
+        return "+" + v
+    return v
+
+
 async def generate_tts(text: str, voice: str, rate: str = "+0%",
                        volume: str = "+0%", pitch: str = "+0Hz") -> str:
     """生成 mp3 音频，返回可访问的相对 URL；失败返回 None"""
@@ -94,6 +106,9 @@ async def generate_tts(text: str, voice: str, rate: str = "+0%",
     if not text:
         return None
     text = text[:500]  # 控制长度，保证响应速度
+    rate = _norm_param(rate, "%")
+    volume = _norm_param(volume, "%")
+    pitch = _norm_param(pitch, "Hz")
     fname = f"tts_{int(time.time() * 1000)}.mp3"
     out_path = AUDIO_DIR / fname
     try:
@@ -103,7 +118,8 @@ async def generate_tts(text: str, voice: str, rate: str = "+0%",
         if out_path.exists() and out_path.stat().st_size > 200:
             return f"/audio/{fname}"
         return None
-    except Exception:
+    except Exception as e:
+        print(f"[tts] generate failed: {e}", flush=True)
         return None
 
 
