@@ -27,6 +27,9 @@ SCREENSHOT_DIR = BASE_DIR / "screenshots"
 DEFAULTS = {
     "assistant_name": "贾维斯",
     "workbench_title": "贾维斯的智能AI工作台",
+    "user_nickname": "黄超",
+    "wakeword": "贾维斯",
+    "appearance": {"splash": True, "boot_sound": True},
     "server": {"host": "127.0.0.1", "port": 8770},
     "llm": {
         "enabled": False,
