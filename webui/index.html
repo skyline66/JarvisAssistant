@@ -34,6 +34,8 @@ header{position:fixed;top:0;left:0;right:0;height:56px;z-index:20;display:flex;a
 .brand{display:flex;align-items:center;gap:12px;font-size:20px;letter-spacing:2px;font-weight:700;
   color:#fff;text-shadow:0 0 12px var(--cyan),0 0 28px rgba(0,229,255,.45)}
 .brand .dot{width:12px;height:12px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:pulse 2s infinite}
+#workbenchTitle{margin-left:8px;font-size:12.5px;font-weight:400;letter-spacing:1px;color:#9fe8ff;
+  opacity:.85;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.8)}}
 #statusBadge{margin-left:18px;font-size:13px;color:var(--dim);display:flex;align-items:center;gap:8px}
 #statusDot{width:8px;height:8px;border-radius:50%;background:#4c6a78;transition:all .3s}
@@ -138,6 +140,9 @@ main{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-c
   text-align:center;font-size:26px;line-height:1.5;font-weight:600;color:#fff;min-height:40px;
   text-shadow:0 0 10px var(--cyan),0 0 30px rgba(0,229,255,.5),0 2px 8px rgba(0,0,0,.8);
   letter-spacing:1px;pointer-events:none;transition:opacity .25s}
+#subtitle.lg{font-size:22px;line-height:1.5}
+#subtitle.xl{font-size:17px;line-height:1.45;max-height:44vh;overflow-y:auto;pointer-events:auto;
+  scrollbar-width:thin;scrollbar-color:rgba(0,229,255,.5) transparent}
 #subtitle.dim{opacity:.35}
 
 /* ---------- 底部输入 ---------- */
@@ -154,6 +159,8 @@ footer .btn{flex:none;padding:10px 16px;border-radius:10px;font-size:14px;cursor
 footer .btn:hover{background:rgba(0,229,255,.16);box-shadow:0 0 14px rgba(0,229,255,.3)}
 footer .btn.active{background:rgba(0,229,255,.22);border-color:var(--cyan);box-shadow:0 0 16px rgba(0,229,255,.5)}
 footer .btn.primary{background:linear-gradient(135deg,var(--cyan),var(--blue));color:#031018;font-weight:700;border:none}
+footer .btn.danger{background:linear-gradient(135deg,#ff5f5f,#ff2d6f);color:#fff;font-weight:700;border:none;
+  box-shadow:0 0 16px rgba(255,60,90,.45)}
 footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229,255,.55)}
 .chips{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);z-index:25;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;pointer-events:auto}
 .chip{font-size:12px;color:var(--cyan);padding:5px 12px;border:1px solid var(--line);border-radius:20px;
@@ -171,6 +178,7 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
 .modal .sub{color:var(--dim);font-size:12.5px;margin-bottom:18px}
 .field{margin-bottom:14px}
 .field label{display:block;font-size:12.5px;color:var(--cyan);margin-bottom:6px;letter-spacing:1px}
+.field .fhint{margin-top:5px;font-size:11px;color:var(--dim)}
 .field input,.field select{width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--line);
   background:rgba(0,0,0,.35);color:var(--txt);font-size:14px;outline:none}
 .field input:focus,.field select:focus{border-color:var(--cyan);box-shadow:0 0 8px rgba(0,229,255,.3)}
@@ -237,6 +245,10 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
 .msg.streaming .st{display:block;white-space:pre-wrap;word-break:break-word}
 .msg.streaming::after{content:"▍";color:var(--cyan);animation:blink .8s infinite}
 @keyframes blink{50%{opacity:0}}
+/* 长文本消息：限高 + 内部滚动，避免日志面板被撑爆 */
+#chatBody .msg{max-height:320px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(0,229,255,.4) transparent}
+#chatBody .msg::-webkit-scrollbar{width:5px}
+#chatBody .msg::-webkit-scrollbar-thumb{background:rgba(0,229,255,.4);border-radius:3px}
 
 /* ---------- 智能家居面板 ---------- */
 #homePanel{position:fixed;left:18px;top:70px;bottom:190px;width:360px;z-index:20;display:none;
@@ -365,7 +377,9 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
 <div class="vignette"></div>
 
 <header>
-  <div class="brand"><span class="dot"></span>J.A.R.V.I.S.</div>
+  <div class="brand"><span class="dot"></span>J.A.R.V.I.S.
+    <span id="workbenchTitle" title="工作台名称（可在设置中自定义）"></span>
+  </div>
   <div id="statusBadge"><span id="statusDot"></span><span id="statusText">连接中...</span></div>
   <div class="hdr-right">
     <div class="stat">CPU <b id="sCpu">--</b>%<div class="minibar"><i id="bCpu"></i></div></div>
@@ -410,11 +424,11 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
 
 <footer>
   <button class="btn" id="btnWake" title="开启后说“贾维斯”即可唤醒">⚡ 唤醒</button>
-  <button class="btn" id="btnPtt" title="按住说话">🎤 按住说话</button>
+  <button class="btn" id="btnPtt" title="按住说话（或按住空格键）">🎤 按住说话</button>
   <input id="input" placeholder="输入指令或问题，Enter 发送..." autocomplete="off">
   <button class="btn primary" id="btnSend">发送</button>
 </footer>
-<div id="hint">唤醒词：贾维斯 · 语音对话 / 文字指令 / 系统控制 均已就绪</div>
+<div id="hint">唤醒词：贾维斯 · 按住「空格」或「🎤 按住说话」语音输入 · 文字指令 / 系统控制 均已就绪</div>
 
 <div id="toasts"></div>
 
@@ -491,6 +505,7 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
     <h2>⚙ 系统设置</h2>
     <div class="sub">修改后立即生效。接入大模型 API 后贾维斯可进行任意深度对话。</div>
     <div class="field"><label>助理名称</label><input id="setName" maxlength="20"></div>
+    <div class="field"><label>工作台标题（左上角显示）</label><input id="setTitle" maxlength="40" placeholder="如：黄超的智能AI工作台"></div>
     <div class="field"><label>核心背景主题（动效可随时切换）</label><select id="setTheme"></select></div>
     <div class="field"><label>语音分组</label><select id="setVoiceGroup"></select></div>
     <div class="field"><label>语音音色（免费 edge-tts 神经语音）</label>
@@ -517,6 +532,13 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
     <div class="field"><label>模型（可自填）</label>
       <select id="setModelSel" style="margin-bottom:6px"></select>
       <input id="setModel" placeholder="deepseek-chat"></div>
+    <div class="field"><label>推理强度</label>
+      <select id="setReasoning">
+        <option value="low">低 · 快速应答</option>
+        <option value="medium">中 · 均衡（默认）</option>
+        <option value="high">高 · 深度思考</option>
+      </select>
+      <div class="fhint">高推理强度更严谨但更慢；低强度响应更快</div></div>
     <div class="field"><label>API 地址（自定义厂商可改）</label><input id="setBase" placeholder="https://api.deepseek.com/v1"></div>
     <div class="field"><label>API Key（仅保存在本地 config.json）</label><input id="setKey" type="password" placeholder="sk-..."></div>
     <div class="modal-actions">
@@ -543,7 +565,7 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
   <div class="modal">
     <h2 style="text-align:center;letter-spacing:3px">WELCOME · 欢迎使用 J.A.R.V.I.S.</h2>
     <div class="sub" style="text-align:center">钢铁侠同款桌面智能助理 · 语音对话 / 系统控制 / 实时字幕</div>
-    <div class="intro-step"><span class="num">1</span><span>点击下方按钮<strong>授权麦克风</strong>，之后点击「⚡ 唤醒」说<b>“贾维斯”</b>即可语音对话；也可按住「🎤 按住说话」直接说。</span></div>
+    <div class="intro-step"><span class="num">1</span><span>点击下方按钮<strong>授权麦克风</strong>，之后点击「⚡ 唤醒」说<b>“贾维斯”</b>即可语音对话；也可<strong>按住空格键</strong>或「🎤 按住说话」直接说。</span></div>
     <div class="intro-step"><span class="num">2</span><span>可直接在底部输入框<b>打字下达指令</b>：打开记事本、今日天气、提醒我30分钟后喝水、搜索 Python 教程……</span></div>
     <div class="intro-step"><span class="num">3</span><span><b>最高系统权限</b>：可调节音量、锁屏、睡眠、截图、查看磁盘与系统状态；关机/重启等操作会二次确认。</span></div>
     <div class="intro-step"><span class="num">4</span><span><b>建议配置 API Key</b>（40+ 厂商可选：DeepSeek / OpenAI / Gemini / Kimi / 智谱 / 混元 / 豆包 / Claude / OpenRouter 等，价格极低），接入大模型后贾维斯可进行<b>任意深度对话</b>。</span></div>
@@ -667,9 +689,14 @@ function setState(s){
   fx.mode=key;}
 let typeTimer=null;
 function typeSubtitle(text){
-  clearInterval(typeTimer);const el=$('subtitle');el.classList.remove('dim');el.textContent='';
+  clearInterval(typeTimer);const el=$('subtitle');el.classList.remove('dim');
+  // 长文本自适应：字号缩小 + 限高滚动，避免溢出遮挡
+  el.classList.remove('lg','xl');
+  const L=(text||'').length;
+  if(L>300)el.classList.add('xl');else if(L>120)el.classList.add('lg');
+  el.textContent='';
   if(!text)return;
-  let i=0;const step=Math.max(14,Math.min(30,Math.round(2600/text.length)));
+  let i=0;const step=Math.max(10,Math.min(26,Math.round(2400/text.length)));
   typeTimer=setInterval(()=>{if(i<text.length){el.textContent+=text[i];i++;}else clearInterval(typeTimer);},step);}
 function dimSubtitle(){clearInterval(typeTimer);$('subtitle').classList.add('dim');}
 
@@ -772,8 +799,8 @@ function toggleMic(){
   if(micOn){rec=makeRec();try{rec.start();setState('listening');}catch(e){}}
   else{attentive=false;clearTimeout(attentionTimer);stopRec();setState('idle');$('interim').textContent='';}}
 let pttActive=false,pttRec=null,pttFinal='';
-// 按住说话
-$('btnPtt').addEventListener('pointerdown',()=>{
+// 按住说话（按钮或空格键触发）
+function pttStart(){
   if(!SR)return toast('当前浏览器不支持语音识别，请使用 Chrome / Edge',true);
   if(speaking||pttActive)return;
   pttActive=true;$('btnPtt').classList.add('active');setState('listening');
@@ -784,10 +811,18 @@ $('btnPtt').addEventListener('pointerdown',()=>{
     if(pttFinal&&pttFinal.trim())sendChat(pttFinal.trim());
     pttFinal='';setState('idle');};
   pttRec.onerror=()=>{pttActive=false;$('btnPtt').classList.remove('active');setState('idle');};
-  pttFinal='';try{pttRec.start();}catch(e){}});
+  pttFinal='';try{pttRec.start();}catch(e){}}
 function pttStop(){if(pttRec){try{pttRec.stop();}catch(e){}}}
+$('btnPtt').addEventListener('pointerdown',pttStart);
 $('btnPtt').addEventListener('pointerup',pttStop);
 $('btnPtt').addEventListener('pointerleave',pttStop);
+// 空格键按住说话（输入框内打字时空格正常使用）
+function isTypingTarget(el){return el&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.tagName==='SELECT'||el.isContentEditable);}
+window.addEventListener('keydown',e=>{
+  if(e.code==='Space'&&!e.repeat&&!e.ctrlKey&&!e.altKey&&!e.metaKey&&!isTypingTarget(document.activeElement)){
+    e.preventDefault();pttStart();}});
+window.addEventListener('keyup',e=>{
+  if(e.code==='Space'&&pttActive){e.preventDefault();pttStop();}});
 
 /* ================= WebSocket ================= */
 let ws=null,reconnTimer=null;
@@ -799,15 +834,34 @@ function connect(){
     clearTimeout(reconnTimer);reconnTimer=setTimeout(connect,2000);};
   ws.onerror=()=>{try{ws.close();}catch(e){}};}
 function send(obj){if(ws&&ws.readyState===1)ws.send(JSON.stringify(obj));}
+/* 停止生成 / 停止播报 */
+let generating=false;
+function stopSpeech(){
+  speaking=false;
+  try{curAudio&&curAudio.pause();}catch(e){}
+  try{speechSynthesis&&speechSynthesis.cancel();}catch(e){}
+  resumeRec();}
+function doStop(){
+  send({type:'stop'});
+  stopSpeech();
+  if(curStreamEl){curStreamEl.classList.remove('streaming');curStreamEl=null;}
+  generating=false;updateSendBtn();
+  setState('idle');
+  toast('⏹ 已停止生成与播报');}
+function updateSendBtn(){
+  const b=$('btnSend');if(!b)return;
+  b.textContent=generating?'⏹ 停止':'发送';
+  b.classList.toggle('danger',generating);}
 function handleMsg(m){
   switch(m.type){
     case 'hello':
-      $('hint').textContent='唤醒词：贾维斯 · 语音对话 / 文字指令 / 系统控制 均已就绪';
+      $('hint').textContent='唤醒词：贾维斯 · 按住「空格」或「🎤 按住说话」语音输入 · 文字指令 / 系统控制 均已就绪';
       break;
     case 'user':
       addChat('user',m.text);break;
     case 'jarvis':
       // 流式气泡收尾：如有进行中的流式气泡，直接用最终文本定型
+      generating=false;updateSendBtn();
       if(curStreamEl){curStreamEl.classList.remove('streaming');
         curStreamEl.querySelector('.st').textContent=m.text;curStreamEl=null;}
       else addChat('jarvis',m.text);
@@ -816,7 +870,12 @@ function handleMsg(m){
       if(m.audio)playAudio(m.audio);
       else speakBrowserFallback();
       break;
+    case 'stopped':
+      generating=false;updateSendBtn();setState('idle');
+      if(curStreamEl){curStreamEl.classList.remove('streaming');curStreamEl=null;}
+      break;
     case 'llm_delta':
+      generating=true;updateSendBtn();
       if(!curStreamEl){
         const body=$('chatBody');curStreamEl=document.createElement('div');
         curStreamEl.className='msg jarvis streaming';
@@ -879,8 +938,8 @@ function sendChat(text){
   setState('thinking');
   send({type:'chat',text});
   dimSubtitle();}
-$('btnSend').onclick=()=>sendChat($('input').value.trim());
-$('input').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat($('input').value.trim());});
+$('btnSend').onclick=()=>{if(generating){doStop();return;}sendChat($('input').value.trim());};
+$('input').addEventListener('keydown',e=>{if(e.key==='Enter'){if(generating){doStop();return;}sendChat($('input').value.trim());}});
 /* ================= 动态提示词（随机轮换 + 热点/个性化） ================= */
 let suggestionPool=[
   {cmd:'现在几点',label:'🕐 现在几点'},
@@ -973,6 +1032,9 @@ function setSlider(id,labelId,val,suffix){
 function fillSettings(d){
   settingsData=d;
   $('setName').value=d.assistant_name||'贾维斯';
+  $('setTitle').value=d.workbench_title||'';
+  const wt=document.getElementById('workbenchTitle');
+  if(wt)wt.textContent=d.workbench_title||'贾维斯的智能AI工作台';
   $('setCity').value=(d.location&&d.location.city)||'深圳';
   $('setHaUrl').value=(d.smart_home&&d.smart_home.ha_url)||'';
   $('setHaToken').value=(d.smart_home&&d.smart_home.ha_token)||'';
@@ -980,6 +1042,7 @@ function fillSettings(d){
   $('setBase').value=(d.llm&&d.llm.base_url)||'';
   $('setKey').value=(d.llm&&d.llm.api_key)||'';
   $('setModel').value=(d.llm&&d.llm.model)||'';
+  const rs=$('setReasoning');if(rs)rs.value=(d.llm&&d.llm.reasoning)||'medium';
   // 服务厂商（按 magpie 分组渲染）
   const provs=(d.llm&&d.llm.providers)||{};
   const psel=$('setProvider');psel.innerHTML='';
@@ -1042,9 +1105,11 @@ $('btnSave').onclick=()=>{
   const voice=custom||$('setVoice').value;
   send({type:'settings_save',data:{
     assistant_name:$('setName').value.trim()||'贾维斯',
+    workbench_title:$('setTitle').value.trim()||'贾维斯的智能AI工作台',
     llm:{enabled:$('setLlmOn').checked,provider:$('setProvider').value,
          base_url:$('setBase').value.trim(),api_key:$('setKey').value.trim(),
-         model:$('setModel').value.trim()},
+         model:$('setModel').value.trim(),
+         reasoning:($('setReasoning')?$('setReasoning').value:'medium')},
     tts:{voice,rate:(+$('setRate').value>=0?'+':'')+$('setRate').value+'%',
          volume:(+$('setVol').value>=0?'+':'')+$('setVol').value+'%',
          pitch:(+$('setPitch').value>=0?'+':'')+$('setPitch').value+'Hz'},
