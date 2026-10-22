@@ -123,6 +123,49 @@ async def main():
     except Exception as e:
         report("agent.marker_parse", False, str(e))
 
+    # 1.6) 智能家居（本地模拟 + 语音指令）
+    try:
+        from smart_home import SmartHome
+        from config import load_config as _lc
+        sm = SmartHome(_lc())
+        brain_sm = Brain(_lc(), sm=sm)
+        home_cases = [
+            ("home_light_on", "打开客厅灯", lambda r: "已开启客厅灯" in r),
+            ("home_ac_set", "空调调到24度", lambda r: "24" in r and "空调" in r),
+            ("home_light_off", "关闭卧室灯", lambda r: "已关闭卧室灯" in r),
+            ("home_query", "客厅灯开着吗", lambda r: "客厅灯" in r and "开启" in r),
+            ("home_curtain", "把窗帘关上", lambda r: "已关闭窗帘" in r),
+            ("home_robot", "扫地机器人开始工作", lambda r: "已开启扫地机器人" in r),
+        ]
+        for name, q, check in home_cases:
+            try:
+                r = await brain_sm.process(q)
+                txt = r.get("text", "")
+                report(name, check(txt), txt[:60])
+            except Exception as e:
+                report(name, False, str(e))
+        # 面板直控
+        r = await sm.set_device("living_light", {"on": True})
+        d = sm.get_device("living_light")
+        report("home_panel_set", d["state"] is True and "已开启" in r, r[:40])
+    except Exception as e:
+        report("home_intent", False, str(e))
+
+    # 1.7) 动态提示词（热点 + 个性化）
+    try:
+        import jarvis_server as _js
+        hub = _js.JarvisHub()
+        sg = await hub.suggestions_payload()
+        report("suggestions", isinstance(sg, list) and len(sg) >= 5 and any("客厅灯" in s["cmd"] for s in sg),
+               f"count={len(sg)}")
+        # 对话记录影响推荐
+        hub.brain.history.append({"role": "user", "content": "深圳明天天气怎么样"})
+        sg2 = await hub.suggestions_payload()
+        report("suggestions_personal", any("深圳" in s["cmd"] for s in sg2),
+               " | ".join(s["cmd"] for s in sg2[:6]))
+    except Exception as e:
+        report("suggestions", False, str(e))
+
     # 2) 命令引擎（只读项）
     import commands as C
     report("cmd.disk", "GB" in C.disk_space(), C.disk_space()[:60])
