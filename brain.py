@@ -97,10 +97,11 @@ class Brain:
         return None
 
     # ---------- 主入口 ----------
-    async def process(self, text: str, on_delta=None, on_step=None) -> dict:
+    async def process(self, text: str, on_delta=None, on_step=None, cancel=None) -> dict:
         """返回 {text, speak?, confirm?, silent?}
         on_delta: async chunk 回调（流式输出）
-        on_step:  async 步骤回调 {type: call|result, tool, arg, result?}（Agent 工具调用）"""
+        on_step:  async 步骤回调 {type: call|result, tool, arg, result?}（Agent 工具调用）
+        cancel:   asyncio.Event，用户点「停止」时置位，生成循环提前退出"""
         t = text.strip().rstrip("？?！!。.，, ")
         if not t:
             return {"text": "", "silent": True}
@@ -143,7 +144,7 @@ class Brain:
                 return r
 
         # 兜底：Agent（LLM）/ 百科 / 搜索
-        return await self._intent_fallback(t, on_delta, on_step)
+        return await self._intent_fallback(t, on_delta, on_step, cancel)
 
     # ---------- 意图实现 ----------
     async def _intent_exit(self, t):
@@ -512,11 +513,11 @@ class Brain:
         return None
 
     # ---------- 兜底 ----------
-    async def _intent_fallback(self, t, on_delta=None, on_step=None):
+    async def _intent_fallback(self, t, on_delta=None, on_step=None, cancel=None):
         # 1) Agent（大模型 + 工具调用 + 流式）
         if self.cfg["llm"].get("enabled") and self.cfg["llm"].get("api_key"):
             try:
-                resp = await self.agent_answer(t, on_delta, on_step)
+                resp = await self.agent_answer(t, on_delta, on_step, cancel)
                 if resp and resp.get("text"):
                     return resp
             except Exception:
@@ -625,8 +626,9 @@ class Brain:
         "工具结果会以 [[RESULT]] 形式返回。基于结果组织最终回答，不要再输出 [[TOOL:]] 行。"
     )
 
-    async def agent_answer(self, text: str, on_delta=None, on_step=None) -> dict:
-        """Agent 主流程：多轮上下文 + 工具决策循环 + 流式最终回答"""
+    async def agent_answer(self, text: str, on_delta=None, on_step=None, cancel=None) -> dict:
+        """Agent 主流程：多轮上下文 + 工具决策循环 + 流式最终回答
+        reasoning: low/medium/high（低/中/高推理强度）"""
         cfg = self.cfg["llm"]
         if not (cfg.get("enabled") and cfg.get("api_key")):
             return {"text": ""}
@@ -637,6 +639,16 @@ class Brain:
             return {"text": "大模型配置不完整，请到设置中补全 API 地址与模型名称。"}
         url = base_url + "/chat/completions"
         headers = {"Authorization": f"Bearer {cfg['api_key']}", "Content-Type": "application/json"}
+        reasoning = (cfg.get("reasoning") or "medium").lower()
+        if reasoning == "low":
+            temperature, effort = 0.9, "low"
+        elif reasoning == "high":
+            temperature, effort = 0.2, "high"
+        else:
+            temperature, effort = 0.6, None
+        # reasoning_effort 仅对明确支持思考强度的厂商下发（OpenAI o 系列 / Anthropic），其余忽略
+        effort_ok = effort and (cfg.get("provider", "").startswith(("openai", "chatgpt", "copilot", "claude", "anthropic")))
+        extra = {"reasoning_effort": effort} if effort_ok else None
         sys_prompt = self.AGENT_SYSTEM_PROMPT + "\n\n" + self.TOOL_DEFS
         messages = ([{"role": "system", "content": sys_prompt}]
                     + self.history[-10:] + [{"role": "user", "content": text}])
@@ -644,9 +656,12 @@ class Brain:
         final_text = ""
         tool_ran = False
         for _ in range(3):
+            if cancel is not None and cancel.is_set():
+                return {"text": "已停止生成。"}
             # 决策阶段：流式缓冲（不即时上屏，避免把工具标记行显示给用户）
             buf = []
-            await self._llm_stream(url, headers, model, messages, lambda c: buf.append(c))
+            await self._llm_stream(url, headers, model, messages, lambda c: buf.append(c),
+                                   temperature=temperature, extra=extra, cancel=cancel)
             decision = "".join(buf)
             if not decision:
                 break
@@ -655,6 +670,8 @@ class Brain:
                 # 无工具调用：缓冲内容即最终答案，逐块流式上屏
                 final_text = decision
                 for c in buf:
+                    if cancel is not None and cancel.is_set():
+                        return {"text": "已停止生成。"}
                     if on_delta:
                         await on_delta(c)
                 break
@@ -677,22 +694,29 @@ class Brain:
                 if on_delta:
                     await on_delta(chunk)
             # 工具已执行：流式生成最终回答
-            await self._llm_stream(url, headers, model, messages, _cb)
+            await self._llm_stream(url, headers, model, messages, _cb,
+                                   temperature=temperature, extra=extra, cancel=cancel)
             if not final_text and tool_ran:
                 # 流式兜底：非流式再试一次
-                final_text = await self._llm_call(url, headers, model, messages, max_tokens=600)
+                final_text = await self._llm_call(url, headers, model, messages,
+                                                  max_tokens=600, temperature=temperature, extra=extra)
 
         final_text = re.sub(r"\[\[TOOL:.*?\]\]", "", final_text or "").strip()
         if not final_text:
+            if cancel is not None and cancel.is_set():
+                return {"text": "已停止生成。"}
             final_text = "任务已完成，详细结果已在上方展示。"
         self.history.append({"role": "user", "content": text})
         self.history.append({"role": "assistant", "content": final_text})
         self.history = self.history[-20:]
         return {"text": final_text}
 
-    async def _llm_call(self, url, headers, model, messages, max_tokens=300) -> str:
+    async def _llm_call(self, url, headers, model, messages, max_tokens=300,
+                        temperature=0.6, extra=None) -> str:
         payload = {"model": model, "messages": messages, "stream": False,
-                   "temperature": 0.6, "max_tokens": max_tokens}
+                   "temperature": temperature, "max_tokens": max_tokens}
+        if extra:
+            payload.update(extra)
         try:
             async with aiohttp.ClientSession() as s:
                 async with s.post(url, json=payload, headers=headers, timeout=45) as r:
@@ -703,14 +727,20 @@ class Brain:
         except Exception:
             return ""
 
-    async def _llm_stream(self, url, headers, model, messages, on_chunk):
-        payload = {"model": model, "messages": messages, "stream": True, "temperature": 0.6}
+    async def _llm_stream(self, url, headers, model, messages, on_chunk,
+                          temperature=0.6, extra=None, cancel=None):
+        payload = {"model": model, "messages": messages, "stream": True,
+                   "temperature": temperature}
+        if extra:
+            payload.update(extra)
         try:
             async with aiohttp.ClientSession() as s:
                 async with s.post(url, json=payload, headers=headers, timeout=60) as r:
                     if r.status != 200:
                         return
                     async for line in r.content:
+                        if cancel is not None and cancel.is_set():
+                            return
                         line = line.strip()
                         if not line or not line.startswith(b"data:"):
                             continue
