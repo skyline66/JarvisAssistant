@@ -514,7 +514,9 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
       <input id="setHaToken" type="password" placeholder="eyJ..."></div>
     <div class="field"><label class="chk"><input type="checkbox" id="setLlmOn"> 启用 AI 大脑（Agent 模式 · 多轮上下文 + 工具调用）</label></div>
     <div class="field"><label>服务厂商</label><select id="setProvider"></select></div>
-    <div class="field"><label>模型</label><input id="setModel" placeholder="deepseek-chat"></div>
+    <div class="field"><label>模型（可自填）</label>
+      <select id="setModelSel" style="margin-bottom:6px"></select>
+      <input id="setModel" placeholder="deepseek-chat"></div>
     <div class="field"><label>API 地址（自定义厂商可改）</label><input id="setBase" placeholder="https://api.deepseek.com/v1"></div>
     <div class="field"><label>API Key（仅保存在本地 config.json）</label><input id="setKey" type="password" placeholder="sk-..."></div>
     <div class="modal-actions">
@@ -952,11 +954,19 @@ function fillVoiceSelect(group,selected){
   if(selected&&[...sel.options].some(o=>o.value===selected))sel.value=selected;}
 function applyProviderDefaults(force){
   const provs=(settingsData&&settingsData.llm&&settingsData.llm.providers)||{};
+  const pmodels=(settingsData&&settingsData.llm&&settingsData.llm.provider_models)||{};
   const p=$('setProvider').value;
   const cfg=provs[p]||{};
   if(force&&cfg.base_url){$('setBase').value=cfg.base_url;$('setBase').placeholder=cfg.base_url;}
-  if(force&&cfg.model){$('setModel').value=cfg.model;$('setModel').placeholder=cfg.model;}
   if(!$('setBase').value&&cfg.base_url)$('setBase').value=cfg.base_url;
+  // 模型下拉：该厂商推荐列表（无则仅推荐模型）
+  const ms=pmodels[p]||[];
+  const msel=$('setModelSel');msel.innerHTML='';
+  (ms.length?ms:[cfg.model||'']).forEach(m=>{
+    if(!m)return;const o=document.createElement('option');o.value=m;o.textContent=m;msel.appendChild(o);});
+  const cur=$('setModel').value||cfg.model||(ms[0]||'');
+  msel.value=[...msel.options].some(o=>o.value===cur)?cur:(ms[0]||'');
+  if(force&&cfg.model){$('setModel').value=cur;$('setModel').placeholder=cfg.model;}
   if(!$('setModel').value&&cfg.model)$('setModel').value=cfg.model;}
 function setSlider(id,labelId,val,suffix){
   $(id).value=val;$(labelId).textContent=(val>0?'+':'')+val+suffix;}
@@ -1006,6 +1016,7 @@ function fillSettings(d){
     ts.value=theme;}}
 $('setTheme').onchange=e=>applyTheme(e.target.value);
 $('setProvider').onchange=()=>applyProviderDefaults(true);
+$('setModelSel').onchange=()=>{$('setModel').value=$('setModelSel').value;};
 $('setVoiceGroup').onchange=()=>fillVoiceSelect($('setVoiceGroup').value,'');
 $('setRate').oninput=e=>$('rateVal').textContent=(+e.target.value>0?'+':'')+e.target.value+'%';
 $('setVol').oninput=e=>$('volVal').textContent=(+e.target.value>0?'+':'')+e.target.value+'%';
