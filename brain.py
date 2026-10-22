@@ -16,14 +16,6 @@ from smart_home import SMART_KEYWORDS
 
 WEEKDAYS = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
 
-GREETINGS = {
-    0: "夜深了，注意休息。我是贾维斯，有什么可以帮你？",
-    1: "早上好，我是贾维斯。今天有什么安排需要我帮忙？",
-    2: "中午好，我是贾维斯，随时待命。",
-    3: "下午好，我是贾维斯。有什么需要我处理的？",
-    4: "晚上好，我是贾维斯。需要我为你做点什么？",
-}
-
 CAPABILITY_TEXT = (
     "我是贾维斯，你的桌面智能助理。我可以：\n"
     "1. 语音对话：说话或打字都能回复，并实时显示字幕；\n"
@@ -156,22 +148,26 @@ class Brain:
 
     async def _intent_help(self, t):
         if re.search(r"(帮助|功能|你会什么|你能做什么|指令|命令|help)", t):
-            return {"text": CAPABILITY_TEXT}
+            name = self.cfg.get("assistant_name", "贾维斯")
+            return {"text": CAPABILITY_TEXT.replace("贾维斯", name)}
         return None
 
     async def _intent_greet(self, t):
         if re.search(r"(你好|您好|早上好|上午好|中午好|下午好|晚上好|嗨|hello|hi|hey)", t, re.I):
             h = datetime.now().hour
+            name = self.cfg.get("assistant_name", "贾维斯")
+            nick = self.cfg.get("user_nickname", "")
+            tail = "，有什么想让我做的？" if not nick else f"，{nick}，有什么想让我做的？"
             if h < 6:
-                g = GREETINGS[0]
+                g = f"夜深了，早点休息。我是{name}{tail}"
             elif h < 11:
-                g = GREETINGS[1]
+                g = f"早上好，我是{name}{tail}"
             elif h < 14:
-                g = GREETINGS[2]
+                g = f"中午好，我是{name}，随时待命{('，'+nick) if nick else ''}。"
             elif h < 18:
-                g = GREETINGS[3]
+                g = f"下午好，我是{name}{tail}"
             else:
-                g = GREETINGS[4]
+                g = f"晚上好，我是{name}{tail}"
             return {"text": g}
         return None
 
@@ -182,12 +178,12 @@ class Brain:
 
     async def _intent_thanks(self, t):
         if re.search(r"(谢谢|感谢|辛苦)", t):
-            return {"text": "不用客气，这是我的职责，随时待命。"}
+            return {"text": "不客气呀，能帮上忙我就开心了，随时叫我～"}
         return None
 
     async def _intent_bye(self, t):
         if re.search(r"(再见|拜拜|晚安|我先走了|回见)", t):
-            return {"text": "再见，随时欢迎回来找我。"}
+            return {"text": "拜拜，有事随时喊我，我一直都在。"}
         return None
 
     async def _intent_time(self, t):
