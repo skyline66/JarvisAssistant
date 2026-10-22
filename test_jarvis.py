@@ -8,6 +8,13 @@ import time
 import urllib.request
 from pathlib import Path
 
+for _stream in (sys.stdout, sys.stderr):
+    if _stream is not None and hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
 BASE = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE))
 
