@@ -269,6 +269,92 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
 #btnShuffle{background:rgba(0,229,255,.06);border-color:rgba(0,229,255,.45)}
 #btnShuffle:hover{background:rgba(0,229,255,.2);box-shadow:0 0 10px rgba(0,229,255,.4)}
 
+/* ---------- 大屏展示面板 ---------- */
+#bigPanel{position:fixed;right:18px;top:70px;width:260px;z-index:18;display:none;
+  flex-direction:column;background:var(--glass);border:1px solid rgba(0,229,255,.35);border-radius:14px;
+  backdrop-filter:blur(12px);overflow:hidden;box-shadow:0 0 30px rgba(0,120,180,.25)}
+#bigPanel.show{display:flex}
+#bigHead{flex:none;padding:9px 14px;font-size:13px;color:var(--cyan);border-bottom:1px solid rgba(0,229,255,.3);
+  display:flex;justify-content:space-between;align-items:center;letter-spacing:1px}
+#bigClose{background:none;border:none;color:var(--dim);font-size:14px;cursor:pointer;padding:0 2px}
+#bigClose:hover{color:#fff}
+#bigBody{flex:1;padding:14px;font-size:12.5px}
+#bigClock{text-align:center;padding:12px 0 14px;border-bottom:1px dashed rgba(0,229,255,.25);margin-bottom:12px;
+  font-family:Consolas,'Courier New',monospace}
+#bigTime{font-size:44px;font-weight:700;color:var(--cyan);text-shadow:0 0 18px rgba(0,229,255,.55);letter-spacing:2px;
+  animation:clockGlow 2s ease-in-out infinite}
+#bigDate{font-size:12px;color:var(--gold);margin-top:6px;letter-spacing:1px}
+@keyframes clockGlow{0%,100%{text-shadow:0 0 12px rgba(0,229,255,.45)}50%{text-shadow:0 0 26px rgba(0,229,255,.85)}}
+.big-stat{margin-bottom:12px;padding:9px 11px;border:1px solid rgba(0,229,255,.2);border-radius:10px;background:rgba(0,229,255,.05)}
+.bs-lb{font-size:11px;color:var(--dim);margin-bottom:3px}
+.bs-val{font-size:24px;font-weight:700;color:var(--txt);font-family:Consolas,monospace}
+.bs-val b{color:var(--cyan)}
+.bs-val i{font-style:normal;font-size:12px;color:var(--dim);margin-left:2px}
+.bs-bar{height:5px;border-radius:3px;background:rgba(255,255,255,.1);margin-top:6px;overflow:hidden}
+.bs-bar i{display:block;height:100%;width:0;border-radius:3px;
+  background:linear-gradient(90deg,#00e5ff,#00ff9c);transition:width .8s ease;box-shadow:0 0 8px rgba(0,229,255,.6)}
+#bigHint{font-size:10.5px;color:var(--dim);text-align:center;margin-top:10px}
+
+/* ---------- 桌面小组件 ---------- */
+#widgetPanel{position:fixed;right:18px;bottom:96px;width:230px;z-index:19;display:none;
+  flex-direction:column;background:var(--glass);border:1px solid rgba(255,209,102,.3);border-radius:14px;
+  backdrop-filter:blur(12px);overflow:hidden;box-shadow:0 0 24px rgba(120,90,0,.25);user-select:none}
+#widgetPanel.show{display:flex}
+#widgetHead{flex:none;padding:8px 12px;font-size:12px;color:var(--gold);border-bottom:1px solid rgba(255,209,102,.25);
+  display:flex;justify-content:space-between;align-items:center;cursor:grab;letter-spacing:1px}
+#widgetHead:active{cursor:grabbing}
+#widgetClose{background:none;border:none;color:var(--dim);font-size:14px;cursor:pointer;padding:0 2px}
+#widgetClose:hover{color:#fff}
+#widgetBody{flex:1;padding:10px;display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto}
+.widget-card{border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:8px 10px;background:rgba(255,255,255,.04)}
+.w-label{font-size:10.5px;color:var(--dim);margin-bottom:5px;letter-spacing:.5px}
+.w-clock .w-time{font-size:26px;font-weight:700;color:var(--gold);font-family:Consolas,monospace;
+  text-shadow:0 0 12px rgba(255,209,102,.5)}
+.w-clock .w-date{font-size:10.5px;color:var(--dim);margin-top:2px}
+.w-line{font-size:11px;color:var(--dim);display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.w-line b{color:var(--cyan);font-family:Consolas,monospace}
+.w-bar{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden}
+.w-bar i{display:block;height:100%;width:0;border-radius:2px;background:linear-gradient(90deg,#ffd166,#00e5ff);transition:width .8s ease}
+.w-actions{display:flex;gap:6px;flex-wrap:wrap}
+.w-btn{flex:1;min-width:56px;font-size:11px;color:var(--cyan);padding:5px 8px;border:1px solid rgba(0,229,255,.35);
+  border-radius:8px;background:rgba(0,229,255,.06);cursor:pointer}
+.w-btn:hover{background:rgba(0,229,255,.18);box-shadow:0 0 8px rgba(0,229,255,.35)}
+
+/* ---------- 启动加载动画 ---------- */
+#splash{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at center,#06121f 0%,#02060b 70%);overflow:hidden;
+  transition:opacity .8s ease,visibility .8s}
+#splash.done{opacity:0;visibility:hidden;pointer-events:none}
+.splash-inner{text-align:center;position:relative}
+.splash-ring{position:relative;width:150px;height:150px;margin:0 auto 26px}
+.splash-ring i{position:absolute;inset:0;border-radius:50%;border:2px solid transparent}
+.splash-ring i:nth-child(1){border-color:rgba(0,229,255,.5);animation:sr1 1.6s linear infinite}
+.splash-ring i:nth-child(2){inset:14px;border-top-color:#00ff9c;border-bottom-color:#00ff9c;
+  animation:sr2 2.2s linear infinite}
+.splash-ring i:nth-child(3){inset:28px;border-color:rgba(255,209,102,.45);border-left-color:#ffd166;
+  animation:sr1 1s linear infinite reverse}
+@keyframes sr1{to{transform:rotate(360deg)}}
+@keyframes sr2{to{transform:rotate(-360deg)}}
+.splash-logo{font-size:30px;font-weight:800;letter-spacing:5px;color:var(--cyan);
+  text-shadow:0 0 20px rgba(0,229,255,.7);animation:logoIn .9s ease both}
+.splash-sub{font-size:11px;color:var(--dim);letter-spacing:2px;margin-top:8px;animation:logoIn 1s ease .2s both}
+.splash-bar{width:300px;height:4px;border-radius:2px;background:rgba(255,255,255,.1);margin:22px auto 10px;overflow:hidden}
+.splash-bar i{display:block;height:100%;width:0;border-radius:2px;
+  background:linear-gradient(90deg,#00e5ff,#00ff9c,#ffd166);transition:width .25s ease}
+.splash-tip{font-size:10.5px;color:var(--dim);letter-spacing:1px;animation:logoIn 1s ease .5s both}
+@keyframes logoIn{from{opacity:0;transform:translateY(12px) scale(.9)}to{opacity:1;transform:none}}
+
+/* ---------- 日志复制 ---------- */
+.msg{position:relative;padding-right:26px}
+.msg .copy{position:absolute;right:4px;top:4px;font-size:11px;color:var(--dim);background:none;border:none;
+  cursor:pointer;opacity:0;transition:.2s;line-height:1}
+.msg:hover .copy{opacity:1}
+.msg .copy:hover{color:var(--cyan)}
+#chatHead .hbtn{font-size:11px;color:var(--cyan);background:none;border:1px solid rgba(0,229,255,.35);
+  border-radius:6px;padding:2px 7px;cursor:pointer;white-space:nowrap}
+#chatHead .hbtn:hover{background:rgba(0,229,255,.15)}
+.iconbtn:focus{outline:none}
+
 @media (max-width:1000px){#chat{display:none}#ctxPanel{display:none!important}#homePanel{display:none!important}.core-wrap{transform:scale(.8)}}
 </style>
 </head>
@@ -286,6 +372,9 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
     <div class="stat">MEM <b id="sMem">--</b>%<div class="minibar"><i id="bMem"></i></div></div>
     <div class="stat">DISK <b id="sDisk">--</b>%<div class="minibar"><i id="bDisk"></i></div></div>
     <div id="clock">--:--:--</div>
+    <button class="iconbtn" id="btnBig" title="大屏展示：时钟与系统状态">📊</button>
+    <button class="iconbtn" id="btnWidgets" title="桌面小组件（可拖拽）">🧩</button>
+    <button class="iconbtn" id="btnMusic" title="播放开机音效">🔊</button>
     <button class="iconbtn" id="btnSettings" title="设置">⚙</button>
   </div>
 </header>
@@ -310,7 +399,7 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
 </main>
 
 <div id="chat">
-  <div id="chatHead"><span>▣ 交互日志</span><span style="display:flex;align-items:center;gap:10px"><span style="font-size:11px" id="logCount"></span><button id="homeToggle" title="智能家居控制面板">🏠 家居</button><button id="ctxToggle" title="Agent 上下文：多轮记录与工具调用过程">🧠 上下文</button></span></div>
+  <div id="chatHead"><span>▣ 交互日志</span><span style="display:flex;align-items:center;gap:8px"><span style="font-size:11px" id="logCount"></span><button class="hbtn" id="btnCopyAll" title="复制全部日志">⧉ 全部复制</button><button class="hbtn" id="btnClearLog" title="清空日志">🗑 清空</button><button id="homeToggle" title="智能家居控制面板">🏠 家居</button><button id="ctxToggle" title="Agent 上下文：多轮记录与工具调用过程">🧠 上下文</button></span></div>
   <div id="chatBody"></div>
 </div>
 
@@ -339,6 +428,61 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
 <div id="homePanel">
   <div id="homeHead"><span>🏠 智能家居 · 语音可控</span><button id="homeClose">✕</button></div>
   <div id="homeBody"></div>
+</div>
+
+<!-- 大屏展示面板（时钟 + 系统状态） -->
+<div id="bigPanel">
+  <div id="bigHead"><span>📊 大屏 · 实时系统</span><button id="bigClose">✕</button></div>
+  <div id="bigBody">
+    <div id="bigClock">
+      <div id="bigTime">--:--:--</div>
+      <div id="bigDate">----年--月--日 星期-</div>
+    </div>
+    <div class="big-stat"><div class="bs-lb">CPU 使用率</div><div class="bs-val"><b id="bigCpu">--</b><i>%</i></div>
+      <div class="bs-bar"><i id="bigBarCpu"></i></div></div>
+    <div class="big-stat"><div class="bs-lb">内存占用</div><div class="bs-val"><b id="bigMem">--</b><i>%</i></div>
+      <div class="bs-bar"><i id="bigBarMem"></i></div></div>
+    <div class="big-stat"><div class="bs-lb">磁盘占用</div><div class="bs-val"><b id="bigDisk">--</b><i>%</i></div>
+      <div class="bs-bar"><i id="bigBarDisk"></i></div></div>
+    <div id="bigHint">语音说“系统状态”或“现在几点”也能查看</div>
+  </div>
+</div>
+
+<!-- 桌面小组件（可拖拽） -->
+<div id="widgetPanel">
+  <div id="widgetHead" title="按住拖动"><span>🧩 桌面组件</span><button id="widgetClose">✕</button></div>
+  <div id="widgetBody">
+    <div class="widget-card w-clock">
+      <div class="w-label">⏰ 时钟</div>
+      <div class="w-time" id="wTime">--:--:--</div>
+      <div class="w-date" id="wDate">----年--月--日</div>
+    </div>
+    <div class="widget-card">
+      <div class="w-label">🖥 系统状态</div>
+      <div class="w-line">CPU <b id="wCpu">--</b>%<div class="w-bar"><i id="wBarCpu"></i></div></div>
+      <div class="w-line">MEM <b id="wMem">--</b>%<div class="w-bar"><i id="wBarMem"></i></div></div>
+      <div class="w-line">DISK <b id="wDisk">--</b>%<div class="w-bar"><i id="wBarDisk"></i></div></div>
+    </div>
+    <div class="widget-card">
+      <div class="w-label">🚀 快捷入口</div>
+      <div class="w-actions">
+        <button class="w-btn" id="wWake">⚡ 唤醒</button>
+        <button class="w-btn" id="wHome">🏠 家居</button>
+        <button class="w-btn" id="wSet">⚙ 设置</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 启动加载动画 -->
+<div id="splash">
+  <div class="splash-inner">
+    <div class="splash-ring"><i></i><i></i><i></i></div>
+    <div class="splash-logo">J.A.R.V.I.S.</div>
+    <div class="splash-sub">STARK INDUSTRIES · AI 工作台正在启动</div>
+    <div class="splash-bar"><i id="splashBar"></i></div>
+    <div class="splash-tip">语音对话 · 系统控制 · 智能家居 · Agent 深度思考</div>
+  </div>
 </div>
 
 <!-- 设置弹窗 -->
@@ -400,7 +544,7 @@ footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(0,229
     <div class="intro-step"><span class="num">1</span><span>点击下方按钮<strong>授权麦克风</strong>，之后点击「⚡ 唤醒」说<b>“贾维斯”</b>即可语音对话；也可按住「🎤 按住说话」直接说。</span></div>
     <div class="intro-step"><span class="num">2</span><span>可直接在底部输入框<b>打字下达指令</b>：打开记事本、今日天气、提醒我30分钟后喝水、搜索 Python 教程……</span></div>
     <div class="intro-step"><span class="num">3</span><span><b>最高系统权限</b>：可调节音量、锁屏、睡眠、截图、查看磁盘与系统状态；关机/重启等操作会二次确认。</span></div>
-    <div class="intro-step"><span class="num">4</span><span><b>建议配置 API Key</b>（DeepSeek 等，价格极低），接入大模型后贾维斯可进行<b>任意深度对话</b>。</span></div>
+    <div class="intro-step"><span class="num">4</span><span><b>建议配置 API Key</b>（40+ 厂商可选：DeepSeek / OpenAI / Gemini / Kimi / 智谱 / 混元 / 豆包 / Claude / OpenRouter 等，价格极低），接入大模型后贾维斯可进行<b>任意深度对话</b>。</span></div>
     <div class="intro-keybox" id="introKeyBox">检测中…</div>
     <div class="intro-actions">
       <button class="mbtn primary" id="btnIntroMic">🎤 授权麦克风</button>
@@ -530,11 +674,30 @@ function dimSubtitle(){clearInterval(typeTimer);$('subtitle').classList.add('dim
 /* ================= 聊天日志 ================= */
 function addChat(kind,text){
   const body=$('chatBody');const d=document.createElement('div');d.className='msg '+kind;
-  d.innerHTML=`<span class="t">${nowStr()}</span>${esc(text)}`;
+  d.innerHTML=`<span class="t">${nowStr()}</span>${esc(text)}<button class="copy" title="复制本条">⧉</button>`;
+  d.querySelector('.copy').onclick=ev=>{ev.stopPropagation();copyText(text);};
   body.appendChild(d);while(body.children.length>80)body.removeChild(body.firstChild);
   $('logCount').textContent=body.children.length+' 条';
   body.scrollTop=body.scrollHeight;}
 function addSys(text){addChat('sys',text);}
+function copyText(text){
+  const done=()=>toast('已复制到剪贴板');
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>{fallbackCopy(text);done();});}
+  else{fallbackCopy(text);done();}}
+function fallbackCopy(text){
+  const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';
+  document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}ta.remove();}
+function copyAllLogs(){
+  const lines=[];
+  document.querySelectorAll('#chatBody .msg').forEach(m=>{
+    const who=m.classList.contains('user')?'我':(m.classList.contains('sys')?'系统':'贾维斯');
+    lines.push('['+m.querySelector('.t').textContent+'] '+who+': '+m.textContent.replace('⧉','').trim());});
+  if(!lines.length)return toast('暂无日志',true);
+  copyText(lines.join('\n'));
+  toast('已复制全部 '+lines.length+' 条日志');}
+$('btnCopyAll').onclick=copyAllLogs;
+$('btnClearLog').onclick=()=>{$('chatBody').innerHTML='';$('logCount').textContent='0 条';};
 
 /* ================= Agent 上下文面板 ================= */
 let curStreamEl=null;
@@ -672,6 +835,11 @@ function handleMsg(m){
     case 'stats':
       $('sCpu').textContent=m.cpu;$('sMem').textContent=m.mem;$('sDisk').textContent=m.disk;
       $('bCpu').style.width=m.cpu+'%';$('bMem').style.width=m.mem+'%';$('bDisk').style.width=m.disk+'%';
+      // 大屏 + 组件联动
+      $('bigCpu').textContent=m.cpu;$('bigMem').textContent=m.mem;$('bigDisk').textContent=m.disk;
+      $('bigBarCpu').style.width=m.cpu+'%';$('bigBarMem').style.width=m.mem+'%';$('bigBarDisk').style.width=m.disk+'%';
+      $('wCpu').textContent=m.cpu;$('wMem').textContent=m.mem;$('wDisk').textContent=m.disk;
+      $('wBarCpu').style.width=m.cpu+'%';$('wBarMem').style.width=m.mem+'%';$('wBarDisk').style.width=m.disk+'%';
       break;
     case 'confirm':
       showConfirm(m.id,m.label);break;
@@ -802,11 +970,18 @@ function fillSettings(d){
   $('setBase').value=(d.llm&&d.llm.base_url)||'';
   $('setKey').value=(d.llm&&d.llm.api_key)||'';
   $('setModel').value=(d.llm&&d.llm.model)||'';
-  // 服务厂商
+  // 服务厂商（按 magpie 分组渲染）
   const provs=(d.llm&&d.llm.providers)||{};
   const psel=$('setProvider');psel.innerHTML='';
-  Object.keys(provs).forEach(k=>{const o=document.createElement('option');o.value=k;
-    o.textContent=(provs[k]&&provs[k].label)||k;psel.appendChild(o);});
+  const provGroups={};
+  Object.keys(provs).forEach(k=>{const g=(provs[k]&&provs[k].group)||'其他';
+    (provGroups[g]=provGroups[g]||[]).push(k);});
+  ['订阅','供应商','中转','其他'].forEach(g=>{
+    if(!provGroups[g])return;
+    const og=document.createElement('optgroup');og.label=g;
+    provGroups[g].forEach(k=>{const o=document.createElement('option');o.value=k;
+      o.textContent=(provs[k]&&provs[k].label)||k;og.appendChild(o);});
+    psel.appendChild(og);});
   psel.value=(d.llm&&d.llm.provider)||'deepseek';
   applyProviderDefaults(true);
   // 语音分组 + 音色
@@ -884,6 +1059,7 @@ $('btnIntroMic').onclick=requestMic;
 $('btnIntroSettings').onclick=()=>{$('introMask').classList.remove('show');$('settingsMask').classList.add('show');};
 $('btnIntroGo').onclick=()=>{
   $('introMask').classList.remove('show');
+  playBootSound();
   if($('introNoMore').checked)try{localStorage.setItem('jarvis_intro_done','1');}catch(e){}};
 $('introMask').addEventListener('click',e=>{if(e.target===$('introMask'))$('introMask').classList.remove('show');});
 function showIntro(){
@@ -895,7 +1071,7 @@ function updateIntroKeyState(){
   if(llm.enabled&&llm.api_key){el.className='intro-keybox ok';
     el.textContent='✓ 已配置 API Key（'+llm.model+'），深度对话已启用。';}
   else{el.className='intro-keybox';
-    el.textContent='○ 尚未配置 API Key：点击下方按钮或右上角 ⚙，选择厂商（DeepSeek / OpenAI / 通义 / Kimi / 智谱 / Gemini / Claude / OpenRouter / 自定义）填入 Key，即可解锁 Agent 深度对话。';}}
+    el.textContent='○ 尚未配置 API Key：点击下方按钮或右上角 ⚙，选择厂商（订阅 / 供应商 / 中转 40+ 家）填入 Key，即可解锁 Agent 深度对话。';}}
 function updateApiBanner(){
   const el=$('apiBanner');if(!el)return;
   const show=!(settingsData&&settingsData.llm&&settingsData.llm.enabled&&settingsData.llm.api_key);
@@ -903,9 +1079,91 @@ function updateApiBanner(){
 $('apiBanner').onclick=()=>$('settingsMask').classList.add('show');
 showIntro();
 
+/* ================= 大屏 / 组件面板 + 开机动画音效 ================= */
+const WD=['周日','周一','周二','周三','周四','周五','周六'];
+function tickAll(){
+  const d=new Date();
+  const hh=String(d.getHours()).padStart(2,'0'),mm=String(d.getMinutes()).padStart(2,'0'),
+        ss=String(d.getSeconds()).padStart(2,'0');
+  $('clock').textContent=hh+':'+mm+':'+ss;
+  $('bigTime').textContent=hh+':'+mm+':'+ss;
+  $('bigDate').textContent=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 ${WD[d.getDay()]}`;
+  $('wTime').textContent=hh+':'+mm+':'+ss;
+  $('wDate').textContent=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;}
+setInterval(tickAll,1000);tickAll();
+/* 面板开关 */
+function togglePanel(id,other){const p=$(id);const show=!p.classList.contains('show');
+  p.classList.toggle('show',show);if(show&&other)$(other).classList.remove('show');
+  return show;}
+$('btnBig').onclick=()=>togglePanel('bigPanel','widgetPanel');
+$('bigClose').onclick=()=>$('bigPanel').classList.remove('show');
+$('btnWidgets').onclick=()=>togglePanel('widgetPanel','bigPanel');
+$('widgetClose').onclick=()=>$('widgetPanel').classList.remove('show');
+$('bigPanel').classList.add('show');  // 大屏默认开启
+$('wWake').onclick=()=>{toggleMic();$('widgetPanel').classList.remove('show');};
+$('wHome').onclick=()=>{togglePanel('homePanel','ctxPanel');$('widgetPanel').classList.remove('show');};
+$('wSet').onclick=()=>{$('settingsMask').classList.add('show');$('widgetPanel').classList.remove('show');};
+/* 组件面板拖拽 */
+(function(){
+  const panel=$('widgetPanel'),head=$('widgetHead');
+  let ox=0,oy=0,drag=false;
+  head.addEventListener('pointerdown',e=>{if(e.target.id==='widgetClose')return;
+    drag=true;ox=e.clientX-panel.offsetLeft;oy=e.clientY-panel.offsetTop;head.setPointerCapture(e.pointerId);});
+  head.addEventListener('pointermove',e=>{if(!drag)return;
+    const x=e.clientX-ox,y=e.clientY-oy;
+    panel.style.left=Math.max(0,Math.min(innerWidth-panel.offsetWidth,x))+'px';
+    panel.style.top=Math.max(0,Math.min(innerHeight-panel.offsetHeight,y))+'px';
+    panel.style.right='auto';});
+  head.addEventListener('pointerup',()=>drag=false);
+})();
+/* 开机音效：WebAudio 合成科幻开机曲（无需外部文件） */
+let _actx=null;
+function actx(){try{_actx=_actx||new (window.AudioContext||window.webkitAudioContext)();return _actx;}catch(e){return null;}}
+function playBootSound(){
+  const ac=actx();if(!ac)return;
+  if(ac.state==='suspended')ac.resume();
+  const t0=ac.currentTime;
+  const master=ac.createGain();master.gain.value=.16;master.connect(ac.destination);
+  // 上升扫描
+  const sweep=ac.createOscillator();sweep.type='sawtooth';
+  const sg=ac.createGain();sg.gain.setValueAtTime(.001,t0);sg.gain.linearRampToValueAtTime(.5,t0+1.1);
+  sg.gain.exponentialRampToValueAtTime(.0001,t0+2.2);
+  sweep.frequency.setValueAtTime(80,t0);sweep.frequency.exponentialRampToValueAtTime(720,t0+1.9);
+  sweep.connect(sg);sg.connect(master);sweep.start(t0);sweep.stop(t0+2.3);
+  // 低音脉冲（科技感）
+  [0,0.18,0.36,0.54].forEach((dt,i)=>{
+    const o=ac.createOscillator();o.type='sine';
+    o.frequency.setValueAtTime([110,146.8,196,246.9][i],t0+dt);
+    const g=ac.createGain();g.gain.setValueAtTime(.0001,t0+dt);
+    g.gain.linearRampToValueAtTime(.22,t0+dt+.02);g.gain.exponentialRampToValueAtTime(.0001,t0+dt+.3);
+    o.connect(g);g.connect(master);o.start(t0+dt);o.stop(t0+dt+.32);});
+  // 结尾叮（全息确认音）
+  const ping=ac.createOscillator();ping.type='sine';ping.frequency.setValueAtTime(1320,t0+2.0);
+  ping.frequency.exponentialRampToValueAtTime(1980,t0+2.35);
+  const pg=ac.createGain();pg.gain.setValueAtTime(.0001,t0+2.0);
+  pg.gain.linearRampToValueAtTime(.25,t0+2.06);pg.gain.exponentialRampToValueAtTime(.0001,t0+2.8);
+  ping.connect(pg);pg.connect(master);ping.start(t0+2.0);ping.stop(t0+2.85);}
+$('btnMusic').onclick=()=>{playBootSound();toast('🔊 播放开机音效');};
+/* 首次交互（未显示引导弹窗时）播放开机音效 */
+window.addEventListener('pointerdown',function _once(){
+  let done=false;try{done=localStorage.getItem('jarvis_intro_done')==='1';}catch(e){}
+  if(!document.getElementById('introMask').classList.contains('show')){
+    playBootSound();window.removeEventListener('pointerdown',_once);}
+},{once:true});
+/* 启动加载动画：进度条走完 + 页面就绪后淡出 */
+(function(){
+  const bar=$('splashBar'),splash=$('splash');
+  let p=0;const timer=setInterval(()=>{
+    p=Math.min(100,p+3+Math.random()*9);
+    bar.style.width=p+'%';
+    if(p>=100){clearInterval(timer);
+      setTimeout(()=>splash.classList.add('done'),380);}
+  },120);
+  setTimeout(()=>{if(p<100){clearInterval(timer);bar.style.width='100%';
+    setTimeout(()=>splash.classList.add('done'),350);}},3400);
+})();
+
 /* ================= 时钟 / 通知权限 ================= */
-setInterval(()=>{const d=new Date();$('clock').textContent=
-  `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;},1000);
 if('Notification'in window&&Notification.permission==='default'){try{Notification.requestPermission();}catch(e){}}
 </script>
 </body>
