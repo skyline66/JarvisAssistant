@@ -2,7 +2,7 @@
 
 
 
-![Version](https://img.shields.io/badge/version-v1.5.0-00e5ff?style=flat-square)
+![Version](https://img.shields.io/badge/version-v1.6.0-00e5ff?style=flat-square)
 ![GitHub stars](https://img.shields.io/github/stars/skyline66/JarvisAssistant?style=flat-square\&color=00e5ff)
 ![License](https://img.shields.io/badge/license-MIT-00ff9c?style=flat-square)
 ![CI](https://img.shields.io/github/actions/workflow/status/skyline66/JarvisAssistant/ci.yml?style=flat-square\&label=CI)
@@ -62,21 +62,33 @@
 
 点击右上角 **⚙ 设置**，选择 **服务厂商**（下拉一键切换，共 **52 家**，按 **订阅 / 供应商 / 中转** 三组排列，与 magpie 最新列表同步）：
 
-> 常用厂商速查（全部列表见设置下拉）：
+> 常用厂商速查（全部 52 家见设置下拉；**选择厂商后「模型」下拉自动列出该厂商推荐模型**，也可手动填写任意模型名）：
 
 
 
-| 厂商               | API 地址（默认）                                                | 推荐模型                       |
+| 厂商 | API 地址（默认） | 推荐模型（下拉可选） |
 | ---------------- | --------------------------------------------------------- | -------------------------- |
-| DeepSeek 深度求索    | `https://api.deepseek.com/v1`                             | `deepseek-chat`            |
-| OpenAI           | `https://api.openai.com/v1`                               | `gpt-4o-mini`              |
-| 通义千问 Qwen        | `https://dashscope.aliyuncs.com/compatible-mode/v1`       | `qwen-plus`                |
-| Kimi 月之暗面        | `https://api.moonshot.cn/v1`                              | `moonshot-v1-8k`           |
-| 智谱清言 GLM         | `https://open.bigmodel.cn/api/paas/v4`                    | `glm-4-flash`              |
-| Google Gemini    | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-2.0-flash`         |
-| Anthropic Claude | `https://api.anthropic.com`                               | `claude-sonnet-4-20250514` |
-| OpenRouter 聚合    | `https://openrouter.ai/api/v1`                            | `openrouter/auto`          |
-| 自定义              | 任意 OpenAI 兼容地址                                            | 自定义模型名                     |
+| DeepSeek 深度求索 | `https://api.deepseek.com/v1` | `deepseek-chat` / `deepseek-reasoner` |
+| OpenAI | `https://api.openai.com/v1` | `gpt-4o-mini` / `gpt-4o` / `gpt-4.1` / `o3-mini` / `gpt-4.1-nano` |
+| Anthropic Claude | `https://api.anthropic.com` | `claude-sonnet-4` / `claude-opus-4` / `claude-3-7-sonnet` / `claude-3-5-haiku` |
+| Google Gemini | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-2.5-flash` / `gemini-2.5-pro` / `gemini-2.0-flash` |
+| 通义千问 Qwen | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `qwen-plus` / `qwen-max` / `qwen-turbo` / `qwen-long` |
+| Kimi 月之暗面 | `https://api.moonshot.cn/v1` | `kimi-k2` / `kimi-k2-turbo` / `moonshot-v1-32k` |
+| 智谱清言 GLM | `https://open.bigmodel.cn/api/paas/v4` | `glm-4.5` / `glm-4.5-air` / `glm-4-plus` / `glm-4-flash` |
+| 豆包 Volcengine | `https://ark.cn-beijing.volces.com/api/v3` | `doubao-1-5-pro-32k` / `doubao-seed-1-6-flash` / `doubao-lite-32k` |
+| xAI Grok | `https://api.x.ai/v1` | `grok-3` / `grok-3-mini` / `grok-2-latest` |
+| MiniMax | `https://api.minimax.chat/v1` | `MiniMax-M1` / `MiniMax-M2` / `abab6.5s-chat` |
+| 混元 Tencent | `https://api.hunyuan.cloud.tencent.com/v1` | `hunyuan-turbo-latest` / `hunyuan-pro` / `hunyuan-standard` |
+| 千帆 Baidu | `https://qianfan.baidubce.com/v2` | `ernie-4.5-turbo-128k` / `ernie-4.5-8k-preview` |
+| 阶跃 StepFun | `https://api.stepfun.com/v1` | `step-2-16k` / `step-1-32k` / `step-1-8k` |
+| Mistral | `https://api.mistral.ai/v1` | `mistral-large-latest` / `mistral-small-latest` |
+| Groq | `https://api.groq.com/openai/v1` | `llama-3.3-70b-versatile` / `llama-3.1-8b-instant` |
+| 硅基流动 SiliconFlow | `https://api.siliconflow.cn/v1` | `deepseek-ai/DeepSeek-V3` / `Qwen/Qwen2.5-72B-Instruct` |
+| OpenRouter 聚合 | `https://openrouter.ai/api/v1` | `openrouter/auto` / `deepseek/deepseek-chat` / `anthropic/claude-sonnet-4` |
+| Together AI | `https://api.together.xyz/v1` | `meta-llama/Llama-3.3-70B-Instruct-Turbo` |
+| ModelScope 魔搭 | `https://api.modelscope.cn/v1` | `Qwen/Qwen2.5-72B-Instruct` / `deepseek-ai/DeepSeek-V3` |
+| NVIDIA NIM | `https://integrate.api.nvidia.com/v1` | `meta/llama-3.1-8b-instruct` / `deepseek-ai/deepseek-r1` |
+| 自定义 | 任意 OpenAI 兼容地址 | 任意模型名（手动填写） |
 
 
 
@@ -109,6 +121,20 @@
 * **日志复制**：交互日志每条消息悬停出现「⧉」一键复制；面板头部「⧉ 全部复制」一键导出全部对话（含角色与时间戳）、「🗑 清空」清理界面日志。
 
 * **启动动画与音效**：进入时播放**斯塔克工业风格开机动画**（全息环汇聚 + 进度条 + 逐字入场）；引导弹窗「开始使用」或首次点击播放**WebAudio 合成的科幻开机配乐**（无需音频文件），右上角 🔊 可随时重播。
+
+## 界面预览（Screenshots）
+
+| 启动动画 | 主界面 · 待命 + 大屏实时系统 | 执行任务中 |
+| --- | --- | --- |
+| ![启动动画](webui_preview_v6_splash.png) | ![主界面](webui_preview_v6_main.png) | ![执行任务中](webui_preview_v3_exec.png) |
+
+| 聆听（语音输入） | Agent 上下文面板 | 智能家居面板 |
+| --- | --- | --- |
+| ![聆听](webui_preview_v3_listen.png) | ![Agent](webui_preview_v4_agent.png) | ![智能家居](webui_preview_v5_home.png) |
+
+| 设置 · 厂商/模型/语音定制 | 动态提示词芯片 | 粒子漩涡主题 |
+| --- | --- | --- |
+| ![设置](webui_preview_v4_settings.png) | ![动态提示词](webui_preview_v5_chips.png) | ![粒子漩涡](webui_preview_v3_vortex.png) |
 
 ## 智能家居玩法（🏠 家居）
 
@@ -212,6 +238,14 @@ JarvisAssistant/
 * EXE 版运行后数据（config.json/ 备忘 / 截图）保存在 exe 同目录。
 
 * Web 版默认监听 `0.0.0.0`；远程访问时**语音输入需 HTTPS**（文字、字幕、语音播放不受影响）。
+
+## v1.6 更新记录
+
+
+
+* **新增**：**模型下拉选择** —— 设置 → 服务厂商选定后，下方「模型」下拉自动列出该厂商**推荐模型列表**（DeepSeek 两款、OpenAI 六款、Gemini / Qwen / GLM / 豆包 / Kimi / Groq / 硅基流动 / OpenRouter 等 30+ 厂商均有），切换厂商自动联动，仍可手动填写任意模型名。
+
+* **新增**：**README 界面预览图墙** —— 启动动画 / 主界面 / 执行任务中 / 聆听 / Agent 上下文 / 智能家居 / 设置 / 动态提示词 / 粒子漩涡主题 九宫格截图一览。
 
 ## v1.5 更新记录
 
