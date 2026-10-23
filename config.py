@@ -30,6 +30,9 @@ DEFAULTS = {
     "user_nickname": "黄超",
     "wakeword": "贾维斯",
     "appearance": {"splash": True, "boot_sound": True},
+    "tts": {"enabled": True},
+    "pet": {"type": "cat", "hunger": 80, "mood": 80},
+    "plugins": [],
     "server": {"host": "127.0.0.1", "port": 8770},
     "llm": {
         "enabled": False,
