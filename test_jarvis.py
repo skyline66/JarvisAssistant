@@ -299,16 +299,27 @@ async def main():
                             break
                         if m.get("type") == "status" and m.get("state") == "idle":
                             break
-                    # 读取原值备份
+                    # 读取原值备份：优先从配置文件读取（WS 时序不稳定，可能漏收 settings）
                     backup = None
-                    for _ in range(5):
-                        try:
-                            m = await asyncio.wait_for(ws.receive_json(), timeout=8)
-                        except Exception:
-                            break
-                        if m.get("type") == "settings":
-                            backup = m.get("data") or {}
-                            break
+                    _cfgp = BASE / "config.json"
+                    try:
+                        with open(_cfgp, encoding="utf-8") as _f:
+                            _bak = json.load(_f)
+                        backup = {
+                            "user_nickname": _bak.get("user_nickname") or "黄超",
+                            "wakeword": _bak.get("wakeword") or "贾维斯",
+                            "appearance": dict(_bak.get("appearance") or
+                                               {"splash": True, "boot_sound": True}),
+                        }
+                    except Exception:
+                        for _ in range(5):
+                            try:
+                                m = await asyncio.wait_for(ws.receive_json(), timeout=8)
+                            except Exception:
+                                break
+                            if m.get("type") == "settings":
+                                backup = m.get("data") or {}
+                                break
                     await ws.send_json({"type": "settings_save", "data": {
                         "user_nickname": "测试昵称", "wakeword": "电脑管家",
                         "appearance": {"splash": False, "boot_sound": True}}})
@@ -324,20 +335,19 @@ async def main():
                            and d.get("wakeword") == "电脑管家"
                            and (d.get("appearance") or {}).get("splash") is False,
                            f"nick={d.get('user_nickname')} wake={d.get('wakeword')} ap={d.get('appearance')}")
-                    # 恢复备份
+                    # 恢复备份：仅文件直写（避免 WS 恢复触发服务端 save_config 与直写并发交错损坏文件）
                     if backup:
-                        await ws.send_json({"type": "settings_save", "data": {
-                            "user_nickname": backup.get("user_nickname") or "黄超",
-                            "wakeword": backup.get("wakeword") or "贾维斯",
-                            "appearance": dict(backup.get("appearance") or
-                                               {"splash": True, "boot_sound": True})}})
-                        for _ in range(3):
-                            try:
-                                m = await asyncio.wait_for(ws.receive_json(), timeout=8)
-                                if m.get("type") == "settings":
-                                    break
-                            except Exception:
-                                break
+                        try:
+                            with open(_cfgp, encoding="utf-8") as _f:
+                                _cur = json.load(_f)
+                            _cur["user_nickname"] = backup.get("user_nickname") or "黄超"
+                            _cur["wakeword"] = backup.get("wakeword") or "贾维斯"
+                            _cur.setdefault("appearance", {}).update(
+                                dict(backup.get("appearance") or {"splash": True, "boot_sound": True}))
+                            with open(_cfgp, "w", encoding="utf-8", newline="") as _f:
+                                json.dump(_cur, _f, ensure_ascii=False, indent=2)
+                        except Exception:
+                            pass
         except Exception as e:
             report("server.settings_new", False, str(e))
 
