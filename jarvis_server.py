@@ -10,6 +10,7 @@ import socket
 import sys
 import threading
 import time
+import urllib.request
 import webbrowser
 from pathlib import Path
 
@@ -22,7 +23,7 @@ from tts_engine import generate_tts, get_voice_catalog, preview_tts
 from smart_home import SmartHome
 import commands as C
 
-VERSION = "1.9.0"
+VERSION = "2.0.0"
 
 # 兼容打包环境：强制 stdout/stderr 使用 UTF-8，避免中文打印报错
 for _stream in (sys.stdout, sys.stderr):
@@ -131,6 +132,28 @@ class JarvisHub:
             if self.stop_event and not self.stop_event.is_set():
                 self.stop_event.set()
             await self.send_json(ws, {"type": "stopped", "text": "已停止生成。"})
+        elif mtype == "pet_action":
+            act = data.get("data") or {}
+            pet = self.cfg.setdefault("pet", {"type": "cat", "hunger": 80, "mood": 80})
+            a = act.get("action")
+            if a == "set":
+                pet["type"] = act.get("type", "cat")
+            elif a == "feed":
+                pet["hunger"] = min(100, pet.get("hunger", 80) + 12)
+            elif a == "pet":
+                pet["mood"] = min(100, pet.get("mood", 80) + 8)
+            elif a == "play":
+                pet["mood"] = min(100, pet.get("mood", 80) + 10)
+                pet["hunger"] = max(0, pet.get("hunger", 80) - 3)
+            save_config(self.cfg)
+            await self.send_json(ws, {"type": "pet", "data": pet})
+        elif mtype == "plugin_save":
+            pl = data.get("data") or {}
+            if isinstance(pl.get("plugins"), list):
+                self.cfg["plugins"] = [p for p in pl["plugins"]
+                                       if isinstance(p, dict) and p.get("name") and p.get("cmd")][:30]
+                save_config(self.cfg)
+            await self.send_json(ws, {"type": "plugins", "data": list(self.cfg.get("plugins", []))})
         elif mtype == "ping":
             await self.send_json(ws, {"type": "pong"})
 
@@ -169,8 +192,16 @@ class JarvisHub:
         if isinstance(new.get("tts"), dict):
             self.cfg["tts"].update({
                 k: new["tts"].get(k, self.cfg["tts"].get(k))
-                for k in ("voice", "rate", "volume", "pitch")
+                for k in ("enabled", "voice", "rate", "volume", "pitch")
             })
+        if isinstance(new.get("pet"), dict):
+            self.cfg.setdefault("pet", {}).update({
+                k: new["pet"].get(k, self.cfg.get("pet", {}).get(k))
+                for k in ("type", "hunger", "mood")
+            })
+        if isinstance(new.get("plugins"), list):
+            self.cfg["plugins"] = [p for p in new["plugins"]
+                                   if isinstance(p, dict) and p.get("name") and p.get("cmd")][:30]
         if isinstance(new.get("location"), dict):
             self.cfg["location"].update({
                 k: new["location"].get(k, self.cfg["location"].get(k))
@@ -196,6 +227,8 @@ class JarvisHub:
             "location": dict(c["location"]),
             "smart_home": {"ha_url": c["smart_home"].get("ha_url", ""),
                            "ha_token": c["smart_home"].get("ha_token", "")},
+            "pet": dict(c.get("pet", {"type": "cat", "hunger": 80, "mood": 80})),
+            "plugins": list(c.get("plugins", [])),
             "voices": get_voice_catalog(),
         }
 
@@ -338,9 +371,16 @@ class JarvisHub:
             return
         spoken = speak_text or text
         await self.send_json(ws, {"type": "status", "state": "speaking"})
-        audio = await generate_tts(spoken, self.cfg["tts"]["voice"],
-                                   self.cfg["tts"]["rate"], self.cfg["tts"]["volume"],
-                                   self.cfg["tts"].get("pitch", "+0Hz"))
+        # 语音播报总开关：关闭时只发送字幕（audio 为空），不合成语音
+        tts_on = self.cfg.get("tts", {}).get("enabled", True)
+        audio = ""
+        if tts_on:
+            try:
+                audio = await generate_tts(spoken, self.cfg["tts"]["voice"],
+                                           self.cfg["tts"]["rate"], self.cfg["tts"]["volume"],
+                                           self.cfg["tts"].get("pitch", "+0Hz"))
+            except Exception:
+                audio = ""
         await self.send_json(ws, {"type": "jarvis", "text": text, "spoken": spoken, "audio": audio})
         await self.send_json(ws, {"type": "status", "state": "idle"})
 
@@ -438,9 +478,33 @@ def build_app() -> tuple:
         url = await preview_tts(voice, rate, volume, pitch)
         return web.json_response({"url": url})
 
+    async def test_key(request):
+        """检测 API Key 是否可用：向 LLM 发最小请求（返回模型名）"""
+        base = request.query.get("base", "")
+        key = request.query.get("key", "")
+        model = request.query.get("model", "deepseek-chat")
+        if not base or not key:
+            return web.json_response({"ok": False, "error": "缺少地址或 Key"})
+        try:
+            base = base.rstrip("/")
+            body = json.dumps({
+                "model": model, "messages": [{"role": "user", "content": "ping"}],
+                "max_tokens": 5, "stream": False,
+            }, ensure_ascii=False).encode("utf-8")
+            req = urllib.request.Request(
+                f"{base}/chat/completions", data=body,
+                headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}"})
+            with urllib.request.urlopen(req, timeout=15) as r:
+                data = json.loads(r.read().decode("utf-8"))
+            used = (data.get("model") or model)
+            return web.json_response({"ok": True, "model": used})
+        except Exception as e:
+            return web.json_response({"ok": False, "error": str(e)[:160]})
+
     app.router.add_get("/", index)
     app.router.add_get("/health", health)
     app.router.add_get("/tts_preview", tts_preview)
+    app.router.add_get("/test_key", test_key)
     app.router.add_get("/ws", hub.ws_handler)
     app.router.add_static("/static", WEBUI_DIR, show_index=False)
     app.router.add_static("/audio", AUDIO_DIR, show_index=False)
