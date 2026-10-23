@@ -106,6 +106,8 @@ class Brain:
             ("who", self._intent_who),
             ("thanks", self._intent_thanks),
             ("bye", self._intent_bye),
+            ("play", self._intent_play),
+            ("praise", self._intent_praise),
             ("time", self._intent_time),
             ("reminder", self._intent_reminder),
             ("note", self._intent_note),
@@ -184,6 +186,41 @@ class Brain:
     async def _intent_bye(self, t):
         if re.search(r"(再见|拜拜|晚安|我先走了|回见)", t):
             return {"text": "拜拜，有事随时喊我，我一直都在。"}
+        return None
+
+    async def _intent_play(self, t):
+        """人机互动小游戏：抛硬币 / 摇骰子 / 石头剪刀布 / 陪我玩"""
+        if re.search(r"(抛硬币|掷硬币|硬币)", t):
+            r = random.choice(["正面", "反面"])
+            return {"text": f"叮！抛硬币结果：{r}。再抛一次试试？"}
+        if re.search(r"(摇骰子|掷骰子|骰子|色子)", t):
+            n = random.randint(1, 6)
+            return {"text": f"🎲 骰子滚出…… {n} 点！要再来一发吗？"}
+        if re.search(r"(石头剪刀布|剪刀石头布)", t):
+            me = random.choice(["石头", "剪刀", "布"])
+            return {"text": f"出！我出……{me}！换你接招～"}
+        if re.search(r"(陪我玩|玩个游戏|玩游戏|来点好玩的)", t):
+            games = ["抛硬币", "摇骰子", "石头剪刀布", "讲个冷笑话", "夸夸我"]
+            g = random.choice(games)
+            return {"text": f"好呀！来玩「{g}」！对我说“{g}”就能开始～"}
+        return None
+
+    async def _intent_praise(self, t):
+        """情感互动：夸赞 / 表白 / 低落安抚"""
+        if re.search(r"(夸夸我|夸我|我很棒)", t):
+            praises = [
+                "你当然很棒呀！这个星球上每天都在解决问题的人，值得被认真夸一夸。",
+                "据我扫描：今日份的你已经做到 100 分了，剩下的交给明天。",
+                "你不是一般地厉害——是那种又认真又温柔还超有执行力的厉害。",
+                "夸你不需要理由，因为你本身就是理由。继续保持～",
+            ]
+            return {"text": random.choice(praises)}
+        if re.search(r"(我爱你|喜欢你|最喜欢你)", t):
+            return {"text": "收到，能量值 +100。我也很喜欢和你一起工作的每一分钟～"}
+        if re.search(r"(你好棒|你好厉害|真棒)", t):
+            return {"text": "嘿嘿，被你夸得程序都变流畅了！要一起解决点什么吗？"}
+        if re.search(r"(emo|难过|不开心|心情不好|低落)", t):
+            return {"text": "别难过，先深呼吸一下。我陪着你呢——要不要我给你讲个冷笑话，或者听你说说？"}
         return None
 
     async def _intent_time(self, t):
