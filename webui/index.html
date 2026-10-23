@@ -34,7 +34,12 @@ header{position:fixed;top:0;left:0;right:0;height:56px;z-index:20;display:flex;a
 .brand{display:flex;align-items:center;gap:12px;font-size:20px;letter-spacing:2px;font-weight:700;
   color:#fff;text-shadow:0 0 12px var(--cyan),0 0 28px rgba(0,229,255,.45)}
 .brand .dot{width:12px;height:12px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:pulse 2s infinite;flex:none}
-#greetText{margin-left:12px;font-size:22px;font-weight:800;letter-spacing:2px;white-space:nowrap;
+#helloText{margin-left:12px;font-size:22px;font-weight:800;letter-spacing:2px;white-space:nowrap;
+  background:linear-gradient(90deg,#ffd166,#ff8c42,#00e5ff);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(255,209,102,.4));
+  animation:helloPop .6s ease}
+@keyframes helloPop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+#greetText{margin-left:10px;font-size:22px;font-weight:800;letter-spacing:2px;white-space:nowrap;
   background:linear-gradient(90deg,#00e5ff,#ffd166 60%,#ff8c42);-webkit-background-clip:text;background-clip:text;
   -webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(0,229,255,.35));
   animation:greetIn .9s ease}
@@ -155,38 +160,41 @@ main{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-c
   scrollbar-width:thin;scrollbar-color:rgba(0,229,255,.5) transparent}
 #subtitle.dim{opacity:.35}
 
-/* 底部输入 */
+/* ---------- 底部输入 ---------- */
 footer{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:30;width:min(860px,92vw);
   display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--glass);
   border:1px solid var(--line);border-radius:16px;backdrop-filter:blur(14px);
   box-shadow:0 0 34px rgba(0,120,180,.22)}
-@property --a{syntax:'<angle>';initial-value:0deg;inherits:false}
-@keyframes ra{to{--a:360deg}}
-#input{flex:1;background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)) padding-box,
-  conic-gradient(from var(--a),#ff0080,#ff8c00,#ffe600,#00e5ff,#7f00ff,#ff0080) border-box;
-  border:2px solid transparent;border-radius:10px;color:var(--txt);
-  font-size:15px;padding:10px 14px;outline:none;transition:border .2s;
-  animation:ra 4s linear infinite,inputGlow 2.4s ease-in-out infinite;
+/* 七彩跑马灯：旋转彩虹层（纯 transform 动画，全浏览器兼容）+ 内层挖空形成绕圈边框 */
+@keyframes raSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.rainbow-wrap{flex:1;position:relative;border-radius:13px;padding:2px;overflow:hidden;min-width:0}
+.rainbow-wrap::before{content:"";position:absolute;left:50%;top:50%;width:260%;height:260%;
+  transform:translate(-50%,-50%) rotate(0deg);
+  background:conic-gradient(#ff0080,#ff8c00,#ffe600,#00e5ff,#7f00ff,#ff0080);
+  animation:raSpin 3.4s linear infinite}
+#input{position:relative;z-index:1;width:100%;box-sizing:border-box;
+  background:rgba(0,0,0,.42);border:none;border-radius:10px;color:var(--txt);
+  font-size:15px;padding:10px 14px;outline:none;transition:box-shadow .2s;
   -webkit-user-select:text;user-select:text}
-@keyframes inputGlow{0%,100%{box-shadow:0 0 8px rgba(0,229,255,.25)}50%{box-shadow:0 0 20px rgba(255,0,128,.35)}}
-#input:focus{border-color:transparent;box-shadow:0 0 16px rgba(0,229,255,.5)}
+#input:focus{box-shadow:0 0 0 2px rgba(0,229,255,.25),0 0 16px rgba(0,229,255,.45)}
 #interim{margin-top:4px;font-size:11px;color:var(--gold);min-height:14px;text-align:center}
-footer .btn{flex:none;padding:10px 16px;border-radius:10px;font-size:14px;cursor:pointer;color:var(--cyan);
-  border:2px solid transparent;background:linear-gradient(rgba(0,229,255,.07),rgba(0,229,255,.07)) padding-box,
-  conic-gradient(from var(--a),#ff0080,#ff8c00,#ffe600,#00e5ff,#7f00ff,#ff0080) border-box;
-  animation:ra 3s linear infinite;transition:all .2s}
-footer .btn:hover{background:linear-gradient(rgba(0,229,255,.18),rgba(0,229,255,.18)) padding-box,
-  conic-gradient(from var(--a),#ff0080,#ff8c00,#ffe600,#00e5ff,#7f00ff,#ff0080) border-box;
-  box-shadow:0 0 14px rgba(0,229,255,.4)}
-footer .btn.active{background:linear-gradient(rgba(0,229,255,.25),rgba(0,229,255,.25)) padding-box,
-  conic-gradient(from var(--a),#ff0080,#ff8c00,#ffe600,#00e5ff,#7f00ff,#ff0080) border-box;
-  box-shadow:0 0 16px rgba(0,229,255,.55)}
-footer .btn.primary{background:linear-gradient(90deg,#ff0080,#ff8c00,#ffe600,#00e5ff,#7f00ff,#ff0080);
-  background-size:300% 100%;animation:rainbowMove 3.5s linear infinite;color:#031018;font-weight:700;border:none}
-@keyframes rainbowMove{to{background-position:300% 0}}
-footer .btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(255,0,128,.5)}
-footer .btn.danger{background:linear-gradient(135deg,#ff5f5f,#ff2d6f);color:#fff;font-weight:700;border:none;
-  box-shadow:0 0 16px rgba(255,60,90,.45);animation:none}
+footer .btn{flex:none;position:relative;overflow:hidden;border:none;border-radius:13px;
+  color:var(--cyan);font-size:14px;cursor:pointer;transition:all .2s;z-index:0}
+footer .btn::before{content:"";position:absolute;left:50%;top:50%;width:260%;height:260%;
+  transform:translate(-50%,-50%) rotate(0deg);
+  background:conic-gradient(#ff0080,#ff8c00,#ffe600,#00e5ff,#7f00ff,#ff0080);
+  animation:raSpin 3s linear infinite}
+footer .btn::after{content:"";position:absolute;inset:2px;border-radius:10px;
+  background:rgba(6,18,34,.92);z-index:1;transition:background .2s}
+footer .btn:hover::after{background:rgba(0,229,255,.16)}
+footer .btn.active::after{background:rgba(0,229,255,.22)}
+footer .btn span{position:relative;z-index:2;display:block;padding:10px 15px;pointer-events:none}
+footer .btn.primary{color:#fff;font-weight:700}
+footer .btn.primary::after{background:rgba(0,229,255,.15)}
+footer .btn.primary:hover::after{background:rgba(0,229,255,.26)}
+footer .btn.danger{color:#fff;font-weight:700}
+footer .btn.danger::before{animation:none}
+footer .btn.danger::after{inset:2px;background:linear-gradient(135deg,#ff5f5f,#ff2d6f);box-shadow:0 0 16px rgba(255,60,90,.45)}
 .chips{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);z-index:25;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;pointer-events:auto}
 .chip{font-size:12px;color:var(--cyan);padding:5px 12px;border:1px solid var(--line);border-radius:20px;
   background:rgba(6,18,34,.6);cursor:pointer;backdrop-filter:blur(6px);transition:all .2s}
@@ -404,7 +412,8 @@ footer .btn.danger{background:linear-gradient(135deg,#ff5f5f,#ff2d6f);color:#fff
 <div class="vignette"></div>
 
 <header>
-  <div class="brand"><span class="dot"></span>J.A.R.V.I.S.
+  <div class="brand"><span class="dot"></span>
+    <span id="helloText" title="随机打招呼">HI</span>
     <span id="greetText" title="问候语与昵称（设置中可自定义昵称）">正在问候...</span>
   </div>
   <div id="statusBadge"><span id="statusDot"></span><span id="statusText">连接中...</span></div>
@@ -433,7 +442,7 @@ footer .btn.danger{background:linear-gradient(135deg,#ff5f5f,#ff2d6f);color:#fff
     <div class="wave" id="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="core-inner">
       <div class="core-text">J.A.R.V.I.S.</div>
-      <div class="core-state" id="stateText">待命</div>
+      <div class="core-state" id="stateText">系统状态</div>
     </div>
     <button id="themeBtn" title="点击切换核心动效背景">主题 · 全息能量环</button>
   </div>
@@ -450,10 +459,10 @@ footer .btn.danger{background:linear-gradient(135deg,#ff5f5f,#ff2d6f);color:#fff
 <div id="interim"></div>
 
 <footer>
-  <button class="btn" id="btnWake" title="开启后说“贾维斯”即可唤醒">⚡ 唤醒</button>
-  <button class="btn" id="btnPtt" title="按住说话（或按住空格键）">🎤 按住说话</button>
-  <input id="input" placeholder="输入指令或问题，Enter 发送..." autocomplete="off">
-  <button class="btn primary" id="btnSend">发送</button>
+  <button class="btn" id="btnWake" title="开启后说唤醒词即可语音对话"><span>⚡ 唤醒</span></button>
+  <button class="btn" id="btnPtt" title="按住说话（或按住空格键）"><span>🎤 按住说话</span></button>
+  <div class="rainbow-wrap"><input id="input" placeholder="输入指令或问题，Enter 发送..." autocomplete="off"></div>
+  <button class="btn primary" id="btnSend"><span>发送</span></button>
 </footer>
 <div id="hint">唤醒词：贾维斯 · 按住「空格」或「🎤 按住说话」语音输入 · 文字指令 / 系统控制 均已就绪</div>
 
@@ -709,7 +718,7 @@ drawFx();
 $('themeBtn').onclick=()=>{const i=(THEMES.indexOf(theme)+1)%THEMES.length;applyTheme(THEMES[i]);};
 
 /* ================= 状态与字幕 ================= */
-const STATE_LABEL={idle:'待命',listening:'倾听中',exec:'执行任务中'};
+const STATE_LABEL={idle:'系统状态',listening:'倾听中',exec:'执行任务中'};
 function setState(s){
   const key=s==='idle'?'idle':(s==='listening'?'listening':'exec');
   const wrap=$('coreWrap');
@@ -719,7 +728,8 @@ function setState(s){
   // 说话（倾听）与播报/执行时波形跳动，提供语音实时反馈
   $('wave').classList.toggle('on',key!=='idle');
   fx.mode=key;}
-/* 左上角问候语：时段 + 昵称 */
+/* 左上角随机打招呼（HI / Hello / 嗨…随机轮换）+ 时段问候 + 昵称 */
+const HELLOS=['HI','Hello','嗨','哈喽','你好呀','Hey','哟','Hi~','YO!','嗨嗨'];
 function renderGreet(){
   const el=$('greetText');if(!el)return;
   const h=new Date().getHours();
@@ -727,11 +737,15 @@ function renderGreet(){
   let g;
   if(h<9)g='早上好';else if(h<12)g='上午好';else if(h<18)g='下午好';else g='晚上好';
   el.textContent=g+(nick?('，'+nick):'');
+  const ht=$('helloText');
+  if(ht)ht.textContent=HELLOS[Math.floor(Math.random()*HELLOS.length)];
   setInterval(()=>{const el2=$('greetText');if(!el2)return;
     const n2=(settingsData&&settingsData.user_nickname)||'';
     const h2=new Date().getHours();
     let g2;if(h2<9)g2='早上好';else if(h2<12)g2='上午好';else if(h2<18)g2='下午好';else g2='晚上好';
-    if(el2.textContent!==g2+(n2?('，'+n2):''))el2.textContent=g2+(n2?('，'+n2):'');},60000);}
+    if(el2.textContent!==g2+(n2?('，'+n2):''))el2.textContent=g2+(n2?('，'+n2):'');
+    const ht2=$('helloText');if(ht2&&Math.random()<.5)ht2.textContent=HELLOS[Math.floor(Math.random()*HELLOS.length)];
+  },60000);}
 let typeTimer=null;
 function typeSubtitle(text){
   clearInterval(typeTimer);const el=$('subtitle');el.classList.remove('dim');
@@ -987,15 +1001,69 @@ function sendChat(text){
   dimSubtitle();}
 $('btnSend').onclick=()=>{if(generating){doStop();return;}sendChat($('input').value.trim());};
 $('input').addEventListener('keydown',e=>{if(e.key==='Enter'){if(generating){doStop();return;}sendChat($('input').value.trim());}});
-/* ================= 动态提示词（随机轮换 + 热点/个性化） ================= */
+/* ================= 动态提示词（随机轮换 + 热点/个性化 + 趣味大数据池） ================= */
 let suggestionPool=[
   {cmd:'现在几点',label:'🕐 现在几点'},
   {cmd:'今日天气',label:'🌤 今日天气'},
   {cmd:'今天有什么新闻',label:'📰 新闻头条'},
   {cmd:'系统状态',label:'🖥 系统状态'},
-  {cmd:'讲个笑话',label:'😂 讲个笑话'},
+  {cmd:'讲个冷笑话',label:'🧊 讲个冷笑话'},
   {cmd:'打开客厅灯',label:'💡 开客厅灯'},
-  {cmd:'你会什么',label:'❓ 帮助'}];
+  {cmd:'空调调到26度',label:'❄️ 空调26度'},
+  {cmd:'你会什么',label:'❓ 你都会啥'},
+  {cmd:'告诉我一个冷知识',label:'🧠 冷知识来一个'},
+  {cmd:'来句励志名言',label:'✨ 今日名言'},
+  {cmd:'夸夸我',label:'🌈 夸夸我'},
+  {cmd:'测测我的网络',label:'📶 网络测速'},
+  {cmd:'深圳房价数据趋势',label:'📊 深圳房价分析'},
+  {cmd:'推荐一首歌',label:'🎵 推荐首歌'},
+  {cmd:'做个每日运势',label:'🔮 今日运势'},
+  {cmd:'搜索最近科技热点',label:'🔥 科技热点'},
+  {cmd:'搜一下今天娱乐圈新闻',label:'🎬 娱乐热闻'},
+  {cmd:'我该换工作吗',label:'💼 职业建议'},
+  {cmd:'列一份周末深圳攻略',label:'🗺 周末攻略'},
+  {cmd:'模拟一次面试',label:'🎯 模拟面试'},
+  {cmd:'给我编个科幻短故事',label:'🌌 科幻短篇'},
+  {cmd:'算算我的存款目标',label:'💰 理财小目标'},
+  {cmd:'翻译这句话',label:'🌐 英译中'},
+  {cmd:'总结这段话的意思',label:'✍️ 语义总结'},
+  {cmd:'帮我想个微信昵称',label:'🎭 起个昵称'},
+  {cmd:'解释一下量子纠缠',label:'⚛ 量子纠缠'},
+  {cmd:'给我讲个历史趣事',label:'🏛 历史趣闻'},
+  {cmd:'写首三行诗',label:'📜 三行诗'},
+  {cmd:'列出深圳必吃清单',label:'🍜 深圳美食'},
+  {cmd:'分析下A股今日行情',label:'📈 A股行情'},
+  {cmd:'推荐5部必看科幻电影',label:'🎬 科幻片单'},
+  {cmd:'帮我写封邮件草稿',label:'✉️ 邮件草稿'},
+  {cmd:'健身初学者计划',label:'🏋️ 健身计划'},
+  {cmd:'科学解释做梦',label:'💭 为什么会做梦'},
+  {cmd:'今天穿什么',label:'👔 穿搭建议'},
+  {cmd:'晚高峰避开堵车路线',label:'🚗 通勤避堵'},
+  {cmd:'给我的代码提意见',label:'💻 代码评审'},
+  {cmd:'列个深圳三日游',label:'🧳 三日游'},
+  {cmd:'帮我想个小红书标题',label:'📱 爆款标题'},
+  {cmd:'算一下房贷利息',label:'🏦 房贷计算'},
+  {cmd:'聊聊华为最新发布会',label:'📱 华为新品'},
+  {cmd:'推荐适合打工人的早餐',label:'🥪 打工人早餐'},
+  {cmd:'深圳有哪些好玩的地方',label:'🎡 深圳好玩地'},
+  {cmd:'讲个程序员笑话',label:'🤓 程序员梗'},
+  {cmd:'解释下什么是AIGC',label:'🤖 AIGC科普'},
+  {cmd:'帮我整理待办清单',label:'✅ 整理待办'},
+  {cmd:'写一句表白文案',label:'💘 表白文案'},
+  {cmd:'emo了给我打打气',label:'🔥 心灵鸡汤'},
+  {cmd:'推荐个深圳自习室',label:'📚 自习好去处'},
+  {cmd:'新闻里最火的是啥',label:'📰 全网热榜'},
+  {cmd:'10秒内给我答案',label:'⚡ 极速回答'},
+  {cmd:'给我生成一个口令',label:'🎟 生成口令'},
+  {cmd:'分析我的作息建议',label:'🌙 作息建议'},
+  {cmd:'列个周末放松清单',label:'🧘 周末放松'},
+  {cmd:'讲讲最近新出的AI产品',label:'🚀 AI新品速递'},
+  {cmd:'深圳地铁到机场怎么走',label:'🚇 地铁指引'},
+  {cmd:'来一段绕口令',label:'🌀 绕口令'},
+  {cmd:'给我算笔账',label:'🧮 帮我算账'},
+  {cmd:'推荐适合通勤的播客',label:'🎧 通勤播客'},
+  {cmd:'帮我想个游戏ID',label:'🎮 游戏ID'},
+  {cmd:'讲一个反转的结局',label:'🎬 神转折故事'}];
 function renderChips(list){
   if(list&&list.length)suggestionPool=list;
   const box=$('chips');
@@ -1095,7 +1163,8 @@ function fillSettings(d){
   $('setHaToken').value=(d.smart_home&&d.smart_home.ha_token)||'';
   $('setLlmOn').checked=!!(d.llm&&d.llm.enabled);
   $('setBase').value=(d.llm&&d.llm.base_url)||'';
-  $('setKey').value=(d.llm&&d.llm.api_key)||'';
+  $('setKey').value=''; // 真实 Key 不回填明文，避免误清空；留空保存=保持原 Key
+  $('setKey').placeholder=(d.llm&&d.llm.api_key)?'已配置 · 留空保持不变':'粘贴 API Key…';
   $('setModel').value=(d.llm&&d.llm.model)||'';
   const rs=$('setReasoning');if(rs)rs.value=(d.llm&&d.llm.reasoning)||'medium';
   // 服务厂商（按 magpie 分组渲染）
@@ -1158,6 +1227,12 @@ $('btnCancel').onclick=()=>$('settingsMask').classList.remove('show');
 $('btnSave').onclick=()=>{
   const custom=$('setCustomVoice').value.trim();
   const voice=custom||$('setVoice').value;
+  const k=$('setKey').value.trim();
+  const llmObj={enabled:$('setLlmOn').checked,provider:$('setProvider').value,
+                base_url:$('setBase').value.trim(),
+                model:$('setModel').value.trim(),
+                reasoning:($('setReasoning')?$('setReasoning').value:'medium')};
+  if(k)llmObj.api_key=k; // key 留空则保持已配置的值不变，避免误清空
   send({type:'settings_save',data:{
     assistant_name:$('setName').value.trim()||'贾维斯',
     user_nickname:($('setNick')?$('setNick').value.trim():'')||'',
@@ -1165,10 +1240,7 @@ $('btnSave').onclick=()=>{
     appearance:{splash:!$('setSplash')||$('setSplash').checked,
                 boot_sound:!$('setBootSound')||$('setBootSound').checked},
     workbench_title:$('setTitle').value.trim()||'贾维斯的智能AI工作台',
-    llm:{enabled:$('setLlmOn').checked,provider:$('setProvider').value,
-         base_url:$('setBase').value.trim(),api_key:$('setKey').value.trim(),
-         model:$('setModel').value.trim(),
-         reasoning:($('setReasoning')?$('setReasoning').value:'medium')},
+    llm:llmObj,
     tts:{voice,rate:(+$('setRate').value>=0?'+':'')+$('setRate').value+'%',
          volume:(+$('setVol').value>=0?'+':'')+$('setVol').value+'%',
          pitch:(+$('setPitch').value>=0?'+':'')+$('setPitch').value+'Hz'},
