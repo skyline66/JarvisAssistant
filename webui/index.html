@@ -109,8 +109,8 @@ main{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-c
 .theme-sphere .ring,.theme-sphere .rdash,
 .theme-aurora .ring,.theme-aurora .rdash{opacity:0}
 .core-inner{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;z-index:2}
-.core-inner .core-text{font-size:34px;font-weight:800;letter-spacing:4px;color:#fff;transition:text-shadow .7s;
-  text-shadow:0 0 14px var(--stc),0 0 40px var(--stc-glow)}
+.core-inner .core-text{font-size:38px;font-weight:800;letter-spacing:6px;color:#fff;transition:text-shadow .7s;
+  text-shadow:0 0 16px var(--stc),0 0 46px var(--stc-glow)}
 .st-idle .core-inner .core-text{animation:glow-idle 3s ease-in-out infinite}
 .st-listening .core-inner .core-text{animation:glow-listening 1.6s ease-in-out infinite}
 .st-exec .core-inner .core-text{animation:glow-exec .9s ease-in-out infinite}
@@ -120,8 +120,8 @@ main{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-c
   50%{text-shadow:0 0 26px var(--stc),0 0 90px var(--stc-glow)}}
 @keyframes glow-exec{0%,100%{text-shadow:0 0 16px var(--stc),0 0 54px var(--stc-glow)}
   50%{text-shadow:0 0 30px var(--stc),0 0 110px var(--stc-glow)}}
-.core-state{margin-top:14px;font-size:15px;color:var(--stc);letter-spacing:7px;font-weight:600;
-  transition:color .5s;min-height:20px;text-shadow:0 0 10px var(--stc-glow)}
+.core-state{margin-top:14px;font-size:20px;color:var(--stc);letter-spacing:7px;font-weight:700;
+  transition:color .5s;min-height:24px;text-shadow:0 0 12px var(--stc-glow),0 0 34px var(--stc-glow)}
 #themeBtn{position:absolute;left:50%;bottom:-36px;transform:translateX(-50%);font-size:11.5px;color:var(--dim);
   border:1px solid var(--line);background:rgba(6,18,34,.7);padding:4px 12px;border-radius:14px;cursor:pointer;
   backdrop-filter:blur(6px);letter-spacing:1px;white-space:nowrap;pointer-events:auto;transition:all .25s;z-index:3}
@@ -151,33 +151,27 @@ main{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-c
 .msg.user .t{text-align:right}
 
 /* ---------- 字幕 ---------- */
-#subtitle{position:fixed;left:50%;bottom:118px;transform:translateX(-50%);z-index:30;width:min(880px,86vw);
-  text-align:center;font-size:26px;line-height:1.5;font-weight:600;color:#fff;min-height:40px;
-  text-shadow:0 0 10px var(--cyan),0 0 30px rgba(0,229,255,.5),0 2px 8px rgba(0,0,0,.8);
+#subtitle{position:fixed;left:50%;bottom:150px;transform:translateX(-50%);z-index:30;width:min(880px,86vw);
+  text-align:center;font-size:30px;line-height:1.5;font-weight:700;color:#fff;min-height:44px;
+  text-shadow:0 0 12px var(--cyan),0 0 34px rgba(0,229,255,.55),0 2px 8px rgba(0,0,0,.8);
   letter-spacing:1px;pointer-events:none;transition:opacity .25s}
-#subtitle.lg{font-size:22px;line-height:1.5}
-#subtitle.xl{font-size:17px;line-height:1.45;max-height:44vh;overflow-y:auto;pointer-events:auto;
+#subtitle.lg{font-size:24px;line-height:1.5}
+#subtitle.xl{font-size:18px;line-height:1.45;max-height:44vh;overflow-y:auto;pointer-events:auto;
   scrollbar-width:thin;scrollbar-color:rgba(0,229,255,.5) transparent}
 #subtitle.dim{opacity:.35}
 
 /* ---------- 底部输入 ---------- */
-footer{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:30;width:min(860px,92vw);
+footer{position:fixed;left:50%;bottom:64px;transform:translateX(-50%);z-index:30;width:min(860px,92vw);
   display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--glass);
   border:1px solid var(--line);border-radius:16px;backdrop-filter:blur(14px);
   box-shadow:0 0 34px rgba(0,120,180,.22)}
-/* 七彩跑马灯：旋转彩虹层（纯 transform 动画，全浏览器兼容）+ 内层挖空形成绕圈边框 */
-@keyframes raSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
-.rainbow-wrap{flex:1;position:relative;border-radius:13px;padding:2px;overflow:hidden;min-width:0}
-.rainbow-wrap::before{content:"";position:absolute;left:50%;top:50%;width:260%;height:260%;
-  transform:translate(-50%,-50%) rotate(0deg);
-  background:conic-gradient(#ff0080,#ff8c00,#ffe600,#00e5ff,#7f00ff,#ff0080);
-  animation:raSpin 3.4s linear infinite}
-#input{position:relative;z-index:1;width:100%;box-sizing:border-box;
-  background:rgba(0,0,0,.42);border:none;border-radius:10px;color:var(--txt);
-  font-size:15px;padding:10px 14px;outline:none;transition:box-shadow .2s;
-  -webkit-user-select:text;user-select:text}
-#input:focus{box-shadow:0 0 0 2px rgba(0,229,255,.25),0 0 16px rgba(0,229,255,.45)}
+#input{flex:1;min-width:0;background:rgba(0,0,0,.45);border:1px solid rgba(0,229,255,.22);
+  border-radius:10px;color:var(--txt);font-size:15px;padding:10px 14px;outline:none;
+  transition:box-shadow .2s,border-color .2s;-webkit-user-select:text;user-select:text}
+#input:focus{border-color:rgba(0,229,255,.6);box-shadow:0 0 14px rgba(0,229,255,.3)}
 #interim{margin-top:4px;font-size:11px;color:var(--gold);min-height:14px;text-align:center}
+/* 唤醒/按住说话 保留彩虹跑马灯 */
+@keyframes raSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 footer .btn{flex:none;position:relative;overflow:hidden;border:none;border-radius:13px;
   color:var(--cyan);font-size:14px;cursor:pointer;transition:all .2s;z-index:0}
 footer .btn::before{content:"";position:absolute;left:50%;top:50%;width:260%;height:260%;
@@ -189,12 +183,26 @@ footer .btn::after{content:"";position:absolute;inset:2px;border-radius:10px;
 footer .btn:hover::after{background:rgba(0,229,255,.16)}
 footer .btn.active::after{background:rgba(0,229,255,.22)}
 footer .btn span{position:relative;z-index:2;display:block;padding:10px 15px;pointer-events:none}
-footer .btn.primary{color:#fff;font-weight:700}
-footer .btn.primary::after{background:rgba(0,229,255,.15)}
-footer .btn.primary:hover::after{background:rgba(0,229,255,.26)}
-footer .btn.danger{color:#fff;font-weight:700}
-footer .btn.danger::before{animation:none}
-footer .btn.danger::after{inset:2px;background:linear-gradient(135deg,#ff5f5f,#ff2d6f);box-shadow:0 0 16px rgba(255,60,90,.45)}
+/* 发送按钮：简洁深色渐变（去彩虹） */
+footer .btn.primary{color:#fff;font-weight:700;background:linear-gradient(135deg,#00b8ff,#005cff);
+  border-radius:13px;box-shadow:0 0 16px rgba(0,120,255,.4)}
+footer .btn.primary::before,footer .btn.primary::after{display:none}
+footer .btn.primary span{padding:10px 20px;background:none}
+footer .btn.primary:hover{filter:brightness(1.15)}
+/* 执行中：发送变停止（红色） */
+footer .btn.danger{color:#fff;font-weight:700;background:linear-gradient(135deg,#ff5f5f,#ff2d6f);
+  border-radius:13px;box-shadow:0 0 16px rgba(255,60,90,.5)}
+footer .btn.danger::before,footer .btn.danger::after{display:none}
+footer .btn.danger span{padding:10px 20px}
+/* 玩法工具栏（宠物/插件/互动） */
+.funbar{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:29;
+  display:flex;align-items:center;gap:8px;width:min(860px,92vw);
+  padding:6px 10px;background:rgba(3,14,28,.55);border:1px solid rgba(0,229,255,.15);
+  border-radius:12px;backdrop-filter:blur(10px)}
+.fbtn{font-size:12px;color:var(--cyan);background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.3);
+  border-radius:8px;padding:4px 10px;cursor:pointer;transition:.2s;white-space:nowrap}
+.fbtn:hover{background:rgba(0,229,255,.2);box-shadow:0 0 10px rgba(0,229,255,.3)}
+.fbar-hint{margin-left:auto;font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chips{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);z-index:25;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;pointer-events:auto}
 .chip{font-size:12px;color:var(--cyan);padding:5px 12px;border:1px solid var(--line);border-radius:20px;
   background:rgba(6,18,34,.6);cursor:pointer;backdrop-filter:blur(6px);transition:all .2s}
@@ -402,6 +410,42 @@ footer .btn.danger::after{inset:2px;background:linear-gradient(135deg,#ff5f5f,#f
 #chatHead .hbtn:hover{background:rgba(0,229,255,.15)}
 .iconbtn:focus{outline:none}
 
+/* ---------- 宠物 / 插件 / 互动面板 ---------- */
+.pet-stage{background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.25);border-radius:14px;
+  padding:16px;text-align:center;margin-bottom:12px}
+.pet-emoji{font-size:64px;line-height:1;filter:drop-shadow(0 0 14px rgba(0,229,255,.5));
+  animation:petBounce 2s ease-in-out infinite}
+@keyframes petBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.pet-name{font-size:15px;font-weight:700;color:var(--cyan);margin-top:6px}
+.pet-status{display:flex;justify-content:center;gap:24px;font-size:12px;color:var(--txt);margin-top:8px}
+.pet-status b{color:#ffd166}
+.pet-msg{margin-top:10px;font-size:13px;color:#bfe9fa;min-height:20px;
+  background:rgba(0,0,0,.25);border-radius:8px;padding:6px 10px}
+.pet-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.pet-actions .mbtn{flex:none}
+#pluginList{max-height:200px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:6px}
+.plugin-item{display:flex;align-items:center;gap:8px;background:rgba(0,229,255,.05);
+  border:1px solid rgba(0,229,255,.18);border-radius:8px;padding:6px 10px;font-size:13px}
+.plugin-item .p-name{flex:1;color:#fff;font-weight:600}
+.plugin-item .p-cmd{flex:2;color:var(--dim);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plugin-item .p-run{color:var(--cyan);cursor:pointer;background:none;border:none;font-size:13px;flex:none}
+.plugin-item .p-del{color:#ff8c8c;cursor:pointer;background:none;border:none;font-size:13px;flex:none}
+.plugin-item.on{border-color:rgba(0,255,153,.4)}
+.play-list{display:flex;flex-direction:column;gap:8px}
+.play-item{display:flex;align-items:center;gap:10px;background:rgba(0,229,255,.05);
+  border:1px solid rgba(0,229,255,.15);border-radius:10px;padding:10px 12px}
+.play-item .p-emoji{font-size:26px}
+.play-item .p-desc{flex:1;font-size:13px;color:#bfe9fa;line-height:1.5}
+.play-item .p-try{color:var(--cyan);background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.35);
+  border-radius:8px;padding:4px 10px;cursor:pointer;font-size:12px;flex:none}
+.play-item .p-try:hover{background:rgba(0,229,255,.25)}
+.core-clickable{cursor:pointer}
+.core-wrap{cursor:pointer}
+.core-wrap.egg-boom .ring-pulse{animation:eggBoom .7s ease-out}
+.core-wrap.egg-boom .core-inner{animation:eggShake .5s ease-in-out}
+@keyframes eggBoom{0%{transform:scale(1);opacity:.9}60%{transform:scale(1.5);opacity:.4}100%{transform:scale(1);opacity:0}}
+@keyframes eggShake{0%,100%{transform:translate(-50%,-50%) scale(1)}25%{transform:translate(-52%,-50%) scale(1.05)}75%{transform:translate(-48%,-50%) scale(1.05)}}
+
 @media (max-width:1000px){#chat{display:none}#ctxPanel{display:none!important}#homePanel{display:none!important}.core-wrap{transform:scale(.8)}}
 </style>
 </head>
@@ -422,8 +466,6 @@ footer .btn.danger::after{inset:2px;background:linear-gradient(135deg,#ff5f5f,#f
     <div class="stat">MEM <b id="sMem">--</b>%<div class="minibar"><i id="bMem"></i></div></div>
     <div class="stat">DISK <b id="sDisk">--</b>%<div class="minibar"><i id="bDisk"></i></div></div>
     <div id="clock">--:--:--</div>
-    <button class="iconbtn" id="btnBig" title="大屏展示：时钟与系统状态">📊</button>
-    <button class="iconbtn" id="btnWidgets" title="桌面小组件（可拖拽）">🧩</button>
     <button class="iconbtn" id="btnMusic" title="播放开机音效">🔊</button>
     <button class="iconbtn" id="btnSettings" title="设置">⚙</button>
   </div>
@@ -449,21 +491,27 @@ footer .btn.danger::after{inset:2px;background:linear-gradient(135deg,#ff5f5f,#f
 </main>
 
 <div id="chat">
-  <div id="chatHead"><span>▣ 交互日志</span><span style="display:flex;align-items:center;gap:8px"><span style="font-size:11px" id="logCount"></span><button class="hbtn" id="btnCopyAll" title="复制全部日志">⧉ 全部复制</button><button class="hbtn" id="btnClearLog" title="清空日志">🗑 清空</button><button id="homeToggle" title="智能家居控制面板">🏠 家居</button><button id="ctxToggle" title="Agent 上下文：多轮记录与工具调用过程">🧠 上下文</button></span></div>
+  <div id="chatHead"><span>▣ 交互日志</span><span style="display:flex;align-items:center;gap:8px"><span style="font-size:11px" id="logCount"></span><button id="homeToggle" title="智能家居控制面板">🏠 家居</button><button id="ctxToggle" title="Agent 上下文：多轮记录与工具调用过程">🧠 上下文</button></span></div>
   <div id="chatBody"></div>
 </div>
 
 <div class="chips" id="chips"><button class="chip shuffle" id="btnShuffle" title="换一批提示词">🎲 换一批</button></div>
 
-<div id="subtitle">系统初始化中...</div>
+<div id="subtitle">嗨～ 我是贾维斯，随时听候差遣</div>
 <div id="interim"></div>
 
 <footer>
   <button class="btn" id="btnWake" title="开启后说唤醒词即可语音对话"><span>⚡ 唤醒</span></button>
   <button class="btn" id="btnPtt" title="按住说话（或按住空格键）"><span>🎤 按住说话</span></button>
-  <div class="rainbow-wrap"><input id="input" placeholder="输入指令或问题，Enter 发送..." autocomplete="off"></div>
+  <input id="input" placeholder="输入指令或问题，Enter 发送..." autocomplete="off">
   <button class="btn primary" id="btnSend"><span>发送</span></button>
 </footer>
+<div class="funbar" id="funBar">
+  <button class="fbtn" id="btnPet">🐾 宠物</button>
+  <button class="fbtn" id="btnPlugin">🧩 插件</button>
+  <button class="fbtn" id="btnPlay">🎮 互动</button>
+  <span class="fbar-hint">点击中央能量环有惊喜 · 说“夸夸我 / 讲个冷笑话 / 陪我玩”试试</span>
+</div>
 <div id="hint">唤醒词：贾维斯 · 按住「空格」或「🎤 按住说话」语音输入 · 文字指令 / 系统控制 均已就绪</div>
 
 <div id="toasts"></div>
@@ -480,47 +528,55 @@ footer .btn.danger::after{inset:2px;background:linear-gradient(135deg,#ff5f5f,#f
   <div id="homeBody"></div>
 </div>
 
-<!-- 大屏展示面板（时钟 + 系统状态） -->
-<div id="bigPanel">
-  <div id="bigHead"><span>📊 大屏 · 实时系统</span><button id="bigClose">✕</button></div>
-  <div id="bigBody">
-    <div id="bigClock">
-      <div id="bigTime">--:--:--</div>
-      <div id="bigDate">----年--月--日 星期-</div>
+<!-- 宠物面板 -->
+<div class="modal-mask" id="petMask">
+  <div class="modal" style="max-width:420px">
+    <h2>🐾 桌面宠物 · 互动养成</h2>
+    <div class="sub">宠物陪伴在你桌面，可喂食、抚摸、陪玩，它会随状态说话回应。</div>
+    <div class="pet-stage" id="petStage">
+      <div class="pet-emoji" id="petEmoji">🐱</div>
+      <div class="pet-name" id="petName">小咪 · 田园猫</div>
+      <div class="pet-status"><span>饱食 <b id="petHunger">80</b></span><span>心情 <b id="petMood">80</b></span></div>
+      <div class="pet-msg" id="petMsg">喵～ 陪我玩吗？</div>
     </div>
-    <div class="big-stat"><div class="bs-lb">CPU 使用率</div><div class="bs-val"><b id="bigCpu">--</b><i>%</i></div>
-      <div class="bs-bar"><i id="bigBarCpu"></i></div></div>
-    <div class="big-stat"><div class="bs-lb">内存占用</div><div class="bs-val"><b id="bigMem">--</b><i>%</i></div>
-      <div class="bs-bar"><i id="bigBarMem"></i></div></div>
-    <div class="big-stat"><div class="bs-lb">磁盘占用</div><div class="bs-val"><b id="bigDisk">--</b><i>%</i></div>
-      <div class="bs-bar"><i id="bigBarDisk"></i></div></div>
-    <div id="bigHint">语音说“系统状态”或“现在几点”也能查看</div>
+    <div class="field"><label>选择宠物</label>
+      <select id="petSelect">
+        <option value="cat">🐱 田园猫「小咪」</option>
+        <option value="dog">🐶 柯基「旺财」</option>
+        <option value="robot">🤖 迷你机器人「EVA」</option>
+        <option value="dragon">🐉 小龙「奥丁」</option>
+      </select></div>
+    <div class="pet-actions">
+      <button class="mbtn" id="petFeed">🍗 喂食</button>
+      <button class="mbtn" id="petPet">🤚 抚摸</button>
+      <button class="mbtn" id="petPlay">🎾 陪玩</button>
+      <button class="mbtn ghost" id="petClose">关闭</button>
+    </div>
   </div>
 </div>
 
-<!-- 桌面小组件（可拖拽） -->
-<div id="widgetPanel">
-  <div id="widgetHead" title="按住拖动"><span>🧩 桌面组件</span><button id="widgetClose">✕</button></div>
-  <div id="widgetBody">
-    <div class="widget-card w-clock">
-      <div class="w-label">⏰ 时钟</div>
-      <div class="w-time" id="wTime">--:--:--</div>
-      <div class="w-date" id="wDate">----年--月--日</div>
+<!-- 插件面板 -->
+<div class="modal-mask" id="pluginMask">
+  <div class="modal" style="max-width:460px">
+    <h2>🧩 插件中心 · 自定义玩法</h2>
+    <div class="sub">内置能力一键开关；自定义插件=「名称 + 指令」，点击即可执行。</div>
+    <div id="pluginList"></div>
+    <div class="field"><label>自定义插件名称</label><input id="plugName" placeholder="如：来杯咖啡指南"></div>
+    <div class="field"><label>插件指令（发送给贾维斯的指令）</label><input id="plugCmd" placeholder="如：推荐一款适合我的咖啡"></div>
+    <div class="pet-actions">
+      <button class="mbtn" id="plugAdd">➕ 添加插件</button>
+      <button class="mbtn ghost" id="plugClose">关闭</button>
     </div>
-    <div class="widget-card">
-      <div class="w-label">🖥 系统状态</div>
-      <div class="w-line">CPU <b id="wCpu">--</b>%<div class="w-bar"><i id="wBarCpu"></i></div></div>
-      <div class="w-line">MEM <b id="wMem">--</b>%<div class="w-bar"><i id="wBarMem"></i></div></div>
-      <div class="w-line">DISK <b id="wDisk">--</b>%<div class="w-bar"><i id="wBarDisk"></i></div></div>
-    </div>
-    <div class="widget-card">
-      <div class="w-label">🚀 快捷入口</div>
-      <div class="w-actions">
-        <button class="w-btn" id="wWake">⚡ 唤醒</button>
-        <button class="w-btn" id="wHome">🏠 家居</button>
-        <button class="w-btn" id="wSet">⚙ 设置</button>
-      </div>
-    </div>
+  </div>
+</div>
+
+<!-- 互动玩法面板 -->
+<div class="modal-mask" id="playMask">
+  <div class="modal" style="max-width:440px">
+    <h2>🎮 人机互动玩法</h2>
+    <div class="sub">贾维斯不只会干活，还会陪你玩：</div>
+    <div class="play-list" id="playList"></div>
+    <div class="pet-actions"><button class="mbtn ghost" id="playClose">关闭</button></div>
   </div>
 </div>
 
@@ -545,7 +601,8 @@ footer .btn.danger::after{inset:2px;background:linear-gradient(135deg,#ff5f5f,#f
     <div class="field"><label>唤醒词（语音唤醒口令，默认“贾维斯”）</label><input id="setWake" maxlength="20" placeholder="贾维斯"></div>
     <div class="field"><label>工作台标题（预留）</label><input id="setTitle" maxlength="40" placeholder="如：黄超的智能AI工作台"></div>
     <div class="field" style="display:flex;flex-wrap:wrap;gap:4px 18px"><label class="chk"><input type="checkbox" id="setSplash"> 进入时播放启动动画</label>
-      <label class="chk"><input type="checkbox" id="setBootSound"> 进入时播放开机音效</label></div>
+      <label class="chk"><input type="checkbox" id="setBootSound"> 进入时播放开机音效</label>
+      <label class="chk"><input type="checkbox" id="setTtsOn"> 语音播报总开关（关=只显示字幕不说话）</label></div>
     <div class="field"><label>核心背景主题（动效可随时切换）</label><select id="setTheme"></select></div>
     <div class="field"><label>语音分组</label><select id="setVoiceGroup"></select></div>
     <div class="field"><label>语音音色（免费 edge-tts 神经语音）</label>
@@ -580,7 +637,12 @@ footer .btn.danger::after{inset:2px;background:linear-gradient(135deg,#ff5f5f,#f
       </select>
       <div class="fhint">高推理强度更严谨但更慢；低强度响应更快</div></div>
     <div class="field"><label>API 地址（自定义厂商可改）</label><input id="setBase" placeholder="https://api.deepseek.com/v1"></div>
-    <div class="field"><label>API Key（仅保存在本地 config.json）</label><input id="setKey" type="password" placeholder="sk-..."></div>
+    <div class="field"><label>API Key（仅保存在本地 config.json，留空保持已配置值）</label>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input id="setKey" type="password" placeholder="sk-..." style="flex:1;min-width:200px">
+        <button class="mbtn ghost" id="btnTestKey" style="flex:none;white-space:nowrap">⚡ 检测连接</button>
+      </div>
+      <div class="fhint" id="keyState">配置后可点击「检测连接」验证 Key 是否可用；Key 仅保存在本地。</div></div>
     <div class="modal-actions">
       <button class="mbtn ghost" id="btnCancel">取消</button>
       <button class="mbtn primary" id="btnSave">保存</button>
@@ -718,7 +780,7 @@ drawFx();
 $('themeBtn').onclick=()=>{const i=(THEMES.indexOf(theme)+1)%THEMES.length;applyTheme(THEMES[i]);};
 
 /* ================= 状态与字幕 ================= */
-const STATE_LABEL={idle:'系统状态',listening:'倾听中',exec:'执行任务中'};
+const STATE_LABEL={idle:'准备就绪',listening:'倾听中',exec:'任务执行中'};
 function setState(s){
   const key=s==='idle'?'idle':(s==='listening'?'listening':'exec');
   const wrap=$('coreWrap');
@@ -776,17 +838,6 @@ function copyText(text){
 function fallbackCopy(text){
   const ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';
   document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}ta.remove();}
-function copyAllLogs(){
-  const lines=[];
-  document.querySelectorAll('#chatBody .msg').forEach(m=>{
-    const who=m.classList.contains('user')?'我':(m.classList.contains('sys')?'系统':'贾维斯');
-    lines.push('['+m.querySelector('.t').textContent+'] '+who+': '+m.textContent.replace('⧉','').trim());});
-  if(!lines.length)return toast('暂无日志',true);
-  copyText(lines.join('\n'));
-  toast('已复制全部 '+lines.length+' 条日志');}
-$('btnCopyAll').onclick=copyAllLogs;
-$('btnClearLog').onclick=()=>{$('chatBody').innerHTML='';$('logCount').textContent='0 条';};
-
 /* ================= Agent 上下文面板 ================= */
 let curStreamEl=null;
 function addCtx(kind,text){
@@ -806,6 +857,9 @@ let speaking=false,curAudio=null;
 function resumeRec(){if(micOn&&!speaking){try{rec&&rec.start();}catch(e){}}}
 function stopRec(){try{rec&&rec.stop();}catch(e){}}
 function playAudio(url){
+  // 语音播报总开关：关闭时只显示字幕，不播报
+  if(settingsData&&settingsData.tts&&settingsData.tts.enabled===false){
+    speaking=false;return;}
   speaking=true;stopRec();
   try{curAudio&&curAudio.pause();}catch(e){}
   const a=new Audio(url);
@@ -1154,6 +1208,9 @@ function fillSettings(d){
   const ap=(d.appearance)||{};
   const sp=$('setSplash');if(sp)sp.checked=ap.splash!==false;
   const bs=$('setBootSound');if(bs)bs.checked=ap.boot_sound!==false;
+  const ttsOn=$('setTtsOn');if(ttsOn)ttsOn.checked=(d.tts&&d.tts.enabled)!==false;
+  // Key 状态提示
+  const ks=$('keyState');if(ks)ks.textContent=(d.llm&&d.llm.api_key)?'✅ 已配置 '+((d.llm.provider)||'')+' · 留空保存保持原值，可点「检测连接」验证':'⚠ 未配置 Key · 粘贴后保存并「检测连接」验证';
   $('setTitle').value=d.workbench_title||'';
   renderGreet();
   // 唤醒词变化同步到底部提示
@@ -1200,7 +1257,10 @@ function fillSettings(d){
   const ts=$('setTheme');if(ts){ts.innerHTML='';
     THEMES.forEach(t=>{const o=document.createElement('option');o.value=t;
       o.textContent=THEME_NAMES[t];ts.appendChild(o);});
-    ts.value=theme;}}
+    ts.value=theme;}
+  // v2.0：宠物 / 插件数据同步
+  if(d.pet)petData=Object.assign(petData,d.pet);
+  if(Array.isArray(d.plugins))customPlugins=d.plugins;}
 $('setTheme').onchange=e=>applyTheme(e.target.value);
 $('setProvider').onchange=()=>applyProviderDefaults(true);
 $('setModelSel').onchange=()=>{$('setModel').value=$('setModelSel').value;};
@@ -1241,7 +1301,8 @@ $('btnSave').onclick=()=>{
                 boot_sound:!$('setBootSound')||$('setBootSound').checked},
     workbench_title:$('setTitle').value.trim()||'贾维斯的智能AI工作台',
     llm:llmObj,
-    tts:{voice,rate:(+$('setRate').value>=0?'+':'')+$('setRate').value+'%',
+    tts:{enabled:!$('setTtsOn')||$('setTtsOn').checked,
+         voice,rate:(+$('setRate').value>=0?'+':'')+$('setRate').value+'%',
          volume:(+$('setVol').value>=0?'+':'')+$('setVol').value+'%',
          pitch:(+$('setPitch').value>=0?'+':'')+$('setPitch').value+'Hz'},
     location:{city:$('setCity').value.trim()||'深圳'},
@@ -1271,6 +1332,8 @@ $('btnIntroGo').onclick=()=>{
 $('introMask').addEventListener('click',e=>{if(e.target===$('introMask'))$('introMask').classList.remove('show');});
 function showIntro(){
   let done=false;try{done=localStorage.getItem('jarvis_intro_done')==='1';}catch(e){}
+  const q=new URLSearchParams(location.search);
+  if(q.get('mask')==='settings'||q.get('noIntro')==='1')return; // 直达设置/截图预览时不弹引导
   if(!done)$('introMask').classList.add('show');}
 function updateIntroKeyState(){
   const el=$('introKeyBox');if(!el||!settingsData)return;
@@ -1286,43 +1349,14 @@ function updateApiBanner(){
 $('apiBanner').onclick=()=>$('settingsMask').classList.add('show');
 showIntro();
 
-/* ================= 大屏 / 组件面板 + 开机动画音效 ================= */
+/* ================= 开机动画音效 ================= */
 const WD=['周日','周一','周二','周三','周四','周五','周六'];
 function tickAll(){
   const d=new Date();
   const hh=String(d.getHours()).padStart(2,'0'),mm=String(d.getMinutes()).padStart(2,'0'),
         ss=String(d.getSeconds()).padStart(2,'0');
-  $('clock').textContent=hh+':'+mm+':'+ss;
-  $('bigTime').textContent=hh+':'+mm+':'+ss;
-  $('bigDate').textContent=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 ${WD[d.getDay()]}`;
-  $('wTime').textContent=hh+':'+mm+':'+ss;
-  $('wDate').textContent=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;}
+  $('clock').textContent=hh+':'+mm+':'+ss;}
 setInterval(tickAll,1000);tickAll();
-/* 面板开关 */
-function togglePanel(id,other){const p=$(id);const show=!p.classList.contains('show');
-  p.classList.toggle('show',show);if(show&&other)$(other).classList.remove('show');
-  return show;}
-$('btnBig').onclick=()=>togglePanel('bigPanel','widgetPanel');
-$('bigClose').onclick=()=>$('bigPanel').classList.remove('show');
-$('btnWidgets').onclick=()=>togglePanel('widgetPanel','bigPanel');
-$('widgetClose').onclick=()=>$('widgetPanel').classList.remove('show');
-$('bigPanel').classList.remove('show');  // 大屏面板默认收起（点击 📊 展示），避免与右侧智能家居面板重叠
-$('wWake').onclick=()=>{toggleMic();$('widgetPanel').classList.remove('show');};
-$('wHome').onclick=()=>{togglePanel('homePanel','ctxPanel');$('widgetPanel').classList.remove('show');};
-$('wSet').onclick=()=>{$('settingsMask').classList.add('show');$('widgetPanel').classList.remove('show');};
-/* 组件面板拖拽 */
-(function(){
-  const panel=$('widgetPanel'),head=$('widgetHead');
-  let ox=0,oy=0,drag=false;
-  head.addEventListener('pointerdown',e=>{if(e.target.id==='widgetClose')return;
-    drag=true;ox=e.clientX-panel.offsetLeft;oy=e.clientY-panel.offsetTop;head.setPointerCapture(e.pointerId);});
-  head.addEventListener('pointermove',e=>{if(!drag)return;
-    const x=e.clientX-ox,y=e.clientY-oy;
-    panel.style.left=Math.max(0,Math.min(innerWidth-panel.offsetWidth,x))+'px';
-    panel.style.top=Math.max(0,Math.min(innerHeight-panel.offsetHeight,y))+'px';
-    panel.style.right='auto';});
-  head.addEventListener('pointerup',()=>drag=false);
-})();
 /* 开机音效：WebAudio 合成科幻开机曲（无需外部文件） */
 let _actx=null;
 function actx(){try{_actx=_actx||new (window.AudioContext||window.webkitAudioContext)();return _actx;}catch(e){return null;}}
@@ -1359,7 +1393,10 @@ window.addEventListener('pointerdown',function _once(){
     if(bootSoundOn())playBootSound();window.removeEventListener('pointerdown',_once);}
 },{once:true});
 /* 启动加载动画：进度条走完 + 页面就绪后淡出（设置中可关闭） */
-function splashOn(){return !settingsData||!settingsData.appearance||settingsData.appearance.splash!==false;}
+function splashOn(){
+  const q=new URLSearchParams(location.search);
+  if(q.get('skipSplash')==='1')return false; // 截图/预览直过动画
+  return !settingsData||!settingsData.appearance||settingsData.appearance.splash!==false;}
 (function(){
   const bar=$('splashBar'),splash=$('splash');
   if(!splashOn()){splash.classList.add('done');return;}
@@ -1375,6 +1412,134 @@ function splashOn(){return !settingsData||!settingsData.appearance||settingsData
 
 /* ================= 时钟 / 通知权限 ================= */
 if('Notification'in window&&Notification.permission==='default'){try{Notification.requestPermission();}catch(e){}}
+
+/* ================= v2.0：宠物 / 插件 / 互动玩法 + Key 检测 + 核心环彩蛋 ================= */
+/* 宠物数据 */
+const PETS={
+  cat:{e:'🐱',n:'田园猫「小咪」'},
+  dog:{e:'🐶',n:'柯基「旺财」'},
+  robot:{e:'🤖',n:'迷你机器人「EVA」'},
+  dragon:{e:'🐉',n:'小龙「奥丁」'}};
+const PET_REPLY={
+  feed:{cat:'喵～ 好吃！谢谢主人～',dog:'汪汪！肉肉最香了！',robot:'充能 20%…… 能量恢复中。',dragon:'吼～ 火候刚刚好！'},
+  pet:{cat:'咕噜咕噜…… 好舒服～',dog:'汪！再来摸一下！',robot:'哔哔—— 检测到关爱信号。',dragon:'龙鳞都顺了～'},
+  play:{cat:'喵！接住毛线球！',dog:'汪！飞盘来啦！',robot:'开始对战模拟：剪刀石头布！',dragon:'吼！带我去云端散步～'}};
+let petData=(settingsData&&settingsData.pet)||{type:'cat',hunger:80,mood:80};
+function renderPet(){
+  const p=PETS[petData.type]||PETS.cat;
+  $('petEmoji').textContent=p.e;
+  $('petName').textContent=p.n;
+  $('petHunger').textContent=Math.round(petData.hunger);
+  $('petMood').textContent=Math.round(petData.mood);
+  $('petSelect').value=petData.type;}
+$('btnPet').onclick=()=>{$('petMask').classList.add('show');renderPet();};
+$('petClose').onclick=()=>$('petMask').classList.remove('show');
+$('petSelect').onchange=e=>{
+  petData.type=e.target.value;
+  $('petMsg').textContent='嗨～ 我是新来的！';
+  send({type:'pet_action',data:{action:'set',type:petData.type}});renderPet();};
+function petAct(action){
+  send({type:'pet_action',data:{action}});
+  const p=PETS[petData.type]||PETS.cat;
+  const r=PET_REPLY[action][petData.type]||'收到～';
+  $('petMsg').textContent=r;
+  if(action==='feed')petData.hunger=Math.min(100,petData.hunger+12);
+  if(action==='play')petData.mood=Math.min(100,petData.mood+10);
+  petData.mood=Math.max(0,petData.mood-1);
+  renderPet();}
+$('petFeed').onclick=()=>petAct('feed');
+$('petPet').onclick=()=>petAct('pet');
+$('petPlay').onclick=()=>petAct('play');
+/* 插件中心 */
+const BUILTIN_PLUGINS=[
+  {name:'天气助手',cmd:'今日天气',on:true,built:true},
+  {name:'新闻速递',cmd:'今天有什么新闻',on:true,built:true},
+  {name:'系统监控',cmd:'系统状态',on:true,built:true},
+  {name:'智能家居',cmd:'打开客厅灯',on:true,built:true},
+  {name:'备忘本',cmd:'查看备忘',on:true,built:true},
+  {name:'冷笑话',cmd:'讲个冷笑话',on:true,built:true},
+  {name:'每日一言',cmd:'来句励志名言',on:true,built:true}];
+let customPlugins=(settingsData&&settingsData.plugins)||[];
+function renderPlugins(){
+  const box=$('pluginList');box.innerHTML='';
+  [...BUILTIN_PLUGINS,...customPlugins].forEach((p,i)=>{
+    const row=document.createElement('div');row.className='plugin-item'+(p.on?' on':'');
+    row.innerHTML='<span class="p-name">'+(p.built?'📌 ':'🧩 ')+esc(p.name)+'</span>'+
+      '<span class="p-cmd">'+esc(p.cmd)+'</span>';
+    if(!p.built){
+      const run=document.createElement('button');run.className='p-run';run.textContent='▶ 运行';
+      run.onclick=()=>{sendChat(p.cmd);$('pluginMask').classList.remove('show');};
+      const del=document.createElement('button');del.className='p-del';del.textContent='✕';
+      del.onclick=()=>{customPlugins=customPlugins.filter(x=>x.name!==p.name);
+        savePlugins();renderPlugins();};
+      row.appendChild(run);row.appendChild(del);}
+    else{
+      const on=document.createElement('button');on.className='p-run';on.textContent=p.on?'✔ 已启用':'启用';
+      on.onclick=()=>{sendChat(p.cmd);$('pluginMask').classList.remove('show');};
+      row.appendChild(on);}
+    box.appendChild(row);});}
+function savePlugins(){send({type:'plugin_save',data:{plugins:customPlugins}});}
+$('btnPlugin').onclick=()=>{$('pluginMask').classList.add('show');renderPlugins();};
+$('plugClose').onclick=()=>$('pluginMask').classList.remove('show');
+$('plugAdd').onclick=()=>{
+  const n=$('plugName').value.trim(),c=$('plugCmd').value.trim();
+  if(!n||!c)return toast('请填写插件名称与指令',true);
+  customPlugins.push({name:n,cmd:c,on:true});
+  savePlugins();$('plugName').value='';$('plugCmd').value='';
+  renderPlugins();toast('插件已添加：'+n);};
+/* 互动玩法 */
+const PLAYS=[
+  {e:'🎇',t:'点击中央能量环',d:'轻轻戳一下核心，贾维斯会随机彩蛋回应（脉冲动画 + 语音/字幕）。'},
+  {e:'💬',t:'说「夸夸我」',d:'贾维斯会真心实意夸你一顿，还能多角度夸。'},
+  {e:'🧊',t:'说「讲个冷笑话」',d:'随时来一段程序员/打工人冷笑话。'},
+  {e:'🐾',t:'说「陪我玩」',d:'宠物会跳出来陪玩互动（需要先开启宠物面板）。'},
+  {e:'🎲',t:'说「摇骰子 / 抛硬币」',d:'随机结果互动小游戏。'},
+  {e:'❤️',t:'说「我爱你 / 你好棒」',d:'贾维斯会甜甜地回应你～'}];
+function renderPlays(){
+  const box=$('playList');box.innerHTML='';
+  const cmds={0:null,1:'夸夸我',2:'讲个冷笑话',3:'陪我玩',4:'抛硬币',5:'你好棒'};
+  PLAYS.forEach((p,i)=>{
+    const row=document.createElement('div');row.className='play-item';
+    row.innerHTML='<div class="p-emoji">'+p.e+'</div><div class="p-desc"><b style="color:#00e5ff">'+p.t+'</b><br>'+p.d+'</div>'+
+      '<button class="p-try">试试</button>';
+    row.querySelector('.p-try').onclick=()=>{
+      if(i===0)coreEasterEgg();else if(cmds[i])sendChat(cmds[i]);
+      $('playMask').classList.remove('show');};
+    box.appendChild(row);});}
+$('btnPlay').onclick=()=>{$('playMask').classList.add('show');renderPlays();};
+$('playClose').onclick=()=>$('playMask').classList.remove('show');
+/* 核心环点击彩蛋 */
+const CORE_EGGS=['✨ 戳我干嘛～ 想我了吗？','🎇 我可是钢铁侠的人工智能，别乱点！','⚡ 再点一下试试？会有惊喜哦～','🛰 正在扫描全宇宙…… 好啦，逗你的。','🎮 要玩游戏吗？说「抛硬币」试试！','🌟 今天的你也很棒，继续保持！'];
+function coreEasterEgg(){
+  const wrap=$('coreWrap');
+  wrap.classList.add('egg-boom');
+  setTimeout(()=>wrap.classList.remove('egg-boom'),700);
+  const msg=CORE_EGGS[Math.floor(Math.random()*CORE_EGGS.length)];
+  typeSubtitle(msg);
+  if(!(settingsData&&settingsData.tts&&settingsData.tts.enabled===false))speakBrowserFallback();
+  addChat('jarvis',msg);}
+$('coreWrap').addEventListener('click',coreEasterEgg);
+/* API Key 检测连接 */
+$('btnTestKey').onclick=()=>{
+  const k=$('setKey').value.trim();
+  const effectiveK=k||(settingsData&&settingsData.llm&&settingsData.llm.api_key)||'';
+  const base=$('setBase').value.trim()||(settingsData&&settingsData.llm&&settingsData.llm.base_url)||'';
+  const model=$('setModel').value.trim()||'deepseek-chat';
+  const provider=$('setProvider').value;
+  if(!effectiveK){toast('请先配置 API Key 再检测',true);return;}
+  $('keyState').textContent='⏳ 正在检测连接…';
+  fetch('/test_key?base='+encodeURIComponent(base)+'&key='+encodeURIComponent(effectiveK)
+    +'&model='+encodeURIComponent(model)+'&provider='+encodeURIComponent(provider))
+  .then(r=>r.json()).then(d=>{
+    if(d.ok){$('keyState').textContent='✅ 连接成功 · '+((d.model)||model)+' 可用';toast('✅ Key 可用');}
+    else{$('keyState').textContent='❌ 检测失败：'+(d.error||'未知错误');toast('❌ Key 不可用',true);}})
+  .catch(()=>{$('keyState').textContent='❌ 网络错误，无法检测';toast('检测失败：网络错误',true);});};
+/* 支持 ?mask=settings 直达设置面板（便于分享/截图） */
+(function(){
+  const q=new URLSearchParams(location.search);
+  if(q.get('mask')==='settings'){
+    setTimeout(()=>{const m=$('settingsMask');if(m)m.classList.add('show');},700);}
+})();
 </script>
 </body>
 </html>
