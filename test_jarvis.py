@@ -115,6 +115,37 @@ async def main():
                r.get("text", "")[:40])
     except Exception as e:
         report("brain.thanks_casual", False, str(e))
+    # 1.0e) 人机互动玩法（v2.0）
+    try:
+        b6 = Brain(load_config())
+        r1 = await b6.process("抛硬币")
+        r2 = await b6.process("摇骰子")
+        r3 = await b6.process("陪我玩")
+        report("brain.play_coin", ("正面" in r1.get("text", "") or "反面" in r1.get("text", ""))
+               and "硬币" in r1.get("text", ""), r1.get("text", "")[:40])
+        report("brain.play_dice", "点" in r2.get("text", "") and "骰子" in r2.get("text", ""),
+               r2.get("text", "")[:40])
+        report("brain.play_together", "玩" in r3.get("text", "") and "来" in r3.get("text", ""),
+               r3.get("text", "")[:40])
+    except Exception as e:
+        report("brain.play_coin", False, str(e))
+        report("brain.play_dice", False, str(e))
+        report("brain.play_together", False, str(e))
+    # 1.0f) 情感互动（夸夸我 / 我爱你 / emo）
+    try:
+        b7 = Brain(load_config())
+        r1 = await b7.process("夸夸我")
+        r2 = await b7.process("我爱你")
+        r3 = await b7.process("我好难过")
+        report("brain.praise", len(r1.get("text", "")) > 8, r1.get("text", "")[:40])
+        report("brain.love", "喜欢" in r2.get("text", "") or "能量" in r2.get("text", ""),
+               r2.get("text", "")[:40])
+        report("brain.emo", "陪" in r3.get("text", "") or "难过" in r3.get("text", ""),
+               r3.get("text", "")[:40])
+    except Exception as e:
+        report("brain.praise", False, str(e))
+        report("brain.love", False, str(e))
+        report("brain.emo", False, str(e))
     # 1) 大脑本地意图（不依赖网络）
     cases = [
         ("时间", "现在几点", lambda r: "现在是" in r),
@@ -335,6 +366,63 @@ async def main():
                            and d.get("wakeword") == "电脑管家"
                            and (d.get("appearance") or {}).get("splash") is False,
                            f"nick={d.get('user_nickname')} wake={d.get('wakeword')} ap={d.get('appearance')}")
+                    # v2.0：宠物互动 / 插件 / TTS 总开关（同一连接）
+                    try:
+                        await ws.send_json({"type": "pet_action", "data": {"action": "feed"}})
+                        pet = None
+                        for _ in range(5):
+                            m = await asyncio.wait_for(ws.receive_json(), timeout=10)
+                            if m.get("type") == "pet":
+                                pet = m.get("data") or {}
+                                break
+                        report("server.pet_feed",
+                               isinstance(pet, dict) and pet.get("hunger", 0) >= 80
+                               and pet.get("type") in ("cat", "dog", "robot", "dragon"),
+                               f"pet={pet}")
+                        await ws.send_json({"type": "plugin_save",
+                                            "data": {"plugins": [{"name": "测试插件", "cmd": "讲个笑话"}]}})
+                        pl = None
+                        for _ in range(5):
+                            m = await asyncio.wait_for(ws.receive_json(), timeout=10)
+                            if m.get("type") == "plugins":
+                                pl = m.get("data") or []
+                                break
+                        report("server.plugin_save",
+                               isinstance(pl, list) and any(p.get("name") == "测试插件" for p in pl),
+                               f"plugins={pl}")
+                        # 恢复插件列表为空
+                        await ws.send_json({"type": "plugin_save", "data": {"plugins": []}})
+                        for _ in range(4):
+                            m = await asyncio.wait_for(ws.receive_json(), timeout=10)
+                            if m.get("type") == "plugins":
+                                break
+                        # TTS 总开关：关闭后回复不含 audio（不合成语音）
+                        await ws.send_json({"type": "settings_save", "data": {
+                            "tts": {"enabled": False}}})
+                        for _ in range(4):
+                            m = await asyncio.wait_for(ws.receive_json(), timeout=10)
+                            if m.get("type") == "settings":
+                                break
+                        await ws.send_json({"type": "chat", "text": "你好"})
+                        jv = None
+                        for _ in range(8):
+                            m = await asyncio.wait_for(ws.receive_json(), timeout=15)
+                            if m.get("type") == "jarvis":
+                                jv = m
+                                break
+                        report("server.tts_mute",
+                               jv is not None and not jv.get("audio"),
+                               f"audio={'有' if jv and jv.get('audio') else '无(静音)'}")
+                        # 恢复 TTS 开关
+                        await ws.send_json({"type": "settings_save", "data": {"tts": {"enabled": True}}})
+                        for _ in range(4):
+                            m = await asyncio.wait_for(ws.receive_json(), timeout=10)
+                            if m.get("type") == "settings":
+                                break
+                    except Exception as e:
+                        report("server.pet_feed", False, str(e))
+                        report("server.plugin_save", False, str(e))
+                        report("server.tts_mute", False, str(e))
                     # 恢复备份：仅文件直写（避免 WS 恢复触发服务端 save_config 与直写并发交错损坏文件）
                     if backup:
                         try:
