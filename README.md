@@ -2,7 +2,7 @@
 
 
 
-![Version](https://img.shields.io/badge/version-v1.9.0-00e5ff?style=flat-square)
+![Version](https://img.shields.io/badge/version-v2.0.0-00e5ff?style=flat-square)
 ![GitHub stars](https://img.shields.io/github/stars/skyline66/JarvisAssistant?style=flat-square\&color=00e5ff)
 ![License](https://img.shields.io/badge/license-MIT-00ff9c?style=flat-square)
 ![CI](https://img.shields.io/github/actions/workflow/status/skyline66/JarvisAssistant/ci.yml?style=flat-square\&label=CI)
@@ -60,45 +60,14 @@
 
 ## 接入 AI 大脑（Agent 模式，可选但推荐）
 
-点击右上角 **⚙ 设置**，选择 **服务厂商**（下拉一键切换，共 **52 家**，按 **订阅 / 供应商 / 中转** 三组排列，与 magpie 最新列表同步）：
+点击右上角 **⚙ 设置** → 服务厂商下拉一键切换 **52 家厂商**（订阅 / 供应商 / 中转三组，与 magpie 最新列表同步，含 DeepSeek、OpenAI、Gemini、Claude、Kimi、智谱、混元、豆包、千问、OpenRouter、硅基流动等）：
 
-> 常用厂商速查（全部 52 家见设置下拉；**选择厂商后「模型」下拉自动列出该厂商推荐模型**，也可手动填写任意模型名）：
+1. 选择厂商（自动填入默认地址与推荐模型）→ 填入 **API Key** → 勾选 **启用 AI 大脑** → **保存**；
+2. 支持**「⚡ 检测连接」**：一键验证当前 Key 是否可用并返回可用模型名，无需等对话才发现；
+3. 各厂商 Key 独立保存，切换厂商无需重输；Key 在设置中**不回填明文**（留空保存=保持原值），杜绝误清空；
+4. 启用后进入 **Agent 模式**：多轮上下文记忆 + 自动调用工具（天气 / 新闻 / 计算 / 系统状态 / 备忘 / 搜索）+ **流式逐字输出**，工具调用过程在「🧠 上下文」面板可见（类 DeepSeek Harness Web 体验）。
 
-
-
-| 厂商 | API 地址（默认） | 推荐模型（下拉可选） |
-| ---------------- | --------------------------------------------------------- | -------------------------- |
-| DeepSeek 深度求索 | `https://api.deepseek.com/v1` | `deepseek-chat` / `deepseek-reasoner` |
-| OpenAI | `https://api.openai.com/v1` | `gpt-4o-mini` / `gpt-4o` / `gpt-4.1` / `o3-mini` / `gpt-4.1-nano` |
-| Anthropic Claude | `https://api.anthropic.com` | `claude-sonnet-4` / `claude-opus-4` / `claude-3-7-sonnet` / `claude-3-5-haiku` |
-| Google Gemini | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-2.5-flash` / `gemini-2.5-pro` / `gemini-2.0-flash` |
-| 通义千问 Qwen | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `qwen-plus` / `qwen-max` / `qwen-turbo` / `qwen-long` |
-| Kimi 月之暗面 | `https://api.moonshot.cn/v1` | `kimi-k2` / `kimi-k2-turbo` / `moonshot-v1-32k` |
-| 智谱清言 GLM | `https://open.bigmodel.cn/api/paas/v4` | `glm-4.5` / `glm-4.5-air` / `glm-4-plus` / `glm-4-flash` |
-| 豆包 Volcengine | `https://ark.cn-beijing.volces.com/api/v3` | `doubao-1-5-pro-32k` / `doubao-seed-1-6-flash` / `doubao-lite-32k` |
-| xAI Grok | `https://api.x.ai/v1` | `grok-3` / `grok-3-mini` / `grok-2-latest` |
-| MiniMax | `https://api.minimax.chat/v1` | `MiniMax-M1` / `MiniMax-M2` / `abab6.5s-chat` |
-| 混元 Tencent | `https://api.hunyuan.cloud.tencent.com/v1` | `hunyuan-turbo-latest` / `hunyuan-pro` / `hunyuan-standard` |
-| 千帆 Baidu | `https://qianfan.baidubce.com/v2` | `ernie-4.5-turbo-128k` / `ernie-4.5-8k-preview` |
-| 阶跃 StepFun | `https://api.stepfun.com/v1` | `step-2-16k` / `step-1-32k` / `step-1-8k` |
-| Mistral | `https://api.mistral.ai/v1` | `mistral-large-latest` / `mistral-small-latest` |
-| Groq | `https://api.groq.com/openai/v1` | `llama-3.3-70b-versatile` / `llama-3.1-8b-instant` |
-| 硅基流动 SiliconFlow | `https://api.siliconflow.cn/v1` | `deepseek-ai/DeepSeek-V3` / `Qwen/Qwen2.5-72B-Instruct` |
-| OpenRouter 聚合 | `https://openrouter.ai/api/v1` | `openrouter/auto` / `deepseek/deepseek-chat` / `anthropic/claude-sonnet-4` |
-| Together AI | `https://api.together.xyz/v1` | `meta-llama/Llama-3.3-70B-Instruct-Turbo` |
-| ModelScope 魔搭 | `https://api.modelscope.cn/v1` | `Qwen/Qwen2.5-72B-Instruct` / `deepseek-ai/DeepSeek-V3` |
-| NVIDIA NIM | `https://integrate.api.nvidia.com/v1` | `meta/llama-3.1-8b-instruct` / `deepseek-ai/deepseek-r1` |
-| 自定义 | 任意 OpenAI 兼容地址 | 任意模型名（手动填写） |
-
-
-
-1. 选择厂商（自动填入默认地址与模型）→ 填入对应 **API Key** → 勾选 **启用 AI 大脑** → 保存；
-
-2. 各厂商的 Key 独立保存，切换厂商无需重新输入；
-
-3. 之后贾维斯进入 **Agent 模式**：未命中本地指令时调用大模型深度回答，支持**多轮上下文记忆**，并会自动调用工具（天气 / 新闻 / 计算 / 系统状态 / 备忘 / 网页搜索）获取实时数据，回答**流式逐字输出**，工具调用过程在右侧「🧠 上下文」面板可见。
-
-未配置 Key 时，贾维斯使用 **本地意图引擎 + 中文维基百科 + 网页搜索** 兜底，开箱即用。
+未配置 Key 时使用 **本地意图引擎 + 维基百科 + 网页搜索** 兜底，开箱即用。
 
 ## 界面说明
 
@@ -113,12 +82,6 @@
 * **🧠 上下文面板**：Agent 模式下的多轮对话记录与工具调用过程（⚙ 工具名 + 结果），点击日志面板右上角「🧠 上下文」展开；
 
 * **常用指令快捷芯片**：底部「🎲 换一批」动态提示词 —— 每次进入 / 每次对话 / 点击换一批都会**随机轮换**，内容结合**当前热点新闻**（科技 / 财经）、**你的所在城市与会话记录**（聊过天气就推天气、聊过备忘就推备忘）、智能家居玩法与 **60+ 条趣味大数据话题池**（冷笑话 / 冷知识 / 今日名言 / 深圳房价分析 / AI 新品速递 / 模拟面试 / 通勤避堵……），服务端每次随机抽取 12 条、界面随机展示 5 条，趣味性与随机度拉满。
-
-* **📊 大屏实时系统**（右上角 📊 切换，默认开启）：全息核心右侧大字号数字时钟（时:分:秒 + 日期）+ CPU / 内存 / 磁盘三大指标大字与进度条，随服务端实时推送刷新；说“系统状态”“现在几点”也可语音查看。
-
-* **🧩 桌面小组件**（右上角 🧩 切换）：悬浮**时钟 Widget / 系统状态 Widget（CPU·内存·磁盘实时条）/ 快捷入口 Widget（唤醒·家居·设置）**，面板头部可**自由拖拽**到任意位置。
-
-* **日志复制**：交互日志每条消息悬停出现「⧉」一键复制；面板头部「⧉ 全部复制」一键导出全部对话（含角色与时间戳）、「🗑 清空」清理界面日志；超长消息自动限高内部滚动。
 
 * **停止 / 发送**：Agent 流式生成时发送按钮变为红色「⏹ 停止」，点击即中断生成并停止语音播报。
 
@@ -138,23 +101,21 @@
 
 * **启动动画与音效可自定义**：设置 → 「进入时播放启动动画 / 播放开机音效」两个开关，关闭后快速进入界面。
 
+* **🐾 桌面宠物养成**（v2.0）：底部「宠物」面板 —— 4 款宠物（猫 / 柯基 / 机器人 / 小龙）可选，喂食 / 抚摸 / 陪玩互动，饱食度与心情值实时变化并持久化，宠物会随状态语音 / 字幕回应。
+
+* **🧩 插件中心**（v2.0）：底部「插件」面板 —— 7 个内置插件（天气 / 新闻 / 系统监控 / 智能家居 / 备忘 / 冷笑话 / 每日一言）一键运行，支持**自定义插件**（名称 + 触发指令，保存后一键运行或删除）。
+
+* **🎮 互动玩法**（v2.0）：底部「互动」面板 —— 点击中央星环随机彩蛋、说「夸夸我 / 讲个冷笑话 / 陪我玩 / 抛硬币 / 摇骰子 / 我爱你 / 你好棒 / 我好难过」触发对应趣味回应（抛硬币、骰子、石头剪刀布、情感夸赞安抚等）。
+
+* **🔇 语音播报总开关**（v2.0）：设置 → 「语音播报总开关」—— 关闭后贾维斯**只显示字幕不说话**（语音识别仍可用），适合静音办公场景。
+
+* **⚡ 检测连接**（v2.0）：设置 → API Key 输入框旁「检测连接」按钮，一键验证 Key 是否可用并返回可用模型名与错误信息。
+
 ## 界面预览（Screenshots）
 
-| 启动动画 | 主界面 · 系统状态 + 大屏实时系统 | 执行任务中 |
-| --- | --- | --- |
-| ![启动动画](webui_preview_v6_splash.png) | ![主界面](webui_preview_v6_main.png) | ![执行任务中](webui_preview_v3_exec.png) |
-
-| v1.9 主界面 · 随机打招呼 + 系统状态 + 趣味提示词 | 主界面 · 问候语与昵称 + 彩虹输入区（v1.8） | 聆听（语音输入） |
-| --- | --- | --- |
-| ![v1.9 主界面](webui_preview_v9_main.png) | ![v1.8 主界面](webui_preview_v8_main.png) | ![聆听](webui_preview_v3_listen.png) |
-
-| Agent 上下文面板 | 智能家居面板 | 设置 · 厂商/模型/语音定制 |
-| --- | --- | --- |
-| ![Agent](webui_preview_v4_agent.png) | ![智能家居](webui_preview_v5_home.png) | ![设置](webui_preview_v4_settings.png) |
-
-| 动态提示词芯片 | 粒子漩涡主题 | 主界面 · 自定义工作台标题（v1.7） |
-| --- | --- | --- |
-| ![动态提示词](webui_preview_v5_chips.png) | ![粒子漩涡](webui_preview_v3_vortex.png) | ![工作台标题](webui_preview_v7_title.png) |
+| v2.0 主界面 · 随机打招呼 + 系统状态 + 宠物/插件/互动玩法 | v2.0 设置面板 · 语音总开关 + API Key 检测连接 |
+| --- | --- |
+| ![v2.0 主界面](webui_preview_v10_main.png) | ![v2.0 设置面板](webui_preview_v10_settings.png) |
 
 ## 智能家居玩法（🏠 家居）
 
@@ -259,19 +220,29 @@ JarvisAssistant/
 
 * Web 版默认监听 `0.0.0.0`；远程访问时**语音输入需 HTTPS**（文字、字幕、语音播放不受影响）。
 
-## v1.7 更新记录
+## v2.0 更新记录（最新）
 
+* **精简**：**去掉发送按钮彩虹跑马灯与输入框灯光** —— 输入框恢复纯净风格；「唤醒 / 按住说话」保留彩虹绕圈，发送键改为深蓝渐变；停止态保持红色警示。
 
+* **新增**：**发送按钮执行中变「⏹ 停止」** —— Agent 流式生成时自动切换，点击即**中断生成并停止语音播报**，空闲恢复「发送」。
 
-* **新增**：**停止 / 发送按钮** —— Agent 流式生成时发送按钮自动切换为红色「⏹ 停止」，一键**中断大模型生成**并**停止语音播报**（同时暂停浏览器语音）；空闲时恢复「发送」。服务端支持生成中断（`cancel` 事件），停止后立即复位待命。
+* **新增**：**语音播报总开关** —— 设置 → 「语音播报总开关」：关闭后贾维斯**只显示字幕不说话**（服务端不再合成音频，识别仍可用），静音办公友好。
 
-* **新增**：**空格键按住说话** —— 任意界面位置**按住空格键**即开始语音识别，松开自动发送；输入框打字时空格不受影响。底部提示与引导弹窗均已更新。
+* **优化**：**中央状态按实际显示** —— 「准备就绪 / 倾听中 / 任务执行中」三态与真实状态严格联动。
 
-* **新增**：**低 / 中 / 高推理强度** —— 设置 → 推理强度三档：`低 · 快速应答` / `中 · 均衡（默认）` / `高 · 深度思考`；高挡自动调低 temperature 并为 OpenAI / Anthropic 系列下发 `reasoning_effort=high`，低挡提速响应。
+* **精简**：**右上角移除桌面小组件与大屏展示** —— 按钮与面板一并下线，界面更聚焦核心对话。
 
-* **新增**：**左上角工作台标题** —— 默认「贾维斯的智能AI工作台」，可在设置中自定义为任意名称（如「黄超的智能AI工作台」），实时刷新显示。
+* **精简**：**交互日志优化** —— 移除「全部复制 / 清空」按钮与逐条复制，仅保留纯净交互记录。
 
-* **优化**：**长文本显示** —— 字幕超 120 字自动缩字号、超 300 字继续缩小并**限高内部滚动**；日志消息超长自动限高滚动，不再撑爆面板。
+* **新增**：**🐾 桌面宠物养成** —— 4 款宠物（猫 / 柯基 / 机器人 / 小龙），喂食 / 抚摸 / 陪玩，饱食度与心情实时变化并持久化。
+
+* **新增**：**🧩 插件中心** —— 7 个内置插件一键运行 + 自定义插件（名称 + 触发指令）保存 / 运行 / 删除。
+
+* **新增**：**🎮 人机互动玩法** —— 点击中央星环随机彩蛋；说「夸夸我 / 讲个冷笑话 / 陪我玩 / 抛硬币 / 摇骰子 / 石头剪刀布 / 我爱你 / 你好棒 / 我好难过」触发趣味回应（抛硬币、骰子、猜拳、夸赞、安抚等）。
+
+* **优化**：**API Key 接入更合理** —— 新增「⚡ 检测连接」一键验证 Key 可用性并返回模型名；Key 状态区实时提示（已配置 / 未配置 / 连接失败原因）；沿用不回填明文防误清空。
+
+* **优化**：**中间输出字体更大** —— 中央字幕与状态字号整体放大，交互更有冲击力。
 
 ## v1.9 更新记录
 
@@ -306,6 +277,18 @@ JarvisAssistant/
 * **新增**：**启动动画与音效可自定义** —— 设置中「进入时播放启动动画 / 开机音效」两个开关，可关闭后秒进界面。
 
 * **优化**：**对话记录更口语化** —— 问候语按时段带昵称（“晚上好，黄超，有什么想让我做的？”）、感谢回复“不客气呀～”、告别“拜拜，有事随时喊我”，语气更自然。
+
+## v1.7 更新记录
+
+* **新增**：**停止 / 发送按钮** —— Agent 流式生成时发送按钮自动切换为红色「⏹ 停止」，一键**中断大模型生成**并**停止语音播报**（同时暂停浏览器语音）；空闲时恢复「发送」。服务端支持生成中断（`cancel` 事件），停止后立即复位待命。
+
+* **新增**：**空格键按住说话** —— 任意界面位置**按住空格键**即开始语音识别，松开自动发送；输入框打字时空格不受影响。底部提示与引导弹窗均已更新。
+
+* **新增**：**低 / 中 / 高推理强度** —— 设置 → 推理强度三档：`低 · 快速应答` / `中 · 均衡（默认）` / `高 · 深度思考`；高挡自动调低 temperature 并为 OpenAI / Anthropic 系列下发 `reasoning_effort=high`，低挡提速响应。
+
+* **新增**：**左上角工作台标题** —— 默认「贾维斯的智能AI工作台」，可在设置中自定义为任意名称（如「黄超的智能AI工作台」），实时刷新显示。
+
+* **优化**：**长文本显示** —— 字幕超 120 字自动缩字号、超 300 字继续缩小并**限高内部滚动**；日志消息超长自动限高滚动，不再撑爆面板。
 
 ## v1.6 更新记录
 
