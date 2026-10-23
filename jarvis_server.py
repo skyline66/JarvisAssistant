@@ -22,7 +22,7 @@ from tts_engine import generate_tts, get_voice_catalog, preview_tts
 from smart_home import SmartHome
 import commands as C
 
-VERSION = "1.8.0"
+VERSION = "1.9.0"
 
 # 兼容打包环境：强制 stdout/stderr 使用 UTF-8，避免中文打印报错
 for _stream in (sys.stdout, sys.stderr):
@@ -150,7 +150,7 @@ class JarvisHub:
         if isinstance(new.get("llm"), dict):
             llm_new = new["llm"]
             for k in ("enabled", "provider", "base_url", "api_key", "model", "reasoning"):
-                if k in llm_new and llm_new[k] is not None:
+                if k in llm_new and llm_new[k] is not None and llm_new[k] != "":
                     self.cfg["llm"][k] = llm_new[k]
             if isinstance(llm_new.get("providers"), dict):
                 for pk, pv in llm_new["providers"].items():
@@ -234,20 +234,43 @@ class JarvisHub:
         pool.append({"cmd": "空调调到26度", "label": "❄️ 空调26度"})
         pool.append({"cmd": "关掉窗帘", "label": "🪟 关窗帘"})
         pool.append({"cmd": "扫地机器人开始工作", "label": "🤖 扫地机器人"})
-        # 4) 通用趣味兜底
+        # 4) 趣味冷知识 & 大数据话题（随机抽取，提高趣味性与随机度）
+        import random as _rnd
+        fun_pool = [
+            {"cmd": "讲个冷笑话", "label": "🧊 冷笑话"},
+            {"cmd": "告诉我一个冷知识", "label": "🧠 冷知识"},
+            {"cmd": "来句励志名言", "label": "✨ 今日名言"},
+            {"cmd": "夸夸我", "label": "🌈 夸夸我"},
+            {"cmd": "做个每日运势", "label": "🔮 今日运势"},
+            {"cmd": "深圳房价数据趋势", "label": "📊 深圳房价分析"},
+            {"cmd": "分析下A股今日行情", "label": "📈 A股行情"},
+            {"cmd": "搜一下今天娱乐圈新闻", "label": "🎬 娱乐热闻"},
+            {"cmd": "讲讲最近新出的AI产品", "label": "🚀 AI新品速递"},
+            {"cmd": "推荐一首歌", "label": "🎵 推荐首歌"},
+            {"cmd": "列一份周末深圳攻略", "label": "🗺 周末攻略"},
+            {"cmd": "帮我写封邮件草稿", "label": "✉️ 邮件草稿"},
+            {"cmd": "给个健身初学者计划", "label": "🏋️ 健身计划"},
+            {"cmd": "写句表白文案", "label": "💘 表白文案"},
+            {"cmd": "帮我整理待办清单", "label": "✅ 整理待办"},
+            {"cmd": "模拟一次面试", "label": "🎯 模拟面试"},
+            {"cmd": "解释一下量子纠缠", "label": "⚛ 量子纠缠"},
+            {"cmd": "编个科幻短故事", "label": "🌌 科幻短篇"},
+            {"cmd": "晚高峰避开堵车路线", "label": "🚗 通勤避堵"},
+            {"cmd": "推荐适合通勤的播客", "label": "🎧 通勤播客"},
+        ]
+        pool.extend(_rnd.sample(fun_pool, 6))
+        # 5) 通用兜底
         pool.append({"cmd": "介绍一下你自己", "label": "🤖 自我介绍"})
-        pool.append({"cmd": "讲个笑话", "label": "😂 讲个笑话"})
-        pool.append({"cmd": "系统状态", "label": "🖥 系统状态"})
         pool.append({"cmd": "现在几点", "label": "🕐 现在几点"})
+        pool.append({"cmd": "系统状态", "label": "🖥 系统状态"})
         # 去重
         seen, out = set(), []
         for s in pool:
             if s["cmd"] not in seen:
                 seen.add(s["cmd"])
                 out.append(s)
-        import random
-        random.shuffle(out)
-        return out[:10]
+        _rnd.shuffle(out)
+        return out[:12]
 
     # ---------- 响应处理 ----------
     async def finish_response(self, ws, resp):
