@@ -269,8 +269,14 @@ class JarvisHub:
             if s["cmd"] not in seen:
                 seen.add(s["cmd"])
                 out.append(s)
-        _rnd.shuffle(out)
-        return out[:12]
+        # 个性化/热点/家居项优先保留，其余随机补足到 12 条（避免个性化推荐被随机截断挤掉）
+        prio_cmds = {f"{city}今天天气", "北京天气", "查看备忘", "查看提醒",
+                     "今天有什么新闻", "讲讲今天的科技热点", "看看今天财经新闻",
+                     "打开客厅灯", "空调调到26度", "关掉窗帘", "扫地机器人开始工作"}
+        prio = [s for s in out if s["cmd"] in prio_cmds]
+        rest = [s for s in out if s["cmd"] not in prio_cmds]
+        _rnd.shuffle(rest)
+        return (prio + rest)[:12]
 
     # ---------- 响应处理 ----------
     async def finish_response(self, ws, resp):
