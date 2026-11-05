@@ -341,6 +341,8 @@ async def main():
                             "wakeword": _bak.get("wakeword") or "贾维斯",
                             "appearance": dict(_bak.get("appearance") or
                                                {"splash": True, "boot_sound": True}),
+                            "pet": dict(_bak.get("pet") or
+                                        {"type": "cat", "hunger": 80, "mood": 80}),
                         }
                     except Exception:
                         for _ in range(5):
@@ -423,19 +425,7 @@ async def main():
                         report("server.pet_feed", False, str(e))
                         report("server.plugin_save", False, str(e))
                         report("server.tts_mute", False, str(e))
-                    # 恢复备份：仅文件直写（避免 WS 恢复触发服务端 save_config 与直写并发交错损坏文件）
-                    if backup:
-                        try:
-                            with open(_cfgp, encoding="utf-8") as _f:
-                                _cur = json.load(_f)
-                            _cur["user_nickname"] = backup.get("user_nickname") or "黄超"
-                            _cur["wakeword"] = backup.get("wakeword") or "贾维斯"
-                            _cur.setdefault("appearance", {}).update(
-                                dict(backup.get("appearance") or {"splash": True, "boot_sound": True}))
-                            with open(_cfgp, "w", encoding="utf-8", newline="") as _f:
-                                json.dump(_cur, _f, ensure_ascii=False, indent=2)
-                        except Exception:
-                            pass
+                    # 备份留到进程退出后再恢复（服务端内存里的测试值会覆盖直写，先退进程才不会回滚失败）
         except Exception as e:
             report("server.settings_new", False, str(e))
 
@@ -446,6 +436,21 @@ async def main():
             proc.wait(timeout=5)
         except Exception:
             proc.kill()
+
+    # 恢复用户配置：进程已退出，直写文件不会再被服务端覆盖
+    if backup:
+        try:
+            with open(_cfgp, encoding="utf-8") as _f:
+                _cur = json.load(_f)
+            _cur["user_nickname"] = backup.get("user_nickname") or "黄超"
+            _cur["wakeword"] = backup.get("wakeword") or "贾维斯"
+            _cur.setdefault("appearance", {}).update(
+                dict(backup.get("appearance") or {"splash": True, "boot_sound": True}))
+            _cur["pet"] = dict(backup.get("pet") or {"type": "cat", "hunger": 80, "mood": 80})
+            with open(_cfgp, "w", encoding="utf-8", newline="") as _f:
+                json.dump(_cur, _f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
 
     failed = [n for n, ok, _ in RESULTS if not ok]
     print("\n==== 结果汇总 ====")
