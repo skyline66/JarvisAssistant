@@ -2,7 +2,9 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#02060b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='28' fill='none' stroke='%2300e5ff' stroke-width='3'/%3E%3Ctext x='32' y='44' font-size='30' font-family='Arial,Helvetica,sans-serif' font-weight='bold' fill='%2300e5ff' text-anchor='middle'%3EJ%3C/text%3E%3C/svg%3E">
 <title>J.A.R.V.I.S. 桌面智能助理</title>
 <style>
 :root{
@@ -185,7 +187,7 @@ footer .btn.active::after{background:rgba(0,229,255,.22)}
 footer .btn span{position:relative;z-index:2;display:block;padding:10px 15px;pointer-events:none}
 /* 发送按钮：简洁深色渐变（去彩虹） */
 footer .btn.primary{color:#fff;font-weight:700;background:linear-gradient(135deg,#00b8ff,#005cff);
-  border-radius:13px;box-shadow:0 0 16px rgba(0,120,255,.4)}
+  border-radius:13px;box-shadow:0 0 16px rgba(0,120,255,.4);min-width:72px}
 footer .btn.primary::before,footer .btn.primary::after{display:none}
 footer .btn.primary span{padding:10px 20px;background:none}
 footer .btn.primary:hover{filter:brightness(1.15)}
@@ -195,7 +197,7 @@ footer .btn.danger{color:#fff;font-weight:700;background:linear-gradient(135deg,
 footer .btn.danger::before,footer .btn.danger::after{display:none}
 footer .btn.danger span{padding:10px 20px}
 /* 玩法工具栏（宠物/插件/互动） */
-.funbar{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:29;
+.funbar{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:29;
   display:flex;align-items:center;gap:8px;width:min(860px,92vw);
   padding:6px 10px;background:rgba(3,14,28,.55);border:1px solid rgba(0,229,255,.15);
   border-radius:12px;backdrop-filter:blur(10px)}
@@ -207,7 +209,7 @@ footer .btn.danger span{padding:10px 20px}
 .chip{font-size:12px;color:var(--cyan);padding:5px 12px;border:1px solid var(--line);border-radius:20px;
   background:rgba(6,18,34,.6);cursor:pointer;backdrop-filter:blur(6px);transition:all .2s}
 .chip:hover{background:rgba(0,229,255,.15);box-shadow:0 0 10px rgba(0,229,255,.3)}
-#hint{position:fixed;left:50%;bottom:6px;transform:translateX(-50%);z-index:25;font-size:11px;color:rgba(127,182,204,.55);letter-spacing:1px;pointer-events:none}
+#hint{position:fixed;left:50%;bottom:4px;transform:translateX(-50%);z-index:25;font-size:11px;color:rgba(127,182,204,.55);letter-spacing:1px;pointer-events:none}
 
 /* ---------- 弹窗 ---------- */
 .modal-mask{position:fixed;inset:0;z-index:60;background:rgba(2,6,14,.7);backdrop-filter:blur(6px);
@@ -292,8 +294,8 @@ footer .btn.danger span{padding:10px 20px}
 #chatBody .msg::-webkit-scrollbar{width:5px}
 #chatBody .msg::-webkit-scrollbar-thumb{background:rgba(0,229,255,.4);border-radius:3px}
 
-/* ---------- 智能家居面板（右侧，默认展开） ---------- */
-#homePanel{position:fixed;right:396px;top:70px;bottom:190px;width:360px;z-index:20;display:flex;
+/* ---------- 智能家居面板（右侧覆盖式，按需打开） ---------- */
+#homePanel{position:fixed;right:18px;top:70px;bottom:190px;width:352px;z-index:24;display:none;
   flex-direction:column;background:var(--glass);border:1px solid rgba(0,255,156,.35);border-radius:14px;
   backdrop-filter:blur(12px);overflow:hidden;box-shadow:0 0 30px rgba(0,120,80,.25)}
 #homePanel.hide{display:none}
@@ -446,7 +448,131 @@ footer .btn.danger span{padding:10px 20px}
 @keyframes eggBoom{0%{transform:scale(1);opacity:.9}60%{transform:scale(1.5);opacity:.4}100%{transform:scale(1);opacity:0}}
 @keyframes eggShake{0%,100%{transform:translate(-50%,-50%) scale(1)}25%{transform:translate(-52%,-50%) scale(1.05)}75%{transform:translate(-48%,-50%) scale(1.05)}}
 
-@media (max-width:1000px){#chat{display:none}#ctxPanel{display:none!important}#homePanel{display:none!important}.core-wrap{transform:scale(.8)}}
+/* ===================== 响应式适配：笔记本 / 平板 / 手机 ===================== */
+/* 小屏专用：日志入口按钮、抽屉关闭按钮、抽屉遮罩（桌面隐藏） */
+#btnLog{display:none}
+#chatClose{display:none}
+.chat-mask{position:fixed;inset:0;z-index:64;background:rgba(2,6,14,.62);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:none}
+.chat-mask.show{display:block}
+
+/* ① 矮屏笔记本（1280×720 / 1366×768）：压缩纵向占用，避免字幕与输入栏挤压 */
+@media (max-height:800px) and (min-width:901px){
+  .core-wrap{transform:scale(.86);margin-top:-7vh}
+  #subtitle{bottom:122px}
+  #subtitle.lg{font-size:22px}
+  #subtitle.xl{font-size:17px;max-height:38vh}
+  footer{bottom:54px}
+  .chips{bottom:74px}
+  .funbar{bottom:8px}
+  #hint{display:none}
+}
+
+/* ② 中屏 ≤1200（平板横屏/小本）：三栏收为两栏，家居改为覆盖式 */
+@media (max-width:1200px){
+  #chat{width:330px}
+  #ctxPanel{width:318px}
+  #homePanel{right:12px;width:330px}
+}
+
+/* ③ 平板竖屏 / 手机 ≤900：左右侧栏改为底部抽屉，聊天记录不再被砍掉 */
+@media (max-width:900px){
+  .stat{display:none}
+  .hdr-right{gap:10px}
+  #btnLog{display:flex;align-items:center;justify-content:center}
+  #chatClose{display:block;background:none;border:none;color:var(--dim);font-size:16px;
+    cursor:pointer;padding:0 4px;line-height:1}
+  #chatClose:hover{color:#fff}
+  #chatHead .hbtn{font-size:12px;padding:4px 9px}
+
+  #chat{left:0;right:0;top:auto;bottom:0;width:auto;height:min(76vh,620px);z-index:66;
+    border-radius:18px 18px 0 0;transform:translateY(104%);
+    transition:transform .32s cubic-bezier(.2,.8,.2,1);box-shadow:0 -10px 40px rgba(0,60,120,.45)}
+  #chat.open{transform:translateY(0)}
+  #ctxPanel,#homePanel{left:0;right:0;top:auto;bottom:0;width:auto;height:min(76vh,620px);z-index:66;
+    border-radius:18px 18px 0 0;transform:translateY(104%);
+    transition:transform .32s cubic-bezier(.2,.8,.2,1);box-shadow:0 -10px 40px rgba(0,60,120,.45)}
+  #ctxPanel.show,#homePanel.show{transform:translateY(0)!important}
+  #chatBody,#ctxBody,#homeBody{font-size:14px}
+  #chatBody .msg{max-height:44vh}
+
+  .core-wrap{transform:scale(.78);margin-top:-2vh}
+  #subtitle{bottom:192px;width:88vw;font-size:20px}
+  #subtitle.lg{font-size:17px}
+  #subtitle.xl{font-size:14px;max-height:30vh}
+  footer{bottom:58px}
+  .chips{bottom:112px}
+  .funbar{bottom:8px}
+  .fbar-hint{display:none}
+  #hint{display:none}
+}
+
+/* ④ 手机 ≤560：单列 + 两行输入区 + 精简顶栏，保证小屏可用不拥挤 */
+@media (max-width:560px){
+  header{height:50px;padding:0 10px}
+  .brand{font-size:14px;gap:6px;min-width:0;letter-spacing:1px}
+  .brand .dot{width:8px;height:8px}
+  #helloText{margin-left:0;font-size:15px;letter-spacing:1px}
+  #greetText{margin-left:4px;font-size:12px;max-width:36vw;white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis;letter-spacing:0}
+  #statusBadge{margin-left:8px;font-size:10px;gap:5px;letter-spacing:0}
+  #clock{display:none}
+  #btnMusic{display:none}
+  .iconbtn{width:36px;height:36px;font-size:15px}
+  #apiBanner{top:50px;font-size:11px;flex-wrap:wrap;padding:6px 10px;gap:6px;text-align:center;height:auto}
+  #toasts{top:58px;left:8px;right:8px;align-items:center}
+  .toast{max-width:88vw;font-size:13px;padding:10px 13px}
+
+  .core-wrap{transform:scale(.6);margin-top:-5vh}
+  #subtitle{bottom:calc(env(safe-area-inset-bottom,0px) + 168px);width:92vw;font-size:16px;
+    line-height:1.45;max-height:28vh;overflow-y:auto;pointer-events:auto;letter-spacing:0}
+  #subtitle.lg{font-size:15px}
+  #subtitle.xl{font-size:13px;max-height:26vh}
+
+  footer{flex-wrap:wrap;gap:8px;padding:9px 10px;width:94vw;
+    bottom:calc(env(safe-area-inset-bottom,0px) + var(--kb,0px) + 50px)}
+  #input{order:1;flex:1 1 100%;font-size:16px;padding:10px 12px}
+  footer .btn{order:2;flex:1 1 0;min-width:0;font-size:13px}
+  footer .btn span{padding:10px 3px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  footer .btn.primary span{padding:10px 6px}
+  .funbar{bottom:calc(env(safe-area-inset-bottom,0px) + var(--kb,0px) + 6px);width:94vw;gap:6px;padding:5px 7px;
+    display:grid;grid-template-columns:repeat(3,1fr)}
+  .fbtn{min-width:0;text-align:center;font-size:11px;padding:6px 2px;white-space:nowrap;overflow:hidden}
+  .chips,#hint{display:none}
+
+  .modal{width:94vw;padding:18px 16px;border-radius:14px;max-height:88vh}
+  .modal h2{font-size:16px;letter-spacing:1px}
+  .modal-actions .mbtn{flex:1;padding:10px 12px}
+  #chat,#ctxPanel,#homePanel{height:min(82vh,640px)}
+  #chatHead{padding:10px;font-size:12px}
+}
+
+/* ⑤ 手机横屏（高度极矮）：横向排布、压缩核心，功能入口一个不少 */
+@media (max-height:520px) and (orientation:landscape){
+  header{height:44px}
+  .core-wrap{transform:scale(.5);margin-top:0}
+  #subtitle{bottom:100px;font-size:14px;max-height:24vh}
+  #subtitle.lg,#subtitle.xl{font-size:13px}
+  footer{flex-wrap:nowrap;bottom:48px;width:92vw;gap:8px;padding:7px 9px}
+  #input{order:0;flex:1 1 auto;min-width:0;font-size:15px;padding:8px 10px}
+  footer .btn{order:0;flex:none;min-width:0}
+  footer .btn span{padding:8px 7px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  footer .btn.primary span{padding:8px 12px}
+  .funbar{bottom:6px;padding:4px 7px}
+  .fbtn{flex:none;padding:5px 9px}
+  .chips,#hint{display:none}
+  #themeBtn{display:none}
+  #chat,#ctxPanel,#homePanel{height:90vh}
+}
+
+/* ⑥ 触屏设备：加大点击目标，hover 不作为唯一反馈 */
+@media (pointer:coarse){
+  .iconbtn{width:40px;height:40px}
+  .chip{padding:7px 14px}
+  .fbtn{padding:7px 11px}
+  .msg .copy{opacity:1}
+  .minibar{width:44px}
+}
 </style>
 </head>
 <body>
@@ -466,6 +592,7 @@ footer .btn.danger span{padding:10px 20px}
     <div class="stat">MEM <b id="sMem">--</b>%<div class="minibar"><i id="bMem"></i></div></div>
     <div class="stat">DISK <b id="sDisk">--</b>%<div class="minibar"><i id="bDisk"></i></div></div>
     <div id="clock">--:--:--</div>
+    <button class="iconbtn" id="btnLog" title="交互日志">💬</button>
     <button class="iconbtn" id="btnMusic" title="播放开机音效">🔊</button>
     <button class="iconbtn" id="btnSettings" title="设置">⚙</button>
   </div>
@@ -491,7 +618,7 @@ footer .btn.danger span{padding:10px 20px}
 </main>
 
 <div id="chat">
-  <div id="chatHead"><span>▣ 交互日志</span><span style="display:flex;align-items:center;gap:8px"><span style="font-size:11px" id="logCount"></span><button id="homeToggle" title="智能家居控制面板">🏠 家居</button><button id="ctxToggle" title="Agent 上下文：多轮记录与工具调用过程">🧠 上下文</button></span></div>
+  <div id="chatHead"><span>▣ 交互日志</span><span style="display:flex;align-items:center;gap:8px"><span style="font-size:11px" id="logCount"></span><button id="homeToggle" title="智能家居控制面板">🏠 家居</button><button id="ctxToggle" title="Agent 上下文：多轮记录与工具调用过程">🧠 上下文</button><button id="chatClose" title="收起日志">✕</button></span></div>
   <div id="chatBody"></div>
 </div>
 
@@ -515,6 +642,7 @@ footer .btn.danger span{padding:10px 20px}
 <div id="hint">唤醒词：贾维斯 · 按住「空格」或「🎤 按住说话」语音输入 · 文字指令 / 系统控制 均已就绪</div>
 
 <div id="toasts"></div>
+<div class="chat-mask" id="chatMask"></div>
 
 <!-- Agent 上下文面板 -->
 <div id="ctxPanel">
@@ -965,7 +1093,9 @@ function doStop(){
   toast('⏹ 已停止生成与播报');}
 function updateSendBtn(){
   const b=$('btnSend');if(!b)return;
-  b.textContent=generating?'⏹ 停止':'发送';
+  const label=generating?'⏹ 停止':'发送';
+  const sp=b.firstElementChild;
+  if(sp&&sp.tagName==='SPAN')sp.textContent=label; else b.textContent=label;
   b.classList.toggle('danger',generating);}
 function handleMsg(m){
   switch(m.type){
@@ -1160,18 +1290,49 @@ function renderDevices(list){
       const p={};p[k]=+e.target.value;
       send({type:'device_set',id:d.id,payload:p});};
     box.appendChild(el);});}
+/* ================= 响应式抽屉：小屏日志 / 上下文 / 家居 ================= */
+const NARROW_Q=window.matchMedia('(max-width:900px)');
+function drawerAnyOpen(){return NARROW_Q.matches&&($('chat').classList.contains('open')
+  ||$('ctxPanel').classList.contains('show')||$('homePanel').classList.contains('show'));}
+function syncMask(){$('chatMask').classList.toggle('show',drawerAnyOpen());}
+function hideCtx(){$('ctxPanel').classList.remove('show');$('ctxPanel').classList.add('hide');$('ctxToggle').classList.remove('active');}
+function hideHome(){$('homePanel').classList.remove('show');$('homePanel').classList.add('hide');$('homeToggle').classList.remove('active');}
+function hideChat(){$('chat').classList.remove('open');$('btnLog').classList.remove('active');}
+function closeAllDrawers(){hideChat();hideCtx();hideHome();syncMask();}
+$('btnLog').onclick=()=>{
+  const on=!$('chat').classList.contains('open');
+  $('chat').classList.toggle('open',on);
+  $('btnLog').classList.toggle('active',on);
+  if(on){hideCtx();hideHome();}
+  syncMask();};
+$('chatClose').onclick=()=>{hideChat();syncMask();};
+$('chatMask').onclick=()=>closeAllDrawers();
 $('homeToggle').onclick=()=>{
   const show=!$('homePanel').classList.contains('show');
   $('homePanel').classList.toggle('show',show);
   $('homePanel').classList.toggle('hide',!show);
-  $('homeToggle').classList.toggle('active',show);};
-$('homeClose').onclick=()=>{$('homePanel').classList.remove('show');$('homePanel').classList.add('hide');$('homeToggle').classList.remove('active');};
+  $('homeToggle').classList.toggle('active',show);
+  if(show&&NARROW_Q.matches){hideChat();hideCtx();}
+  syncMask();};
+$('homeClose').onclick=()=>{hideHome();syncMask();};
 $('ctxToggle').onclick=()=>{
   const show=!$('ctxPanel').classList.contains('show');
   $('ctxPanel').classList.toggle('show',show);
   $('ctxPanel').classList.toggle('hide',!show);
-  $('ctxToggle').classList.toggle('active',show);};
-$('ctxClose').onclick=()=>{$('ctxPanel').classList.remove('show');$('ctxPanel').classList.add('hide');$('ctxToggle').classList.remove('active');};
+  $('ctxToggle').classList.toggle('active',show);
+  if(show&&NARROW_Q.matches){hideChat();hideHome();}
+  syncMask();};
+$('ctxClose').onclick=()=>{hideCtx();syncMask();};
+NARROW_Q.addEventListener('change',e=>{if(!e.matches)closeAllDrawers();});
+
+/* 移动端软键盘：把底部输入区抬到键盘之上（iOS/Android 一致） */
+if(window.visualViewport){
+  const vv=window.visualViewport;
+  const fitKb=()=>{
+    const kb=Math.max(0,Math.round(window.innerHeight-vv.height-vv.offsetTop));
+    document.documentElement.style.setProperty('--kb',kb>80?kb+'px':'0px');};
+  vv.addEventListener('resize',fitKb);vv.addEventListener('scroll',fitKb);fitKb();
+}
 $('btnWake').onclick=toggleMic;
 
 /* ================= 设置 ================= */
@@ -1392,22 +1553,31 @@ window.addEventListener('pointerdown',function _once(){
   if(!document.getElementById('introMask').classList.contains('show')){
     if(bootSoundOn())playBootSound();window.removeEventListener('pointerdown',_once);}
 },{once:true});
-/* 启动加载动画：进度条走完 + 页面就绪后淡出（设置中可关闭） */
+/* 启动加载动画：进度条走完 + 页面就绪后淡出（设置中可关闭）
+   淡出结束后彻底移除元素，避免 Logo 文字残留叠在中央核心上 */
+function splashDone(){
+  const splash=$('splash');
+  if(!splash||splash.dataset.off==='1')return;
+  splash.dataset.off='1';
+  splash.classList.add('done');
+  setTimeout(()=>{if(splash&&splash.parentNode){splash.style.display='none';}},900);
+}
 function splashOn(){
   const q=new URLSearchParams(location.search);
   if(q.get('skipSplash')==='1')return false; // 截图/预览直过动画
   return !settingsData||!settingsData.appearance||settingsData.appearance.splash!==false;}
 (function(){
   const bar=$('splashBar'),splash=$('splash');
-  if(!splashOn()){splash.classList.add('done');return;}
+  if(!bar||!splash)return;
+  if(!splashOn()){splashDone();return;}
   let p=0;const timer=setInterval(()=>{
     p=Math.min(100,p+3+Math.random()*9);
     bar.style.width=p+'%';
     if(p>=100){clearInterval(timer);
-      setTimeout(()=>splash.classList.add('done'),380);}
+      setTimeout(splashDone,380);}
   },120);
   setTimeout(()=>{if(p<100){clearInterval(timer);bar.style.width='100%';
-    setTimeout(()=>splash.classList.add('done'),350);}},3400);
+    setTimeout(splashDone,350);}},3400);
 })();
 
 /* ================= 时钟 / 通知权限 ================= */
